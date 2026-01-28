@@ -5,6 +5,16 @@ import { API_URL } from "../../../config";
 import { getToken } from "../../../auth";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHome,
+  faMapMarkerAlt,
+  faChartPie,
+  faTag,
+  faEdit,
+  faTrashAlt,
+  faArrowRight
+} from "@fortawesome/free-solid-svg-icons";
 
 const truncateText = (text, maxLength) => {
   if (typeof text !== "string") return "";
@@ -16,25 +26,31 @@ function Project({ project, user, onDeleted }) {
   const { showToast } = useToast();
   const {
     id,
-    available,
     name,
     project_type,
-    total_lots,
-    total_area,
+    lot_count,
+    available_lots,
+    reserved_lots,
+    sold_lots,
     price_per_square_unit,
-    measurement_unit
+    measurement_unit,
+    address,
+    description,
+    delivery_date
   } = project;
 
   const unitLabel = (u) => {
     switch ((u || "").toLowerCase()) {
-      case "m2": return t('projects.squareMeters');
-      case "ft2": return t('projects.squareFeet');
-      case "vara2": return t('projects.squareVaras');
-      default: return t('projects.squareMeters');
+      case "m2": return "m²";
+      case "ft2": return "ft²";
+      case "vara2": return "v²";
+      default: return "m²";
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (!window.confirm(t('projects.confirmDelete', { name }))) return;
     try {
       const token = getToken();
@@ -61,65 +77,128 @@ function Project({ project, user, onDeleted }) {
     }
   };
 
+  const availablePercent = (available_lots / lot_count) * 100;
+  const reservedPercent = (reserved_lots / lot_count) * 100;
+  const soldPercent = (sold_lots / lot_count) * 100;
+
   return (
-    <div className="bg-white dark:bg-darkblack-600 rounded-lg p-6 relative">
-      {/* Project Information */}
-      <div className="flex space-x-5">
-        <div className="text-3xl font-bold leading-[68px] dark:text-white text-yellow-500">
-          {available}
-        </div>
-        <div>
-          <h3 className="text-2xl text-bgray-900 dark:text-white font-bold">
-            {truncateText(name, 18)}
-          </h3>
-          <span className="text-lg text-bgray-600 dark:text-bgray-50">
-            {project_type}
+    <div className="group bg-white dark:bg-darkblack-600 rounded-2xl shadow-sm hover:shadow-xl border border-bgray-200 dark:border-darkblack-400 p-0 overflow-hidden transition-all duration-300 hover:-translate-y-2 flex flex-col h-full">
+      {/* Header Image/Pattern Placeholder */}
+      <div className="h-24 bg-gradient-to-r from-success-300 to-success-400 relative">
+        <div className="absolute top-4 right-4 bg-white/90 dark:bg-darkblack-500/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
+          <span className="text-xs font-bold text-success-400 uppercase tracking-wider">
+            {t(`projects.${project_type}`) || project_type || t('projects.residential')}
           </span>
         </div>
+        <div className="absolute -bottom-6 left-6 bg-white dark:bg-darkblack-500 p-3 rounded-xl shadow-md border border-bgray-100 dark:border-darkblack-400">
+          <FontAwesomeIcon icon={faHome} className="text-success-300 text-xl" />
+        </div>
       </div>
 
-      {/* Project Description */}
-      <p className="pt-5 pb-8 text-lg text-bgray-600 dark:text-bgray-50">
-        {t('projects.projectDescription', {
-          name,
-          total_area,
-          unit: unitLabel(measurement_unit),
-          available,
-          total_lots,
-          price_per_square_unit,
-          currency: 'HNL'
-        })}
-      </p>
+      <div className="pt-10 px-6 pb-6 flex-grow flex flex-col">
+        {/* Title & Info */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold text-bgray-900 dark:text-white group-hover:text-success-300 transition-colors duration-300">
+            {name}
+          </h3>
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center text-sm text-bgray-600 dark:text-bgray-400">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-xs" />
+              <span className="truncate">{address || "Location not set"}</span>
+            </div>
+            {delivery_date && (
+              <div className="flex items-center text-xs text-bgray-500 dark:text-bgray-500">
+                <span className="font-semibold mr-1">{t('projects.delivery')}:</span>
+                <span>{new Date(delivery_date).toLocaleDateString()}</span>
+              </div>
+            )}
+          </div>
+        </div>
 
-      {/* Action Links */}
-      <div className="flex items-center gap-5">
-        <Link
-          to={`/projects/${id}/lots`}
-          className="bg-success-300 hover:bg-success-400 text-white text-sm font-medium px-3 py-1 rounded"
-          aria-label={t('projects.viewLots', { name })}
-        >
-          {t('projects.lots')} ({total_lots})
-        </Link>
-        {/* Only render Editar and Eliminar if user is admin */}
-        {user && user.role === "admin" && (
-          <>
-            <Link
-              to={`/projects/${id}/edit`}
-              className="text-sm font-medium text-success-300"
-            >
-              {t('projects.editLink')}
-            </Link>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="text-sm font-medium text-red-500"
-            >
-              {t('projects.delete')}
-            </button>
-          </>
-        )}
+        {/* Progress Bar Section */}
+        <div className="mb-6 space-y-2">
+          <div className="flex justify-between items-end mb-1">
+            <span className="text-xs font-medium text-bgray-600 dark:text-bgray-400">{t('projects.available')}</span>
+            <span className="text-xs font-bold text-bgray-900 dark:text-white">{available_lots} / {lot_count}</span>
+          </div>
+          <div className="h-2 w-full bg-bgray-200 dark:bg-darkblack-500 rounded-full overflow-hidden flex">
+            <div
+              style={{ width: `${soldPercent}%` }}
+              className="h-full bg-error-300"
+              title={`Sold: ${sold_lots}`}
+            />
+            <div
+              style={{ width: `${reservedPercent}%` }}
+              className="h-full bg-warning-200"
+              title={`Reserved: ${reserved_lots}`}
+            />
+            <div
+              style={{ width: `${availablePercent}%` }}
+              className="h-full bg-success-300"
+              title={`Available: ${available_lots}`}
+            />
+          </div>
+          <div className="flex gap-4 mt-2">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-success-300" />
+              <span className="text-[10px] text-bgray-500">{available_lots} {t('projects.available')}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-warning-200" />
+              <span className="text-[10px] text-bgray-500">{reserved_lots} {t('projects.reserved')}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-error-300" />
+              <span className="text-[10px] text-bgray-500">{sold_lots} {t('projects.sold')}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="p-3 bg-bgray-50 dark:bg-darkblack-700 rounded-xl">
+            <p className="text-[10px] text-bgray-500 uppercase font-semibold mb-1">Precio x {unitLabel(measurement_unit)}</p>
+            <p className="text-sm font-bold text-bgray-900 dark:text-white">L {price_per_square_unit}</p>
+          </div>
+          <div className="p-3 bg-bgray-50 dark:bg-darkblack-700 rounded-xl">
+            <p className="text-[10px] text-bgray-500 uppercase font-semibold mb-1">Lotes Totales</p>
+            <p className="text-sm font-bold text-bgray-900 dark:text-white">{lot_count}</p>
+          </div>
+        </div>
+
+        {/* Action Bottom */}
+        <div className="mt-auto pt-4 border-t border-bgray-100 dark:border-darkblack-400 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            {user && user.role === "admin" && (
+              <>
+                <Link
+                  to={`/projects/${id}/edit`}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-bgray-100 dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 hover:bg-success-300 hover:text-white transition-all duration-200"
+                  title={t('projects.editLink')}
+                >
+                  <FontAwesomeIcon icon={faEdit} />
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-bgray-100 dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 hover:bg-error-300 hover:text-white transition-all duration-200"
+                  title={t('projects.delete')}
+                >
+                  <FontAwesomeIcon icon={faTrashAlt} />
+                </button>
+              </>
+            )}
+          </div>
+
+          <Link
+            to={`/projects/${id}/lots`}
+            className="flex items-center space-x-2 bg-success-300 hover:bg-success-400 text-white text-sm font-bold px-4 py-2 rounded-xl transition-all duration-200 shadow-lg shadow-success-300/20"
+          >
+            <span>{t('projects.lots')}</span>
+            <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+          </Link>
+        </div>
       </div>
-
     </div>
   );
 }
@@ -127,15 +206,20 @@ function Project({ project, user, onDeleted }) {
 Project.propTypes = {
   project: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    available: PropTypes.number.isRequired,
+    available_lots: PropTypes.number,
+    reserved_lots: PropTypes.number,
+    sold_lots: PropTypes.number,
     name: PropTypes.string.isRequired,
-    project_type: PropTypes.string.isRequired,
-    total_lots: PropTypes.number.isRequired,
-    total_area: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-    price_per_square_unit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    project_type: PropTypes.string,
+    lot_count: PropTypes.number.isRequired,
+    address: PropTypes.string,
+    description: PropTypes.string,
     measurement_unit: PropTypes.string,
+    price_per_square_unit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    delivery_date: PropTypes.string,
   }).isRequired,
-  onDeleted: PropTypes.func, // optional callback to refresh parent list
+  user: PropTypes.object,
+  onDeleted: PropTypes.func,
 };
 
 export default Project;

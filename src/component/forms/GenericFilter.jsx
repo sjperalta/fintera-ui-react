@@ -22,8 +22,8 @@ function GenericFilter({
   searchTerm = "",
   filterValue = "",
   filterOptions = ["All", "Option1", "Option2"],
-  onSearchChange = () => {},
-  onFilterChange = () => {},
+  onSearchChange = () => { },
+  onFilterChange = () => { },
   searchPlaceholder = "Search...",
   filterPlaceholder = "Select Filter",
   minSearchLength = 3,
@@ -32,14 +32,14 @@ function GenericFilter({
   const [selectedFilter, setSelectedFilter] = useState(filterValue);
   const [showFilter, setShowFilter] = useState(false);
   const [activeFilterLabel, setActiveFilterLabel] = useState("");
-  
+
   // Debounced callback to notify parent about search changes
   const debouncedSearch = useCallback(
     debounce((value) => {
       if (value.length >= minSearchLength) {
         onSearchChange(value);
       } else {
-        onSearchChange(""); 
+        onSearchChange("");
       }
     }, 500),
     [onSearchChange, minSearchLength]
@@ -78,28 +78,28 @@ function GenericFilter({
   }, [filterValue]);
 
   return (
-    <div className="bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 flex items-center">
+    <div className="bg-white dark:bg-darkblack-600 rounded-2xl p-2 flex flex-col md:flex-row items-center gap-2 border border-bgray-200 dark:border-darkblack-400 shadow-sm">
       {/* Search Section */}
-      <div className="flex items-center flex-1 pl-4 xl:border-r border-bgray-400 dark:border-darkblack-400">
-        <span className="mr-2">
+      <div className="flex items-center flex-1 w-full bg-bgray-50 dark:bg-darkblack-500 rounded-xl px-4 py-2 group focus-within:ring-2 focus-within:ring-success-300/30 transition-all duration-200">
+        <span className="text-bgray-400 group-focus-within:text-success-300 transition-colors">
           <svg
-            width="24"
-            height="24"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
-              stroke="#94A3B8"
-              strokeWidth="1.5"
+              stroke="currentColor"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
               d="M21 21L17 17"
-              stroke="#94A3B8"
-              strokeWidth="1.5"
+              stroke="currentColor"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -107,7 +107,7 @@ function GenericFilter({
         </span>
         <input
           type="text"
-          className="border-0 w-full dark:bg-darkblack-600 dark:text-white focus:outline-none"
+          className="bg-transparent border-0 w-full dark:text-white focus:outline-none focus:ring-0 ml-3 text-sm font-medium placeholder:text-bgray-400"
           placeholder={searchPlaceholder}
           value={term}
           onChange={handleTermChange}
@@ -115,74 +115,65 @@ function GenericFilter({
       </div>
 
       {/* Filter Dropdown */}
-      <div className="relative ml-4 xl:flex hidden items-center border-r border-bgray-400 dark:border-darkblack-400 cursor-pointer pr-2">
-        <span
+      <div className="relative w-full md:w-auto">
+        <div
           onClick={() => setShowFilter(!showFilter)}
-          className="inline-flex items-center"
+          className={`flex items-center justify-between bg-white dark:bg-darkblack-600 border ${showFilter ? 'border-success-300 ring-4 ring-success-300/10' : 'border-bgray-200 dark:border-darkblack-400'} rounded-xl px-4 py-2 cursor-pointer transition-all duration-200 hover:border-success-300 min-w-[160px]`}
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19.9092 10.448C19.9092 16.4935 11.9092 21.6753 11.9092 21.6753C11.9092 21.6753 3.90918 16.4935 3.90918 10.448C3.90918 8.38656 4.75203 6.40954 6.25233 4.95187C7.75262 3.4942 9.78745 2.67529 11.9092 2.67529C14.0309 2.67529 16.0657 3.4942 17.566 4.95187C19.0663 6.40954 19.9092 8.38656 19.9092 10.448Z"
-              stroke="#94A3B8"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12 12.6753C13.3807 12.6753 14.5 11.556 14.5 10.1753C14.5 8.79458 13.3807 7.67529 12 7.67529C10.6193 7.67529 9.5 8.79458 9.5 10.1753C9.5 11.556 10.6193 12.6753 12 12.6753Z"
-              stroke="#94A3B8"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <input
-            type="text"
-            className="border-0 dark:bg-darkblack-600 focus:outline-none ml-2 w-24"
-            placeholder={filterPlaceholder}
-            value={activeFilterLabel || ""}
-            readOnly
-          />
-          <span className="ml-2">
+          <div className="flex items-center gap-2 overflow-hidden">
             <svg
-              width="24"
-              height="24"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              className={showFilter || activeFilterLabel ? 'text-success-300' : 'text-bgray-400'}
             >
               <path
-                d="M6 9L12 15L18 9"
-                stroke="#94A3B8"
+                d="M3 4.5H21M6.75 12H17.25M10.5 19.5H13.5"
+                stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
-          </span>
-        </span>
+            <span className={`text-sm font-bold truncate ${activeFilterLabel ? 'text-bgray-900 dark:text-white' : 'text-bgray-400'}`}>
+              {activeFilterLabel || filterPlaceholder}
+            </span>
+          </div>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={`transition-transform duration-200 ml-2 ${showFilter ? 'rotate-180 text-success-300' : 'text-bgray-400'}`}
+          >
+            <path
+              d="M6 9L12 15L18 9"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
 
         {/* Dropdown list */}
         {showFilter && (
           <div
-            className="absolute top-full right-0 w-44 bg-white dark:bg-darkblack-500 rounded-lg shadow-lg z-10 mt-1"
+            className="absolute top-full right-0 w-full md:w-56 bg-white dark:bg-darkblack-500 rounded-2xl shadow-xl z-50 mt-2 border border-bgray-100 dark:border-darkblack-400 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
           >
-            <ul>
+            <ul className="py-1">
               {filterOptions.map((option) => (
                 <li
                   key={option}
-                  className="px-4 py-2 text-sm text-bgray-900 dark:text-bgray-50 hover:bg-bgray-100 dark:hover:bg-darkblack-600 font-semibold cursor-pointer"
+                  className={`px-4 py-2.5 text-sm transition-colors border-l-2 ${selectedFilter === option ? 'bg-success-50 dark:bg-success-400/10 text-success-400 border-success-300 font-bold' : 'text-bgray-700 dark:text-bgray-300 border-transparent hover:bg-bgray-50 dark:hover:bg-darkblack-600 font-medium'} cursor-pointer`}
                   onClick={() => {
                     handleFilterSelect(option);
                   }}
                 >
-                  {option}
+                  {option === "No Sort" ? "Default Sort" : option}
                 </li>
               ))}
             </ul>

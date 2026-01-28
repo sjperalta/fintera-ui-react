@@ -13,6 +13,8 @@ function CreateProject() {
   const [measurementUnit, setMeasurementUnit] = useState("m2");    // new
   const [interestRate, setInterestRate] = useState(0);
   const [commissionRate, setCommissionRate] = useState(0);
+  const [deliveryDate, setDeliveryDate] = useState("");
+  const [projectType, setProjectType] = useState("residential");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const token = getToken();
@@ -39,6 +41,8 @@ function CreateProject() {
             measurement_unit: measurementUnit,
             interest_rate: Number(interestRate),
             commission_rate: Number(commissionRate),
+            delivery_date: deliveryDate || null,
+            project_type: projectType,
           }
         }),
       });
@@ -67,18 +71,35 @@ function CreateProject() {
         </h2>
         <form onSubmit={handleSubmit}>
           {/* Project Name */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-bgray-900 dark:text-white mb-2">
-              {t('projects.name')}
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full h-12 px-4 py-3 border border-bgray-300 dark:border-darkblack-400 rounded-lg dark:bg-darkblack-500 dark:text-white"
-              placeholder={t('projects.enterProjectName')}
-            />
+          <div className="mb-6 grid md:grid-cols-2 gap-4">
+            <div className="col-span-2 md:col-span-1">
+              <label className="block text-sm font-medium text-bgray-900 dark:text-white mb-2">
+                {t('projects.name')}
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full h-12 px-4 py-3 border border-bgray-300 dark:border-darkblack-400 rounded-lg dark:bg-darkblack-500 dark:text-white"
+                placeholder={t('projects.enterProjectName')}
+              />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+              <label className="block text-sm font-medium text-bgray-900 dark:text-white mb-2">
+                {t('projects.projectType')}
+              </label>
+              <select
+                value={projectType}
+                onChange={(e) => setProjectType(e.target.value)}
+                className="w-full h-12 px-4 py-3 border border-bgray-300 dark:border-darkblack-400 rounded-lg dark:bg-darkblack-500 dark:text-white"
+              >
+                <option value="residential">{t('projects.residential')}</option>
+                <option value="commercial">{t('projects.commercial')}</option>
+                <option value="industrial">{t('projects.industrial')}</option>
+                <option value="mixed_use">{t('projects.mixedUse')}</option>
+              </select>
+            </div>
           </div>
 
           {/* Description */}
@@ -108,6 +129,19 @@ function CreateProject() {
               required
               className="w-full h-12 px-4 py-3 border border-bgray-300 dark:border-darkblack-400 rounded-lg dark:bg-darkblack-500 dark:text-white"
               placeholder={t('projects.enterAddress')}
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-bgray-900 dark:text-white mb-2">
+              {t('projects.deliveryDate')}
+            </label>
+            <input
+              type="date"
+              value={deliveryDate}
+              onChange={(e) => setDeliveryDate(e.target.value)}
+              className="w-full h-12 px-4 py-3 border border-bgray-300 dark:border-darkblack-400 rounded-lg dark:bg-darkblack-500 dark:text-white"
+              placeholder={t('projects.enterDeliveryDate')}
             />
           </div>
 

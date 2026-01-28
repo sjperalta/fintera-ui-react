@@ -147,6 +147,11 @@
     "paymentHistory": "Historial de Pagos"
   },
   "projectsPage": {
+    "title": "Proyectos",
+    "subtitle": "Gestiona y visualiza tus proyectos inmobiliarios",
+    "addProject": "Nuevo Proyecto",
+    "importCSV": "Importar CSV",
+    "importOptions": "Opciones de Importación CSV",
     "searchPlaceholder": "Buscar Proyectos...",
     "sortPlaceholder": "Ordenar...",
     "updateExisting": "Actualizar existente",
@@ -157,7 +162,10 @@
     "page": "Página",
     "of": "de",
     "prev": "Ant",
-    "next": "Sig"
+    "next": "Sig",
+    "loadingProjects": "Cargando proyectos...",
+    "errorPrefix": "Error:",
+    "importErrorPrefix": "Error de importación:"
   },
   "projects": {
     "squareMeters": "m²",
@@ -197,7 +205,21 @@
     "failedToLoadProject": "Error al cargar el proyecto",
     "errorUpdatingProject": "Error al actualizar el proyecto",
     "saving": "Guardando...",
-    "saveChanges": "Guardar Cambios"
+    "saveChanges": "Guardar Cambios",
+    "deliveryDate": "Fecha de Entrega",
+    "enterDeliveryDate": "Ingrese fecha de entrega",
+    "delivery": "Entrega",
+    "projectType": "Tipo de Proyecto",
+    "residential": "Residencial",
+    "commercial": "Comercial",
+    "industrial": "Industrial",
+    "mixed_use": "Uso Mixto",
+    "availableLots": "Lotes Disponibles",
+    "reservedLots": "Lotes Reservados",
+    "soldLots": "Lotes Vendidos",
+    "available": "Libres",
+    "reserved": "Res.",
+    "sold": "Vend."
   },
   "lotsTable": {
     "project": "Proyecto",

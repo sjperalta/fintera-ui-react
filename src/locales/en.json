@@ -133,6 +133,11 @@
     "paymentHistory": "Payment History"
   },
   "projectsPage": {
+    "title": "Projects",
+    "subtitle": "Manage and visualize your real estate projects",
+    "addProject": "New Project",
+    "importCSV": "Import CSV",
+    "importOptions": "CSV Import Options",
     "searchPlaceholder": "Search Projects...",
     "sortPlaceholder": "Sort...",
     "updateExisting": "Update existing",
@@ -186,7 +191,21 @@
     "failedToLoadProject": "Failed to load project",
     "errorUpdatingProject": "Error updating project",
     "saving": "Saving...",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "deliveryDate": "Delivery Date",
+    "enterDeliveryDate": "Enter delivery date",
+    "delivery": "Delivery",
+    "projectType": "Project Type",
+    "residential": "Residential",
+    "commercial": "Commercial",
+    "industrial": "Industrial",
+    "mixed_use": "Mixed Use",
+    "availableLots": "Available Lots",
+    "reservedLots": "Reserved Lots",
+    "soldLots": "Sold Lots",
+    "available": "Available",
+    "reserved": "Reserved",
+    "sold": "Sold"
   },
   "lotsTable": {
     "project": "Project",
@@ -858,9 +877,9 @@
   "paymentHistory": {
     "title": "Payment History",
     "subtitle": "View your complete payment history",
-      "Total": "Total",
-      "numberOfPayments": "Number of Payments",
-      "overDueAmount": "Overdue Amount",
+    "Total": "Total",
+    "numberOfPayments": "Number of Payments",
+    "overDueAmount": "Overdue Amount",
     "balance": "Balance",
     "totalPaid": "Total Paid",
     "totalPending": "Total Pending",
