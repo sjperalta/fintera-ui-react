@@ -243,7 +243,9 @@ function LotItem({ lot, userRole, index = 0, isMobileCard = false, isHighlighted
       {/* Bottom info bar */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-bgray-50 dark:bg-darkblack-500 overflow-hidden">
         <div className={`h-full transition-all duration-1000 w-full ${status?.toLowerCase() === 'available' ? 'bg-success-300' :
-          status?.toLowerCase() === 'reserved' ? 'bg-orange-400' : 'bg-red-400'
+          (status?.toLowerCase() === 'reserved' || status?.toLowerCase() === 'pending') ? 'bg-orange-400' :
+            (status?.toLowerCase() === 'fully_paid' || status?.toLowerCase() === 'closed') ? 'bg-blue-500' :
+              (status?.toLowerCase() === 'financed' || status?.toLowerCase() === 'sold') ? 'bg-indigo-500' : 'bg-red-400'
           }`} />
       </div>
     </motion.div>

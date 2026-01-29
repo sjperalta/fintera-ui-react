@@ -187,7 +187,7 @@ function Contract() {
 
         {/* Filters and List Section */}
         <div className="bg-white dark:bg-darkblack-600 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-darkblack-500">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 relative z-10">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 relative z-40">
             <div className="flex-1">
               <GenericFilter
                 searchTerm={searchTerm}

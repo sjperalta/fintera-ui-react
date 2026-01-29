@@ -52,7 +52,8 @@ function LotsList() {
       { value: "", label: t("common.all") },
       { value: "available", label: t("status.available") },
       { value: "reserved", label: t("status.reserved") },
-      { value: "sold", label: t("status.sold") },
+      { value: "financed", label: t("status.financed") },
+      { value: "fully_paid", label: t("status.fully_paid") },
     ],
     [t]
   );

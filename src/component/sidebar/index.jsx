@@ -18,7 +18,7 @@ function Sidebar({ handleActive, user, handleLogout }) {
   const isUser = user.role === "user";
 
   return (
-    <aside className="sidebar-wrapper fixed top-0 z-30 block h-full w-[280px] sm:w-[308px] bg-white dark:bg-darkblack-600 sm:hidden xl:block">
+    <aside className="sidebar-wrapper fixed top-0 z-50 block h-full w-[280px] sm:w-[308px] bg-white dark:bg-darkblack-600 sm:hidden xl:block">
       {/* Header */}
       <div className="sidebar-header relative z-30 flex h-[80px] sm:h-[108px] w-full items-center border-b border-r border-b-[#F7F7F7] border-r-[#F7F7F7] pl-[30px] sm:pl-[50px] dark:border-darkblack-400">
         <Link to="/" className="flex items-center">
@@ -79,9 +79,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
               {/* Dashboard: Only Admin */}
               {isAdmin && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                    location === "/" ? "nav-active" : ""
-                  }`}
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/" ? "nav-active" : ""
+                    }`}
                 >
                   <Link to="/">
                     <div className="flex items-center space-x-2 sm:space-x-2.5">
@@ -113,9 +112,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
               {/* Balance: All roles */}
               {isUser && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                    location.includes("/financing/user") ? "nav-active" : ""
-                  }`}
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location.includes("/financing/user") ? "nav-active" : ""
+                    }`}
                 >
                   <Link to={`/financing/user/${user.id}`}>
                     <div className="flex items-center space-x-2 sm:space-x-2.5">
@@ -142,9 +140,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
               {/* Payment History: Only User */}
               {isUser && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                    location === "/payment-history" ? "nav-active" : ""
-                  }`}
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/payment-history" ? "nav-active" : ""
+                    }`}
                 >
                   <Link to="/payment-history">
                     <div className="flex items-center space-x-2 sm:space-x-2.5">
@@ -176,9 +173,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
               {/* Transactions: Only Admin */}
               {isAdmin && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                    location === "/payments" ? "nav-active" : ""
-                  }`}
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/payments" ? "nav-active" : ""
+                    }`}
                 >
                   <Link to="/payments">
                     <div className="flex items-center space-x-2 sm:space-x-2.5">
@@ -242,9 +238,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
               {/* Contracts: Admin or Seller */}
               {(isAdmin || isSeller) && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                    location === "/contracts" ? "nav-active" : ""
-                  }`}
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/contracts" ? "nav-active" : ""
+                    }`}
                 >
                   <Link to="/contracts">
                     <div className="flex items-center space-x-2 sm:space-x-2.5">
@@ -282,9 +277,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
               {/* Projects: Admin or Seller */}
               {(isAdmin || isSeller) && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                    location === "/projects" ? "nav-active" : ""
-                  }`}
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/projects" ? "nav-active" : ""
+                    }`}
                 >
                   <Link to="/projects">
                     <div className="flex items-center space-x-2 sm:space-x-2.5">
@@ -330,9 +324,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
               {/* Users: Admin or Seller */}
               {(isAdmin || isSeller) && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                    location === "/users" ? "nav-active" : ""
-                  }`}
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/users" ? "nav-active" : ""
+                    }`}
                 >
                   <Link to="/users">
                     <div className="flex items-center space-x-2 sm:space-x-2.5">
@@ -366,12 +359,43 @@ function Sidebar({ handleActive, user, handleLogout }) {
                 </li>
               )}
 
+              {/* Analytics: Admin only (assuming based on typical permissions, or similar to others) */}
+              {isAdmin && (
+                <li
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/analytics" ? "nav-active" : ""
+                    }`}
+                >
+                  <Link to="/analytics">
+                    <div className="flex items-center space-x-2 sm:space-x-2.5">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
+                      >
+                        <path
+                          d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3M7 16V12M11 16V8M15 16V13M19 16V10"
+                          stroke="#1A202C"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span className="item-text text-sm sm:text-base lg:text-lg font-medium leading-none min-w-0 truncate">
+                        {t("dashboard.analytics")}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              )}
+
               {/* Audits: Only Admin */}
               {isAdmin && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                    location === "/audits" ? "nav-active" : ""
-                  }`}
+                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/audits" ? "nav-active" : ""
+                    }`}
                 >
                   <Link to="/audits">
                     <div className="flex items-center space-x-2 sm:space-x-2.5">
@@ -420,9 +444,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
             <ul className="mt-2 sm:mt-2.5">
               {/* Signin: All roles can see or you can hide if already signed in */}
               <li
-                className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${
-                  location === "/signin" ? "nav-active" : ""
-                }`}
+                className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/signin" ? "nav-active" : ""
+                  }`}
               >
                 <Link to="/signin">
                   <div className="flex items-center space-x-2 sm:space-x-2.5">

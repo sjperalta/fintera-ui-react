@@ -91,11 +91,12 @@ const getStatusTheme = (status) => {
       };
     case "closed":
       return {
-        bg: "bg-gray-100 dark:bg-gray-800",
-        text: "text-gray-700 dark:text-gray-300",
-        border: "border-gray-200 dark:border-gray-700",
+        bg: "bg-blue-50 dark:bg-blue-900/10",
+        text: "text-blue-700 dark:text-blue-400",
+        border: "border-blue-300 dark:border-blue-500/40",
         icon: faLock,
-        color: "#6B7280"
+        color: "#3B82F6",
+        shadow: "shadow-[0_0_15px_rgba(59,130,246,0.1)]"
       };
       return {
         bg: "bg-gray-100 dark:bg-gray-800",

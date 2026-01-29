@@ -89,10 +89,10 @@ const PaymentScheduleTab = ({
     };
     if (isPaid) return {
       label: t('paymentSchedule.paid'),
-      color: 'emerald',
-      dotColor: 'bg-emerald-500',
-      textColor: 'text-emerald-600 dark:text-emerald-400',
-      badge: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30',
+      color: 'blue',
+      dotColor: 'bg-blue-500',
+      textColor: 'text-blue-600 dark:text-blue-400',
+      badge: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30',
       icon: faCheckCircle
     };
     if (isOverdue) return {
@@ -105,10 +105,10 @@ const PaymentScheduleTab = ({
     };
     return {
       label: t('paymentSchedule.pending'),
-      color: 'blue',
-      dotColor: 'bg-blue-500',
-      textColor: 'text-blue-600 dark:text-blue-400',
-      badge: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30',
+      color: 'amber',
+      dotColor: 'bg-amber-500',
+      textColor: 'text-amber-600 dark:text-amber-400',
+      badge: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30',
       icon: faClock
     };
   };

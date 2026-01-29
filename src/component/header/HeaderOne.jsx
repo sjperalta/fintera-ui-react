@@ -102,7 +102,7 @@ function HeaderOne({ handleSidebar }) {
   };
 
   return (
-    <header className="header-wrapper fixed z-30 hidden w-full md:block">
+    <header className="header-wrapper fixed z-40 hidden w-full md:block">
       <div className="relative flex h-[108px] w-full items-center justify-between bg-white px-10 dark:bg-darkblack-600 2xl:px-[76px]">
         {/* Sidebar Toggle Button */}
         <button
@@ -156,9 +156,8 @@ function HeaderOne({ handleSidebar }) {
               <div
                 onClick={() => setPopup(false)}
                 id="noti-outside"
-                className={`fixed left-0 top-0 h-full w-full z-[15] ${
-                  popup?.notification ? "block" : "hidden"
-                }`}
+                className={`fixed left-0 top-0 h-full w-full z-[15] ${popup?.notification ? "block" : "hidden"
+                  }`}
               ></div>
 
               <ModeToggler />

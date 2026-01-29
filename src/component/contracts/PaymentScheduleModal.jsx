@@ -324,7 +324,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
 
                     <div className="flex items-center gap-10">
                       <div className="space-y-1 text-right">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500">{t('contracts.paid')}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">{t('contracts.paid')}</p>
                         <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
                           {fmt((Number(currentContract?.balance || 0) > 0
                             ? (Number(summary?.price || 0) - Number(currentContract?.balance || 0))
@@ -351,7 +351,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                             : (Number(summary?.price || 0) + Number(currentContract?.balance || 0))) / Number(summary?.price || 1)) * 100))}%`
                         }}
                         transition={{ duration: 1.5, ease: "circOut" }}
-                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full"
+                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full"
                       />
                     </div>
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
@@ -443,7 +443,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                   <div className="absolute top-0 right-0 p-4 opacity-[0.03]">
                     <FontAwesomeIcon icon={faProjectDiagram} className="text-6xl" />
                   </div>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500 mb-3">{t('contracts.lotInformation')}</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-blue-500 mb-3">{t('contracts.lotInformation')}</p>
                   <h5 className="text-sm font-black text-gray-900 dark:text-white mb-1 truncate">{currentContract?.lot_name || t('contracts.lot')}</h5>
                   <p className="text-[10px] font-bold text-gray-400 mb-3 truncate">{currentContract?.project_name}</p>
 
@@ -451,7 +451,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                     <div className="flex items-center gap-3">
                       <div className="flex flex-col">
                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">{t('projects.area')}</span>
-                        <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400">
+                        <span className="text-[11px] font-black text-blue-600 dark:text-blue-400">
                           {currentContract?.lot_area || "—"} m²
                         </span>
                       </div>
@@ -466,7 +466,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                     </div>
 
                     <div className="pt-3 border-t border-gray-100 dark:border-darkblack-400/50 space-y-2">
-                      <div className="flex items-center gap-2 text-[10px] font-black text-emerald-600">
+                      <div className="flex items-center gap-2 text-[10px] font-black text-blue-600">
                         <FontAwesomeIcon icon={faMapMarkerAlt} className="text-[8px]" />
                         <span className="truncate uppercase tracking-tight opacity-80">
                           {currentContract?.lot_address || "—"}
@@ -538,7 +538,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
               {/* Bottom Detail Row (Reserve/Downpayment etc) */}
               <div className="bg-gray-50/30 dark:bg-darkblack-500/10 rounded-3xl p-6 border border-gray-100/50 dark:border-darkblack-400/30 flex flex-wrap items-center justify-between gap-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 flex items-center justify-center text-xs">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center text-xs">
                     <FontAwesomeIcon icon={faCoins} />
                   </div>
                   <div className="space-y-0.5">
@@ -614,7 +614,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                 setEditableTotal("");
                 setApplyPaymentModal(true);
               }}
-              className="px-8 py-3 text-xs font-black uppercase tracking-widest rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl shadow-emerald-500/20 transition-all duration-300 flex items-center gap-3 transform hover:scale-105 active:scale-95"
+              className="px-8 py-3 text-xs font-black uppercase tracking-widest rounded-2xl bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/20 transition-all duration-300 flex items-center gap-3 transform hover:scale-105 active:scale-95"
             >
               <FontAwesomeIcon icon={faHandHoldingUsd} />
               {t('contracts.capitalPayment')}
@@ -673,7 +673,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
             >
               <div className="p-8">
                 <div className="flex items-center gap-4 mb-8">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl shadow-xl ${selectedPayment?.isCapitalPayment ? "bg-emerald-500 shadow-emerald-500/20" : "bg-blue-600 shadow-blue-500/20"}`}>
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl shadow-xl ${selectedPayment?.isCapitalPayment ? "bg-blue-600 shadow-blue-500/20" : "bg-blue-600 shadow-blue-500/20"}`}>
                     <FontAwesomeIcon icon={selectedPayment?.isCapitalPayment ? faHandHoldingUsd : faCoins} />
                   </div>
                   <div>
@@ -762,9 +762,9 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                     </div>
                   )}
 
-                  <div className={`p-4 rounded-2xl border-2 flex gap-3 ${selectedPayment?.isCapitalPayment ? "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20" : "bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/20"}`}>
-                    <FontAwesomeIcon icon={faInfoCircle} className={`mt-1 ${selectedPayment?.isCapitalPayment ? "text-emerald-500" : "text-amber-500"}`} />
-                    <p className={`text-xs font-bold leading-relaxed ${selectedPayment?.isCapitalPayment ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}>
+                  <div className={`p-4 rounded-2xl border-2 flex gap-3 ${selectedPayment?.isCapitalPayment ? "bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/20" : "bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/20"}`}>
+                    <FontAwesomeIcon icon={faInfoCircle} className={`mt-1 ${selectedPayment?.isCapitalPayment ? "text-blue-500" : "text-amber-500"}`} />
+                    <p className={`text-xs font-bold leading-relaxed ${selectedPayment?.isCapitalPayment ? "text-blue-700 dark:text-blue-300" : "text-amber-700 dark:text-amber-300"}`}>
                       {selectedPayment?.isCapitalPayment ? t('contracts.capitalPaymentInfo') : t('contracts.amountInterestWarning')}
                     </p>
                   </div>

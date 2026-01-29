@@ -20,6 +20,8 @@
     "filter": "Filtrar",
     "actions": "Acciones",
     "download": "Descargar",
+    "downloadSuccess": "Descarga exitosa",
+    "downloadError": "Error al descargar el archivo",
     "yes": "Sí",
     "no": "No",
     "required": "Requerido",
@@ -56,12 +58,20 @@
       "oct": "Oct",
       "nov": "Nov",
       "dec": "Dic"
-    }
+    },
+    "view": "Ver",
+    "saveChanges": "Guardar Cambios",
+    "saving": "Guardando...",
+    "justNow": "Justo ahora",
+    "viewAll": "Ver Todo"
   },
   "status": {
     "available": "Disponible",
     "reserved": "Reservado",
-    "sold": "Vendido"
+    "sold": "Financiado",
+    "closed": "Pagado",
+    "financed": "Financiado",
+    "fully_paid": "Pagado"
   },
   "personalInfo": {
     "title": "Información Personal",
@@ -139,6 +149,7 @@
     "settings": "Configuración",
     "menu": "Menú",
     "dashboard": "Dashboard",
+    "analytics": "Análisis",
     "audits": "Auditoría",
     "logout": "Salir",
     "signIn": "Iniciar Sesión",
@@ -146,7 +157,22 @@
     "configuration": "Configuración",
     "annualRevenueProjection": "Proyección de Ingresos Anual",
     "loadingRevenueData": "Cargando datos de ingresos...",
-    "currentStatus": "Estado Actual"
+    "currentStatus": "Estado Actual",
+    "quickActions": "Acciones Rápidas",
+    "newPayment": "Registrar Pago",
+    "newPaymentDesc": "Registrar un nuevo pago para un contrato.",
+    "newContract": "Nuevo Contrato",
+    "newContractDesc": "Iniciar un nuevo proceso de venta en un proyecto.",
+    "manageUsers": "Gestionar Usuarios",
+    "manageUsersDesc": "Agregar o actualizar usuarios del sistema.",
+    "viewAnalytics": "Ver Análisis",
+    "viewAnalyticsDesc": "Profundizar en reportes financieros.",
+    "systemHealth": "Estado del Sistema",
+    "systemHealthDesc": "Todos los sistemas están operativos. Ver registros de auditoría para seguimiento detallado.",
+    "viewLogs": "Ver Registros del Sistema",
+    "recentActivity": "Actividad Reciente",
+    "recentActivityDesc": "Últimos eventos y actualizaciones del sistema",
+    "noActivity": "No se encontró actividad reciente"
   },
   "sidebar": {
     "paymentHistory": "Historial de Pagos"
@@ -170,7 +196,14 @@
     "next": "Sig",
     "loadingProjects": "Cargando proyectos...",
     "errorPrefix": "Error:",
-    "importErrorPrefix": "Error de importación:"
+    "importErrorPrefix": "Error de importación:",
+    "sorting": {
+      "noSort": "Sin Ordenar",
+      "nameAsc": "Nombre (A-Z)",
+      "nameDesc": "Nombre (Z-A)",
+      "dateDesc": "Más Recientes",
+      "dateAsc": "Más Antiguos"
+    }
   },
   "projects": {
     "squareMeters": "m²",
@@ -226,7 +259,10 @@
     "soldLots": "Lotes Vendidos",
     "available": "Libres",
     "reserved": "Res.",
-    "sold": "Vend."
+    "sold": "Fin.",
+    "closed": "Pag.",
+    "financed": "Fin.",
+    "fully_paid": "Pag."
   },
   "lotsTable": {
     "project": "Proyecto",
@@ -249,6 +285,9 @@
     "paymentSchedule": "Cronograma de Pagos",
     "managePayments": "Gestiona tus pagos pendientes",
     "completed": "Completado",
+    "pendingPaidMonthly": "Pendiente por Cobrar este Mes",
+    "overdueTotal": "Total Vencido",
+    "totalPaidThisMonth": "Total Recaudado este Mes",
     "viewPaymentSummary": "Ver tu resumen de pagos",
     "detailedPaymentInfo": "Información detallada de pagos",
     "uploadPaymentReceipt": "Sube tu comprobante de pago",
@@ -350,6 +389,10 @@
   },
   "users": {
     "title": "Usuarios",
+    "subtitle": "Completa los detalles para crear un nuevo usuario",
+    "personalInfo": "Información Personal",
+    "security": "Seguridad",
+    "accountSettings": "Configuración de Cuenta",
     "create": "Crear Usuario",
     "role": "Rol",
     "manageSystemUsers": "Gestiona usuarios del sistema",
@@ -642,6 +685,33 @@
     "errorUpdatingStats": "Error al actualizar las estadísticas",
     "user": "Usuario"
   },
+  "analytics": {
+    "title": "Análisis y Métricas",
+    "subtitle": "Visualiza el rendimiento y crecimiento de tus proyectos",
+    "totalRevenue": "Ingresos Totales",
+    "activeContracts": "Contratos Activos",
+    "averagePayment": "Pago Promedio",
+    "occupancyRate": "Tasa de Ocupación",
+    "revenueTrend": "Tendencia de Ingresos",
+    "contractDistribution": "Distribución de Contratos",
+    "monthlyPerformance": "Rendimiento Mensual",
+    "projections": "Proyecciones",
+    "realData": "Datos Reales",
+    "comparedToLastMonth": "comparado con el mes pasado",
+    "lotsAvailability": "Disponibilidad de Lotes",
+    "sold": "Financiado",
+    "reserved": "Reservado",
+    "available": "Disponible",
+    "closed": "Pagado",
+    "financed": "Financiado",
+    "fully_paid": "Pagado",
+    "growthAnalysis": "Análisis de Crecimiento",
+    "topProjects": "Proyectos Principales",
+    "performanceDetails": "Detalles de Rendimiento",
+    "errorFetchingData": "Error al obtener datos de análisis",
+    "previousYear": "Año Anterior",
+    "nextYear": "Año Siguiente"
+  },
   "filters": {
     "contractSearchPlaceholder": "Buscar contratos...",
     "contractStatusPlaceholder": "Filtrar por estado",
@@ -733,6 +803,7 @@
     "financial": "Financiero",
     "applicant": "Solicitante",
     "notes": "Notas",
+    "total": "Total",
     "internalNotes": "Notas internas y comentarios",
     "clientDetails": "Detalles del Cliente",
     "paymentSummary": "Resumen de pago",
@@ -754,8 +825,7 @@
     "terms": "Términos",
     "paid": "Pagado",
     "rate": "Tasa de Int.",
-    "completed": "Completado",
-    "healthIndicator": "Indicador de Salud"
+    "completed": "Completado"
   },
   "contractNotes": {
     "generalNotes": "Notas Generales",

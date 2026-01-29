@@ -1,27 +1,72 @@
-import { useState } from "react";
-// Adjust these imports based on your project structure
-import { API_URL } from "../../../config";  // e.g. "http://localhost:3000" or your prod URL
-import { getToken } from "../../../auth";   // If you use token-based auth
-import DatePicker from "../forms/DatePicker";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { API_URL } from "../../../config";
+import { getToken } from "../../../auth";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
 
-function Report() {
-  // Store the selected start/end dates in ISO format (e.g., "2025-01-15")
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+function Report({ startDate, endDate }) {
   const { showToast } = useToast();
   const { t } = useLocale();
+  const [selectedReport, setSelectedReport] = useState("commissions_csv");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  /**
-   * Utility function to open the CSV endpoint in a new tab,
-   * prompting a file download. Appends `start_date` and `end_date`
-   * as query params.
-   *
-   * @param {string} reportEndpoint - e.g. "commissions_csv", "total_revenue_csv", or "overdue_payments_csv"
-   */
-  
-  const downloadCSV = async (reportEndpoint) => {
+  const REPORT_TYPES = [
+    {
+      id: "commissions_csv",
+      titleKey: "reports.commissionsCsv",
+      iconColor: "text-green-600 dark:text-green-400",
+      bgColor: "bg-green-100 dark:bg-green-900/30",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 7V10C12 10.3293 12.1308 10.6452 12.3636 10.878C12.5964 11.1108 12.9122 11.2415 13.2415 11.2415H16.2415" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M14.7243 19.3335H5.41398C4.92023 19.3335 4.44671 19.1374 4.09758 18.7882C3.74845 18.4391 3.55234 17.9656 3.55234 17.4718V4.44078C3.55234 3.94703 3.74845 3.47351 4.09758 3.12437C4.44671 2.77524 4.92023 2.57913 5.41398 2.57913H11.9304L16.5856 7.23433V17.4718C16.5856 17.9656 16.3895 18.4391 16.0404 18.7882C15.6912 19.1374 15.2177 19.3335 14.7243 19.3335Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    },
+    {
+      id: "total_revenue_csv",
+      titleKey: "reports.revenueFlowCsv",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      bgColor: "bg-blue-100 dark:bg-blue-900/30",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 7V10C12 10.3293 12.1308 10.6452 12.3636 10.878C12.5964 11.1108 12.9122 11.2415 13.2415 11.2415H16.2415" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M14.7243 19.3335H5.41398C4.92023 19.3335 4.44671 19.1374 4.09758 18.7882C3.74845 18.4391 3.55234 17.9656 3.55234 17.4718V4.44078C3.55234 3.94703 3.74845 3.47351 4.09758 3.12437C4.44671 2.77524 4.92023 2.57913 5.41398 2.57913H11.9304L16.5856 7.23433V17.4718C16.5856 17.9656 16.3895 18.4391 16.0404 18.7882C15.6912 19.1374 15.2177 19.3335 14.7243 19.3335Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    },
+    {
+      id: "overdue_payments_csv",
+      titleKey: "reports.overduePaymentsCsv",
+      iconColor: "text-red-600 dark:text-red-400",
+      bgColor: "bg-red-100 dark:bg-red-900/30",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 7V10C12 10.3293 12.1308 10.6452 12.3636 10.878C12.5964 11.1108 12.9122 11.2415 13.2415 11.2415H16.2415" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M14.7243 19.3335H5.41398C4.92023 19.3335 4.44671 19.1374 4.09758 18.7882C3.74845 18.4391 3.55234 17.9656 3.55234 17.4718V4.44078C3.55234 3.94703 3.74845 3.47351 4.09758 3.12437C4.44671 2.77524 4.92023 2.57913 5.41398 2.57913H11.9304L16.5856 7.23433V17.4718C16.5856 17.9656 16.3895 18.4391 16.0404 18.7882C15.6912 19.1374 15.2177 19.3335 14.7243 19.3335Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    }
+  ];
+
+  const currentReport = REPORT_TYPES.find(r => r.id === selectedReport);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const downloadCSV = async () => {
+    if (!selectedReport) return;
+
     // Validate that both dates are selected
     if (!startDate || !endDate) {
       showToast(t('reports.selectBothDates'), "error");
@@ -35,44 +80,37 @@ function Report() {
     }
 
     try {
-      const token = getToken(); // Retrieve your Bearer token
+      const token = getToken();
       const queryParams = new URLSearchParams({
         start_date: startDate,
         end_date: endDate,
       });
-  
-      // Build the full URL
+
+      const reportEndpoint = selectedReport;
       const url = `${API_URL}/api/v1/reports/${reportEndpoint}?${queryParams.toString()}`;
-  
-      // 1) Fetch with headers for auth
+
       const res = await fetch(url, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!res.ok) {
         throw new Error(t('reports.fetchCsvFailed'));
       }
-  
-      // 2) Convert response -> Blob
+
       const blob = await res.blob();
-  
-      // 3) Create a temporary link to download
-      //    e.g. "commissions_report.csv" or something more dynamic
-      const filename = `${reportEndpoint}.csv`; // You can refine if you prefer
+      const filename = `${reportEndpoint}.csv`;
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
-  
-      // 4) Programmatically click the link
       document.body.appendChild(link);
       link.click();
-  
-      // 5) Clean up
       document.body.removeChild(link);
       URL.revokeObjectURL(link.href);
+
+      showToast(t("common.downloadSuccess"), "success");
     } catch (err) {
       console.error("Error downloading CSV:", err);
       showToast(t('reports.downloadError'), "error");
@@ -80,313 +118,147 @@ function Report() {
   };
 
   return (
-    <aside className="w-full bg-white dark:bg-darkblack-600 rounded-xl shadow-lg border border-gray-100 dark:border-darkblack-500 overflow-visible">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-bgray-50 to-gray-100 dark:from-darkblack-700 dark:to-darkblack-600 px-6 py-4 border-b border-gray-200 dark:border-darkblack-500">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-            <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-xl font-semibold text-bgray-900 dark:text-white">
-              {t('reports.financialReports')}
-            </h3>
-            <p className="text-sm text-bgray-500 dark:text-bgray-300">
-              {t('reports.downloadByDateRange')}
-            </p>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Header with Availability Badge */}
+      <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-darkblack-500">
+        <h4 className="font-semibold text-bgray-900 dark:text-white text-sm">
+          {t('reports.availableReports')}
+        </h4>
+        {(!startDate || !endDate) ? (
+          <span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-full animate-pulse">
+            {t('reports.selectDates')}
+          </span>
+        ) : (
+          <span className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">
+            {t("status.available")}
+          </span>
+        )}
       </div>
 
-      {/* Content Section */}
-      <div className="p-6">
-        {/* Date Range Selection */}
-        <div className="mb-6 space-y-4">
-          <DatePicker
-            label={t('reports.startDate')}
-            value={startDate}
-            onChange={(value) => {
-              setStartDate(value);
-            }}
-            placeholder={t('reports.selectStartDate')}
-            required
-          />
-
-          <DatePicker
-            label={t('reports.endDate')}
-            value={endDate}
-            onChange={(value) => {
-              setEndDate(value);
-            }}
-            placeholder={t('reports.selectEndDate')}
-            required
-          />
-        </div>
-
-        {/* Download Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-semibold text-bgray-900 dark:text-white text-sm">
-              {t('reports.availableReports')}
-            </h4>
-            {(!startDate || !endDate) && (
-              <span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-full">
-                {t('reports.selectDates')}
+      {/* Custom Select Component (Beauty Listbox) */}
+      <div className="relative" ref={dropdownRef}>
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className={`
+            w-full flex items-center justify-between p-3 rounded-2xl border transition-all duration-300
+            ${isDropdownOpen
+              ? "border-blue-500 ring-2 ring-blue-500/20 bg-white dark:bg-darkblack-500"
+              : "border-gray-200 dark:border-darkblack-400 bg-gray-50/50 dark:bg-darkblack-600 hover:border-blue-400"
+            }
+          `}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`p-2.5 rounded-xl ${currentReport?.bgColor} ${currentReport?.iconColor}`}>
+              {currentReport?.icon}
+            </div>
+            <div className="text-left">
+              <span className="block text-sm font-bold text-gray-900 dark:text-white">
+                {t(currentReport?.titleKey)}
               </span>
-            )}
-          </div>
-          {/* 
-            We have 3 different CSV exports: 
-              1) commissions_csv
-              2) total_revenue_csv
-              3) overdue_payments_csv
-            Let's attach them to the 3 items below
-          */}
-
-          <div className="space-y-3">
-            {/* Commissions.csv */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-darkblack-500 dark:to-darkblack-400 py-4 px-4 flex justify-between items-center rounded-lg border border-green-200 dark:border-darkblack-400 hover:shadow-md transition-all duration-200 group">
-              <div className="flex items-center gap-x-3">
-                <span className="bg-white dark:bg-darkblack-600 w-12 h-12 rounded-lg inline-flex justify-center items-center shadow-sm">
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 22 22"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12.8334 2.74951V6.41618C12.8334 6.65929 12.93 6.89245 13.1019 7.06436C13.2738 7.23627 13.5069 7.33285 13.75 7.33285H17.4167"
-                      stroke="#22C55E"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M15.5834 19.2495H6.41671C5.93048 19.2495 5.46416 19.0564 5.12034 18.7125C4.77653 18.3687 4.58337 17.9024 4.58337 17.4162V4.58285C4.58337 4.09661 4.77653 3.6303 5.12034 3.28648C5.46416 2.94267 5.93048 2.74951 6.41671 2.74951H12.8334L17.4167 7.33285V17.4162C17.4167 17.9024 17.2236 18.3687 16.8797 18.7125C16.5359 19.0564 16.0696 19.2495 15.5834 19.2495Z"
-                      stroke="#22C55E"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <div className="flex flex-col">
-                  <h5 className="font-semibold text-bgray-900 dark:text-white text-sm">
-                    {t('reports.commissionsCsv')}
-                  </h5>
-                  <span className="text-xs text-bgray-500 dark:text-bgray-400 cursor-pointer hover:text-green-600 transition-colors" onClick={() => downloadCSV("commissions_csv")}>
-                    {t('reports.clickToDownload')}
-                  </span>
-                </div>
-              </div>
-              <button
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  (!startDate || !endDate) 
-                    ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-50' 
-                    : 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/50 group-hover:scale-105'
-                }`}
-                aria-label={t('reports.downloadCommissions')}
-                onClick={() => downloadCSV("commissions_csv")}
-                disabled={!startDate || !endDate}
-              >
-                <svg
-                  className={(!startDate || !endDate) 
-                    ? "stroke-gray-400 dark:stroke-gray-600" 
-                    : "stroke-green-600 dark:stroke-green-400"
-                  }
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M17.5 12.4995V15.8328C17.5 16.2749 17.3244 16.6988 17.0118 17.0114C16.6993 17.3239 16.2754 17.4995 15.8333 17.4995H4.16667C3.72464 17.4995 3.30072 17.3239 2.98816 17.0114C2.67559 16.6988 2.5 16.2749 2.5 15.8328V12.4995"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M5.83337 8.33301L10 12.4997L14.1667 8.33301"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M10 12.4995V2.49951"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            {/* Flujo Ingreso.csv => total_revenue_csv */}
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-darkblack-500 dark:to-darkblack-400 py-4 px-4 flex justify-between items-center rounded-lg border border-blue-200 dark:border-darkblack-400 hover:shadow-md transition-all duration-200 group">
-              <div className="flex items-center gap-x-3">
-                <span className="bg-white dark:bg-darkblack-600 w-12 h-12 rounded-lg inline-flex justify-center items-center shadow-sm">
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 22 22"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12.8334 2.74951V6.41618C12.8334 6.65929 12.93 6.89245 13.1019 7.06436C13.2738 7.23627 13.5069 7.33285 13.75 7.33285H17.4167"
-                      stroke="#3B82F6"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M15.5834 19.2495H6.41671C5.93048 19.2495 5.46416 19.0564 5.12034 18.7125C4.77653 18.3687 4.58337 17.9024 4.58337 17.4162V4.58285C4.58337 4.09661 4.77653 3.6303 5.12034 3.28648C5.46416 2.94267 5.93048 2.74951 6.41671 2.74951H12.8334L17.4167 7.33285V17.4162C17.4167 17.9024 17.2236 18.3687 16.8797 18.7125C16.5359 19.0564 16.0696 19.2495 15.5834 19.2495Z"
-                      stroke="#3B82F6"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <div className="flex flex-col">
-                  <h5 className="font-semibold text-bgray-900 dark:text-white text-sm">
-                    {t('reports.revenueFlowCsv')}
-                  </h5>
-                  <span className="text-xs text-bgray-500 dark:text-bgray-400 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => downloadCSV("total_revenue_csv")}>
-                    {t('reports.clickToDownload')}
-                  </span>
-                </div>
-              </div>
-              <button
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  (!startDate || !endDate) 
-                    ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-50' 
-                    : 'bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 group-hover:scale-105'
-                }`}
-                aria-label={t('reports.downloadRevenueFlow')}
-                onClick={() => downloadCSV("total_revenue_csv")}
-                disabled={!startDate || !endDate}
-              >
-                <svg
-                  className={(!startDate || !endDate) 
-                    ? "stroke-gray-400 dark:stroke-gray-600" 
-                    : "stroke-blue-600 dark:stroke-blue-400"
-                  }
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M17.5 12.4995V15.8328C17.5 16.2749 17.3244 16.6988 17.0118 17.0114C16.6993 17.3239 16.2754 17.4995 15.8333 17.4995H4.16667C3.72464 17.4995 3.30072 17.3239 2.98816 17.0114C2.67559 16.6988 2.5 16.2749 2.5 15.8328V12.4995"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M5.83337 8.33301L10 12.4997L14.1667 8.33301"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M10 12.4995V2.49951"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            {/* Morosidad.csv => overdue_payments_csv */}
-            <div className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-darkblack-500 dark:to-darkblack-400 py-4 px-4 flex justify-between items-center rounded-lg border border-red-200 dark:border-darkblack-400 hover:shadow-md transition-all duration-200 group">
-              <div className="flex items-center gap-x-3">
-                <span className="bg-white dark:bg-darkblack-600 w-12 h-12 rounded-lg inline-flex justify-center items-center shadow-sm">
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 22 22"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12.8334 2.74951V6.41618C12.8334 6.65929 12.93 6.89245 13.1019 7.06436C13.2738 7.23627 13.5069 7.33285 13.75 7.33285H17.4167"
-                      stroke="#EF4444"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M15.5834 19.2495H6.41671C5.93048 19.2495 5.46416 19.0564 5.12034 18.7125C4.77653 18.3687 4.58337 17.9024 4.58337 17.4162V4.58285C4.58337 4.09661 4.77653 3.6303 5.12034 3.28648C5.46416 2.94267 5.93048 2.74951 6.41671 2.74951H12.8334L17.4167 7.33285V17.4162C17.4167 17.9024 17.2236 18.3687 16.8797 18.7125C16.5359 19.0564 16.0696 19.2495 15.5834 19.2495Z"
-                      stroke="#EF4444"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <div className="flex flex-col">
-                  <h5 className="font-semibold text-bgray-900 dark:text-white text-sm">
-                    {t('reports.overduePaymentsCsv')}
-                  </h5>
-                  <span className="text-xs text-bgray-500 dark:text-bgray-400 cursor-pointer hover:text-red-600 transition-colors" onClick={() => downloadCSV("overdue_payments_csv")}>
-                    {t('reports.clickToDownload')}
-                  </span>
-                </div>
-              </div>
-              <button
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  (!startDate || !endDate) 
-                    ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-50' 
-                    : 'bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 group-hover:scale-105'
-                }`}
-                aria-label={t('reports.downloadOverdue')}
-                onClick={() => downloadCSV("overdue_payments_csv")}
-                disabled={!startDate || !endDate}
-              >
-                <svg
-                  className={(!startDate || !endDate) 
-                    ? "stroke-gray-400 dark:stroke-gray-600" 
-                    : "stroke-red-600 dark:stroke-red-400"
-                  }
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M17.5 12.4995V15.8328C17.5 16.2749 17.3244 16.6988 17.0118 17.0114C16.6993 17.3239 16.2754 17.4995 15.8333 17.4995H4.16667C3.72464 17.4995 3.30072 17.3239 2.98816 17.0114C2.67559 16.6988 2.5 16.2749 2.5 15.8328V12.4995"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M5.83337 8.33301L10 12.4997L14.1667 8.33301"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M10 12.4995V2.49951"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+              <span className="block text-xs text-gray-400">
+                CSV Format
+              </span>
             </div>
           </div>
-        </div>
+          <motion.svg
+            animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-gray-400"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </motion.svg>
+        </motion.button>
+
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              className="absolute top-full left-0 right-0 mt-2 p-1.5 bg-white dark:bg-darkblack-600 rounded-2xl shadow-xl border border-gray-100 dark:border-darkblack-400 z-20"
+            >
+              {REPORT_TYPES.map((report) => (
+                <motion.button
+                  key={report.id}
+                  onClick={() => {
+                    setSelectedReport(report.id);
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`
+                    w-full flex items-center gap-3 p-2.5 rounded-xl transition-all mb-1 last:mb-0
+                    ${selectedReport === report.id
+                      ? "bg-blue-50 dark:bg-blue-900/20"
+                      : "hover:bg-gray-50 dark:hover:bg-darkblack-500"
+                    }
+                  `}
+                >
+                  <div className={`
+                    p-2 rounded-lg
+                    ${selectedReport === report.id
+                      ? report.bgColor + " " + report.iconColor
+                      : "bg-gray-100 dark:bg-darkblack-500 text-gray-400"
+                    }
+                  `}>
+                    {report.icon}
+                  </div>
+                  <div className="text-left flex-1">
+                    <span className={`
+                      block text-sm font-semibold
+                      ${selectedReport === report.id
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-gray-700 dark:text-gray-300"
+                      }
+                    `}>
+                      {t(report.titleKey)}
+                    </span>
+                  </div>
+                  {selectedReport === report.id && (
+                    <div className="pr-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    </div>
+                  )}
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-    </aside>
+      <div className="pt-2">
+        <button
+          onClick={downloadCSV}
+          disabled={!startDate || !endDate || !selectedReport}
+          className={`
+            w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-300 shadow-lg relative overflow-hidden group
+            ${(!startDate || !endDate || !selectedReport)
+              ? "bg-gray-100 dark:bg-darkblack-500 text-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/30 hover:shadow-blue-500/50"
+            }
+          `}
+        >
+          {(!(!startDate || !endDate || !selectedReport)) && (
+            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 rounded-xl"></div>
+          )}
+
+          <svg className="relative z-10" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.1667 11.6667H5.83333M14.1667 8.33333H5.83333M10 15H5.83333M16.6667 2.5V17.5C16.6667 17.9602 16.2936 18.3333 15.8333 18.3333H4.16667C3.70643 18.3333 3.33333 17.9602 3.33333 17.5V2.5C3.33333 2.03976 3.70643 1.66667 4.16667 1.66667H15.8333C16.2936 1.66667 16.6667 2.03976 16.6667 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span className="relative z-10">
+            {t("common.download")} {currentReport ? t(currentReport.titleKey) : ""}
+          </span>
+        </button>
+      </div>
+    </div>
   );
 }
 

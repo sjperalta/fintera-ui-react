@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, Fragment } from "react";
 import PropTypes from "prop-types";
 import { useLocale } from "../../contexts/LocaleContext";
 import { API_URL } from "../../../config";
@@ -248,26 +248,19 @@ function GenericList({
   // Empty state
   if (items.length === 0) {
     return (
-      <div className="bg-white dark:bg-darkblack-600 rounded-xl border-2 border-gray-200 dark:border-darkblack-400 p-12 text-center">
-        <div className="text-gray-400 mb-4">
-          <svg
-            className="w-16 h-16 mx-auto"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-            />
-          </svg>
+      <div className="flex flex-col items-center justify-center py-24 px-6 text-center bg-white/40 dark:bg-darkblack-600/40 backdrop-blur-xl rounded-[48px] border border-dashed border-slate-200 dark:border-white/10 shadow-sm">
+        <div className="relative mb-10">
+          <div className="absolute inset-0 bg-blue-500/10 blur-[60px] rounded-full scale-150" />
+          <div className="relative w-28 h-28 bg-white dark:bg-darkblack-500 shadow-2xl rounded-[32px] flex items-center justify-center border border-slate-100 dark:border-white/5">
+            <svg className="w-12 h-12 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          {emptyMessage || t('common.noItemsFound')}
+        <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 tracking-tighter italic">
+          {emptyMessage || t('common.noDataFound')} <span className="text-blue-500 font-normal">.</span>
         </h3>
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] max-w-xs mx-auto leading-relaxed opacity-60">
           {t('common.tryAdjustingFilters')}
         </p>
       </div>
@@ -293,10 +286,10 @@ function GenericList({
 
       {/* Desktop: Table View */}
       {showDesktopTable && (
-        <div className="hidden lg:block w-full overflow-x-auto rounded-xl border-2 border-gray-200 dark:border-darkblack-400 shadow-lg">
-          <table className="w-full table-auto border-collapse bg-white dark:bg-darkblack-600 min-w-full">
-            <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-darkblack-500 dark:to-darkblack-400 border-b-2 border-blue-200 dark:border-blue-800/50">
-              <tr>
+        <div className="hidden lg:block w-full">
+          <table className="w-full table-auto bg-transparent min-w-full">
+            <thead>
+              <tr className="bg-transparent border-b border-gray-100 dark:border-white/5">
                 {columns.map((column, idx) => {
                   const isSortable = Boolean(column.sortKey);
                   const isActive = isSortable && column.sortKey === sortField;
@@ -312,7 +305,7 @@ function GenericList({
                     <th
                       key={idx}
                       aria-sort={ariaSort}
-                      className={`px-4 xl:px-5 py-2.5 xl:py-3 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 ${column.align === "center"
+                      className={`px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 ${column.align === "center"
                         ? "text-center"
                         : column.align === "right"
                           ? "text-right"
@@ -362,16 +355,9 @@ function GenericList({
             </thead>
             <tbody>
               {items.map((item, index) => (
-                <tr
-                  key={item.id}
-                  onClick={() => handleItemClick(item)}
-                  className={`${index % 2 === 0
-                    ? "bg-white dark:bg-darkblack-600"
-                    : "bg-gray-50 dark:bg-darkblack-500"
-                    } hover:bg-blue-50 dark:hover:bg-darkblack-400 transition-colors duration-150 cursor-pointer border-b border-gray-100 dark:border-darkblack-400`}
-                >
+                <Fragment key={item.id}>
                   {renderItem(item, index, false, handleItemClick)}
-                </tr>
+                </Fragment>
               ))}
             </tbody>
           </table>

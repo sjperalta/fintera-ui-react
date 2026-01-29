@@ -10,6 +10,7 @@ import { useLocale } from "../../contexts/LocaleContext";
  * @returns {string} - Formatted event name
  */
 const formatEvent = (event, t) => {
+  if (!event) return event;
   switch (event.toLowerCase()) {
     case "create":
       return t("audits.events.create");
@@ -49,15 +50,17 @@ function AuditInfo({
 
   // Extract audit properties
   const {
-    event,
-    item_type: model,
-    item_id: itemId,
-    user,
-    changes,
+    action: event,
+    entity: model,
+    entity_id: itemId,
+    user: userObj,
+    details: changes,
     created_at: date,
-    ip: ipAddress,
+    ip_address: ipAddress,
     user_agent: userAgent,
   } = audit;
+
+  const user = userObj ? (userObj.full_name || userObj.email || "System") : "System";
 
   const parsed = audit.parsed_changes;
   const changedKeys = parsed ? Object.keys(parsed) : [];

@@ -38,6 +38,7 @@ function GenericFilter({
   searchPlaceholder = "Search...",
   filterPlaceholder = "Select Filter",
   minSearchLength = 3,
+  showSearch = true,
 }) {
   const [term, setTerm] = useState(searchTerm);
   const [selectedFilter, setSelectedFilter] = useState(filterValue);
@@ -119,25 +120,26 @@ function GenericFilter({
           animate={{ opacity: 1, y: 0 }}
           className="flex-1 flex flex-col md:flex-row items-center gap-3 bg-white/40 dark:bg-darkblack-600/40 backdrop-blur-xl rounded-[2rem] p-2 border border-white/50 dark:border-darkblack-400/50 shadow-2xl shadow-blue-500/5 ring-1 ring-black/5 dark:ring-white/5"
         >
-          {/* Search Section */}
-          <div className="flex-1 flex items-center bg-white/60 dark:bg-darkblack-500/60 rounded-2xl px-5 py-3 group focus-within:ring-2 focus-within:ring-blue-500/30 transition-all duration-300 border border-transparent focus-within:border-blue-500/20">
-            <motion.span
-              animate={term ? { scale: [1, 1.2, 1], color: "#3B82F6" } : { scale: 1, color: "#94A3B8" }}
-              className="flex-shrink-0"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </motion.span>
-            <input
-              type="text"
-              className="bg-transparent border-0 w-full dark:text-white focus:outline-none focus:ring-0 ml-4 text-sm font-semibold placeholder:text-bgray-400"
-              placeholder={searchPlaceholder}
-              value={term}
-              onChange={handleTermChange}
-            />
-          </div>
+          {showSearch && (
+            <div className="flex-1 flex items-center bg-white/60 dark:bg-darkblack-500/60 rounded-2xl px-5 py-3 group focus-within:ring-2 focus-within:ring-blue-500/30 transition-all duration-300 border border-transparent focus-within:border-blue-500/20">
+              <motion.span
+                animate={term ? { scale: [1, 1.2, 1], color: "#3B82F6" } : { scale: 1, color: "currentColor" }}
+                className={`flex-shrink-0 ${term ? "" : "text-slate-400 dark:text-gray-200"}`}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </motion.span>
+              <input
+                type="text"
+                className="bg-transparent border-0 w-full dark:text-white focus:outline-none focus:ring-0 ml-4 text-sm font-semibold placeholder:text-bgray-400"
+                placeholder={searchPlaceholder}
+                value={term}
+                onChange={handleTermChange}
+              />
+            </div>
+          )}
 
           {/* Date Range Section */}
           {(onStartDateChange || onEndDateChange) && (
@@ -184,7 +186,7 @@ function GenericFilter({
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={showFilter || activeFilterLabel ? 'text-blue-500' : 'text-bgray-400'}
+                  className={showFilter || activeFilterLabel ? 'text-blue-500' : 'text-bgray-400 dark:text-gray-200'}
                 >
                   <line x1="4" y1="21" x2="4" y2="14" />
                   <line x1="4" y1="10" x2="4" y2="3" />
@@ -210,7 +212,7 @@ function GenericFilter({
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`ml-3 transition-colors ${showFilter ? 'text-blue-500' : 'text-bgray-400'}`}
+                className={`ml-3 transition-colors ${showFilter ? 'text-blue-500' : 'text-bgray-400 dark:text-gray-200'}`}
               >
                 <polyline points="6 9 12 15 18 9" />
               </motion.svg>
@@ -273,6 +275,7 @@ GenericFilter.propTypes = {
   endDate: PropTypes.string,
   onStartDateChange: PropTypes.func,
   onEndDateChange: PropTypes.func,
+  showSearch: PropTypes.bool,
 };
 
 export default GenericFilter;

@@ -132,11 +132,11 @@ function Projects() {
               searchTerm={searchTerm}
               filterValue={sortParam}
               filterOptions={[
-                "No Sort",
-                "name-asc",
-                "name-desc",
-                "created_at-desc",
-                "created_at-asc"
+                { value: "No Sort", label: t('projectsPage.sorting.noSort') },
+                { value: "name-asc", label: t('projectsPage.sorting.nameAsc') },
+                { value: "name-desc", label: t('projectsPage.sorting.nameDesc') },
+                { value: "created_at-desc", label: t('projectsPage.sorting.dateDesc') },
+                { value: "created_at-asc", label: t('projectsPage.sorting.dateAsc') }
               ]}
               onSearchChange={handleSearchChange}
               onFilterChange={handleSortChange}

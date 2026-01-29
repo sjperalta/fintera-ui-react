@@ -20,6 +20,8 @@
     "filter": "Filter",
     "actions": "Actions",
     "download": "Download",
+    "downloadSuccess": "Download successful",
+    "downloadError": "Error downloading file",
     "yes": "Yes",
     "no": "No",
     "required": "Required",
@@ -56,12 +58,17 @@
       "oct": "Oct",
       "nov": "Nov",
       "dec": "Dec"
-    }
+    },
+    "justNow": "Just now",
+    "viewAll": "View All"
   },
   "status": {
     "available": "Available",
     "reserved": "Reserved",
-    "sold": "Sold"
+    "sold": "Financed",
+    "closed": "Fully Paid",
+    "financed": "Financed",
+    "fully_paid": "Fully Paid"
   },
   "personalInfo": {
     "title": "Personal Information",
@@ -139,6 +146,7 @@
     "settings": "Settings",
     "menu": "Menu",
     "dashboard": "Dashboard",
+    "analytics": "Analytics",
     "audits": "Audits",
     "logout": "Log Out",
     "signIn": "Sign In",
@@ -146,7 +154,22 @@
     "configuration": "Configuration",
     "annualRevenueProjection": "Annual Revenue Projection",
     "loadingRevenueData": "Loading revenue data...",
-    "currentStatus": "Current Status"
+    "currentStatus": "Current Status",
+    "quickActions": "Quick Actions",
+    "newPayment": "Register Payment",
+    "newPaymentDesc": "Record a new payment for a contract.",
+    "newContract": "New Contract",
+    "newContractDesc": "Start a new sale process in a project.",
+    "manageUsers": "Manage Users",
+    "manageUsersDesc": "Add or update system users.",
+    "viewAnalytics": "View Analytics",
+    "viewAnalyticsDesc": "Deep dive into financial reports.",
+    "systemHealth": "System Status",
+    "systemHealthDesc": "All systems are operational. Check the audits log for detailed activity tracking.",
+    "viewLogs": "View System Logs",
+    "recentActivity": "Recent Activity",
+    "recentActivityDesc": "Latest system events and updates",
+    "noActivity": "No recent activity found"
   },
   "sidebar": {
     "paymentHistory": "Payment History"
@@ -226,7 +249,10 @@
     "soldLots": "Sold Lots",
     "available": "Available",
     "reserved": "Reserved",
-    "sold": "Sold"
+    "sold": "Financed",
+    "closed": "Fully Paid",
+    "financed": "Financed",
+    "fully_paid": "Fully Paid"
   },
   "lotsTable": {
     "project": "Project",
@@ -249,6 +275,9 @@
     "paymentSchedule": "Payment Schedule",
     "managePayments": "Manage your pending payments",
     "completed": "Completed",
+    "pendingPaidMonthly": "Pending to Collect this Month",
+    "overdueTotal": "Total Overdue",
+    "totalPaidThisMonth": "Total Collected this Month",
     "viewPaymentSummary": "View your payment summary",
     "detailedPaymentInfo": "Detailed payment information",
     "uploadPaymentReceipt": "Upload your payment receipt",
@@ -350,6 +379,10 @@
   },
   "users": {
     "title": "Users",
+    "subtitle": "Fill in the details to create a new user",
+    "personalInfo": "Personal Information",
+    "security": "Security",
+    "accountSettings": "Account Settings",
     "create": "Create User",
     "role": "Role",
     "manageSystemUsers": "Manage system users",
@@ -641,6 +674,31 @@
     "errorFetchingUpdatedStats": "Error fetching updated statistics",
     "errorUpdatingStats": "Error updating statistics",
     "user": "User"
+  },
+  "analytics": {
+    "title": "Analytics & Metrics",
+    "subtitle": "Visualize the performance and growth of your projects",
+    "totalRevenue": "Total Revenue",
+    "activeContracts": "Active Contracts",
+    "averagePayment": "Average Payment",
+    "occupancyRate": "Occupancy Rate",
+    "revenueTrend": "Revenue Trend",
+    "contractDistribution": "Contract Distribution",
+    "monthlyPerformance": "Monthly Performance",
+    "projections": "Projections",
+    "realData": "Real Data",
+    "comparedToLastMonth": "compared to last month",
+    "lotsAvailability": "Lots Availability",
+    "sold": "Financed",
+    "reserved": "Reserved",
+    "available": "Available",
+    "closed": "Fully Paid",
+    "financed": "Financed",
+    "fully_paid": "Fully Paid",
+    "growthAnalysis": "Growth Analysis",
+    "topProjects": "Top Projects",
+    "performanceDetails": "Performance Details",
+    "errorFetchingData": "Error fetching analytics data"
   },
   "filters": {
     "contractSearchPlaceholder": "Search contracts...",
