@@ -17,7 +17,7 @@ function LotsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
+
   // Highlighted lot state for navigation from contracts
   const [highlightedLotId, setHighlightedLotId] = useState(null);
 
@@ -30,17 +30,17 @@ function LotsList() {
       if (location.state.selectedLotName) {
         setSearchTerm(location.state.selectedLotName);
       }
-      
+
       // Set the highlighted lot ID to visually distinguish it
       if (location.state.selectedLotId) {
         setHighlightedLotId(location.state.selectedLotId);
-        
+
         // Clear the highlighting after 5 seconds
         setTimeout(() => {
           setHighlightedLotId(null);
         }, 5000);
       }
-      
+
       // Clear the navigation state after using it
       window.history.replaceState({}, document.title);
     }
@@ -112,6 +112,7 @@ function LotsList() {
         <LotItem
           key={lot.id}
           lot={lot}
+          index={index}
           userRole={user?.role}
           isMobileCard={isMobileCard}
           isHighlighted={isHighlighted}
@@ -122,21 +123,19 @@ function LotsList() {
   );
 
   // Actions for SearchFilterBar
-  const actions = useMemo(
-    () => {
-      if (user?.role === "admin") {
-        return [
-          {
-            label: t("common.create"),
-            onClick: () => navigate(`/projects/${projectId}/lots/create`),
-            className: "py-3 px-10 bg-success-300 text-white font-bold rounded-lg hover:bg-success-400 transition-all",
-          },
-        ];
-      }
-      return [];
-    },
-    [user?.role, navigate, projectId, t]
-  );
+  const actions = useMemo(() => {
+    if (user?.role === "admin") {
+      return [
+        {
+          label: t("common.create"),
+          onClick: () => navigate(`/projects/${projectId}/lots/create`),
+          className:
+            "py-3 px-10 bg-success-300 text-white font-bold rounded-lg hover:bg-success-400 transition-all",
+        },
+      ];
+    }
+    return [];
+  }, [user?.role, navigate, projectId, t]);
 
   return (
     <main className="w-full px-6 pb-6 pt-[100px] sm:pt-[156px] xl:px-[48px] xl:pb-[48px] dark:bg-darkblack-700">
@@ -167,7 +166,7 @@ function LotsList() {
             loadingMessage={t("common.loading")}
             entityName="lots"
             showMobileCards={true}
-            showDesktopTable={true}
+            showDesktopTable={false}
             refreshTrigger={refreshTrigger}
           />
         </section>

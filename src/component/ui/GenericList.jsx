@@ -69,7 +69,7 @@ function GenericList({
     const keys = Object.keys(filters).sort();
     return keys.map((k) => `${k}=${String(filters[k] ?? "")}`).join("&");
   }, [filters]);
-  
+
   const sortParam = useMemo(() => {
     if (sortField) {
       return `${sortField}-${sortDirection}`;
@@ -94,7 +94,7 @@ function GenericList({
       const nextDirection = isSameField
         ? sortDirection === "asc" ? "desc" : "asc"
         : column.defaultSortDirection === "asc" ? "asc" : "desc";
-      
+
       // Update state
       setCurrentPage(1);
       setSortField(column.sortKey);
@@ -113,6 +113,7 @@ function GenericList({
     setCurrentPage(1);
   }, [filtersSignature]);
 
+  // Fetch items whenever dependencies change
   useEffect(() => {
     const fetchItems = async () => {
       setLoading(true);
@@ -120,7 +121,7 @@ function GenericList({
 
       // Build query params
       const params = new URLSearchParams();
-      
+
       // Add filters (only append keys that have a value)
       Object.entries(filters || {}).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
@@ -168,8 +169,17 @@ function GenericList({
 
         // Handle pagination metadata
         if (data.pagination) {
-          setCurrentPage(data.pagination.page);
-          setTotalPages(data.pagination.pages);
+          const apiPage = parseInt(data.pagination.page || 1, 10);
+          let apiPages = parseInt(data.pagination.pages || data.pagination.total_pages || 0, 10);
+          const apiCount = parseInt(data.pagination.count || data.pagination.total_items || 0, 10);
+
+          // Fallback if pages is missing but count is present
+          if (apiPages === 0 && apiCount > 0) {
+            apiPages = Math.ceil(apiCount / itemsPerPage);
+          }
+
+          setCurrentPage(apiPage);
+          setTotalPages(apiPages > 0 ? apiPages : 1);
         } else {
           setTotalPages(1);
         }
@@ -197,10 +207,7 @@ function GenericList({
     }
   };
 
-  // Reset to page 1 if filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters]);
+  // Redundant effect removed
 
   // Loading state
   if (loading) {
@@ -269,14 +276,14 @@ function GenericList({
 
   return (
     <div className="w-full">
-      {/* Mobile: Card View */}
+      {/* Mobile & Tablet & Desktop Grid: Card View */}
       {showMobileCards && (
-        <div className="block lg:hidden space-y-3 sm:space-y-4">
+        <div className={!showDesktopTable ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-3 block lg:hidden"}>
           {items.map((item, index) => (
             <div
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className="bg-white dark:bg-darkblack-600 rounded-xl border-2 border-gray-200 dark:border-darkblack-400 p-4 shadow-md hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200 cursor-pointer"
+              className={!showDesktopTable ? "h-full" : "bg-white dark:bg-darkblack-600 rounded-xl border-2 border-gray-200 dark:border-darkblack-400 p-4 shadow-md hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200 cursor-pointer"}
             >
               {renderItem(item, index, true, handleItemClick)}
             </div>
@@ -302,36 +309,32 @@ function GenericList({
                     : undefined;
 
                   return (
-                  <th
-                    key={idx}
+                    <th
+                      key={idx}
                       aria-sort={ariaSort}
-                    className={`px-4 xl:px-5 py-2.5 xl:py-3 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 ${
-                      column.align === "center"
+                      className={`px-4 xl:px-5 py-2.5 xl:py-3 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 ${column.align === "center"
                         ? "text-center"
                         : column.align === "right"
-                        ? "text-right"
-                        : "text-left"
-                    }`}
-                  >
+                          ? "text-right"
+                          : "text-left"
+                        }`}
+                    >
                       {isSortable ? (
                         <button
                           type="button"
                           onClick={() => handleSort(column)}
-                          className={`inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors ${
-                            column.align === "right" ? "justify-end w-full" : ""
-                          }`}
+                          className={`inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors ${column.align === "right" ? "justify-end w-full" : ""
+                            }`}
                         >
                           <span>{column.label}</span>
                           <span
-                            className={`relative flex items-center justify-center w-4 h-4 text-[0px] ${
-                              isActive ? "opacity-100" : "opacity-60"
-                            }`}
+                            className={`relative flex items-center justify-center w-4 h-4 text-[0px] ${isActive ? "opacity-100" : "opacity-60"
+                              }`}
                             aria-hidden="true"
                           >
                             <svg
-                              className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                                isActive && sortDirection === "asc" ? "transform rotate-180" : ""
-                              }`}
+                              className={`w-3.5 h-3.5 transition-transform duration-200 ${isActive && sortDirection === "asc" ? "transform rotate-180" : ""
+                                }`}
                               viewBox="0 0 24 24"
                               fill="none"
                               xmlns="http://www.w3.org/2000/svg"
@@ -352,7 +355,7 @@ function GenericList({
                       ) : (
                         column.label
                       )}
-                  </th>
+                    </th>
                   );
                 })}
               </tr>
@@ -362,11 +365,10 @@ function GenericList({
                 <tr
                   key={item.id}
                   onClick={() => handleItemClick(item)}
-                  className={`${
-                    index % 2 === 0
-                      ? "bg-white dark:bg-darkblack-600"
-                      : "bg-gray-50 dark:bg-darkblack-500"
-                  } hover:bg-blue-50 dark:hover:bg-darkblack-400 transition-colors duration-150 cursor-pointer border-b border-gray-100 dark:border-darkblack-400`}
+                  className={`${index % 2 === 0
+                    ? "bg-white dark:bg-darkblack-600"
+                    : "bg-gray-50 dark:bg-darkblack-500"
+                    } hover:bg-blue-50 dark:hover:bg-darkblack-400 transition-colors duration-150 cursor-pointer border-b border-gray-100 dark:border-darkblack-400`}
                 >
                   {renderItem(item, index, false, handleItemClick)}
                 </tr>
@@ -376,65 +378,95 @@ function GenericList({
         </div>
       )}
 
-      {/* Pagination Controls - Mobile Optimized */}
+      {/* Creative Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mt-4 sm:mt-6 px-3 sm:px-4 py-3 sm:py-4 bg-white dark:bg-darkblack-600 rounded-xl border-2 border-gray-200 dark:border-darkblack-400 shadow-sm">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage <= 1}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-darkblack-500 dark:to-darkblack-400 text-gray-700 dark:text-gray-300 border-2 border-blue-200 dark:border-blue-800/50 rounded-lg hover:from-blue-100 hover:to-blue-200 dark:hover:from-darkblack-400 dark:hover:to-darkblack-300 disabled:from-gray-50 disabled:to-gray-100 dark:disabled:from-darkblack-500 dark:disabled:to-darkblack-500 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed disabled:border-gray-200 dark:disabled:border-darkblack-400 transition-all duration-200 shadow-sm hover:shadow-md font-medium text-sm"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            <span className="font-semibold">{t('common.previous')}</span>
-          </button>
-
-          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-darkblack-500 dark:to-darkblack-400 px-4 py-2 rounded-lg border-2 border-blue-200 dark:border-blue-800/50 shadow-sm">
-            <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
-              {t('common.page')}
-            </span>
-            <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-md font-bold text-sm shadow-md">
-              {currentPage}
-            </span>
-            <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-              {t('common.of')}
-            </span>
-            <span className="px-3 py-1 bg-white dark:bg-darkblack-600 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-darkblack-300 rounded-md font-bold text-sm">
-              {totalPages}
-            </span>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mt-10 px-6 py-5 bg-white/80 dark:bg-darkblack-600/80 backdrop-blur-xl rounded-[2rem] border border-gray-100 dark:border-darkblack-500 shadow-xl shadow-blue-500/5">
+          {/* Info Section */}
+          <div className="order-2 md:order-1 text-sm font-medium text-bgray-500 dark:text-bgray-400">
+            {t('common.showing') || "Mostrando"} <span className="text-bgray-900 dark:text-white font-bold">{items.length}</span> {t('common.results') || "resultados"}
           </div>
 
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage >= totalPages}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-darkblack-500 dark:to-darkblack-400 text-gray-700 dark:text-gray-300 border-2 border-blue-200 dark:border-blue-800/50 rounded-lg hover:from-blue-100 hover:to-blue-200 dark:hover:from-darkblack-400 dark:hover:to-darkblack-300 disabled:from-gray-50 disabled:to-gray-100 dark:disabled:from-darkblack-500 dark:disabled:to-darkblack-500 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed disabled:border-gray-200 dark:disabled:border-darkblack-400 transition-all duration-200 shadow-sm hover:shadow-md font-medium text-sm"
-          >
-            <span className="font-semibold">{t('common.next')}</span>
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* Navigation Section */}
+          <div className="order-1 md:order-2 flex items-center gap-2">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage <= 1}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 border border-gray-100 dark:border-darkblack-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
+              title={t('common.previous')}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <div className="flex items-center gap-1.5 px-2">
+              {/* Logic for Page Numbers */}
+              {(() => {
+                const pages = [];
+                const maxVisible = 5;
+                let start = Math.max(1, currentPage - 2);
+                let end = Math.min(totalPages, start + maxVisible - 1);
+
+                if (end === totalPages) {
+                  start = Math.max(1, end - maxVisible + 1);
+                }
+
+                for (let i = start; i <= end; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setCurrentPage(i);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`min-w-[40px] h-10 flex items-center justify-center rounded-xl text-sm font-bold transition-all duration-300 ${currentPage === i
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-110"
+                        : "bg-white dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 border border-gray-100 dark:border-darkblack-400 hover:bg-gray-50 dark:hover:bg-darkblack-400"
+                        }`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+                return pages;
+              })()}
+
+              {totalPages > 5 && currentPage < totalPages - 2 && (
+                <>
+                  <span className="px-1 text-bgray-400 font-bold">...</span>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className="min-w-[40px] h-10 flex items-center justify-center rounded-xl text-sm font-bold bg-white dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 border border-gray-100 dark:border-darkblack-400 hover:bg-gray-50 dark:hover:bg-darkblack-400"
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+            </div>
+
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage >= totalPages}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 border border-gray-100 dark:border-darkblack-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
+              title={t('common.next')}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Page Jump Section */}
+          <div className="order-3 flex items-center gap-3">
+            <span className="text-xs font-bold text-bgray-400 uppercase tracking-widest leading-none">
+              {t('common.page') || "Página"}
+            </span>
+            <div className="flex items-center bg-gray-50 dark:bg-darkblack-500 border border-gray-100 dark:border-darkblack-400 rounded-xl px-3 py-1.5 h-10 shadow-inner">
+              <span className="text-sm font-black text-bgray-900 dark:text-white mr-1">{currentPage}</span>
+              <span className="text-xs font-bold text-bgray-400 mx-1">/</span>
+              <span className="text-sm font-bold text-bgray-600 dark:text-bgray-400">{totalPages}</span>
+            </div>
+          </div>
         </div>
       )}
     </div>

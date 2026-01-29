@@ -1,6 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import debounce from "lodash.debounce";
+import { motion, AnimatePresence } from "framer-motion";
+import DatePicker from "./DatePicker";
+import { useLocale } from "../../contexts/LocaleContext";
 
 /**
  * A reusable filter component:
@@ -17,6 +20,10 @@ import debounce from "lodash.debounce";
  *  - searchPlaceholder (string): placeholder text for the search input.
  *  - filterPlaceholder (string): placeholder text for the dropdown input.
  *  - minSearchLength (number): minimum length to trigger onSearchChange (default 3).
+ *  - startDate (string): currently selected start date.
+ *  - endDate (string): currently selected end date.
+ *  - onStartDateChange (func): callback for start date change.
+ *  - onEndDateChange (func): callback for end date change.
  */
 function GenericFilter({
   searchTerm = "",
@@ -24,6 +31,10 @@ function GenericFilter({
   filterOptions = ["All", "Option1", "Option2"],
   onSearchChange = () => { },
   onFilterChange = () => { },
+  startDate = "",
+  endDate = "",
+  onStartDateChange = null,
+  onEndDateChange = null,
   searchPlaceholder = "Search...",
   filterPlaceholder = "Select Filter",
   minSearchLength = 3,
@@ -32,6 +43,8 @@ function GenericFilter({
   const [selectedFilter, setSelectedFilter] = useState(filterValue);
   const [showFilter, setShowFilter] = useState(false);
   const [activeFilterLabel, setActiveFilterLabel] = useState("");
+  const dropdownRef = useRef(null);
+  const { t } = useLocale();
 
   // Debounced callback to notify parent about search changes
   const debouncedSearch = useCallback(
@@ -61,11 +74,24 @@ function GenericFilter({
 
   // Handle filter selection
   const handleFilterSelect = (option) => {
-    setSelectedFilter(option);
-    setActiveFilterLabel(option);
-    setShowFilter(false);
-    onFilterChange(option === "All" ? "" : option);
+    const value = typeof option === 'object' ? option.value : option;
+    const label = typeof option === 'object' ? option.label : option;
+
+    setSelectedFilter(value);
+    setActiveFilterLabel(label);
+    onFilterChange(value === "All" ? "" : value);
   };
+
+  // Handle outside click for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowFilter(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // If parent modifies props externally, sync them in
   useEffect(() => {
@@ -74,111 +100,161 @@ function GenericFilter({
 
   useEffect(() => {
     setSelectedFilter(filterValue);
-    setActiveFilterLabel(filterValue || "");
-  }, [filterValue]);
+
+    // Find the label if filterOptions uses objects
+    if (filterOptions.length > 0 && typeof filterOptions[0] === 'object') {
+      const found = filterOptions.find(o => o.value === filterValue);
+      setActiveFilterLabel(found ? found.label : filterValue || "");
+    } else {
+      setActiveFilterLabel(filterValue || "");
+    }
+  }, [filterValue, filterOptions]);
 
   return (
-    <div className="bg-white dark:bg-darkblack-600 rounded-2xl p-2 flex flex-col md:flex-row items-center gap-2 border border-bgray-200 dark:border-darkblack-400 shadow-sm">
-      {/* Search Section */}
-      <div className="flex items-center flex-1 w-full bg-bgray-50 dark:bg-darkblack-500 rounded-xl px-4 py-2 group focus-within:ring-2 focus-within:ring-success-300/30 transition-all duration-200">
-        <span className="text-bgray-400 group-focus-within:text-success-300 transition-colors">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M21 21L17 17"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-        <input
-          type="text"
-          className="bg-transparent border-0 w-full dark:text-white focus:outline-none focus:ring-0 ml-3 text-sm font-medium placeholder:text-bgray-400"
-          placeholder={searchPlaceholder}
-          value={term}
-          onChange={handleTermChange}
-        />
-      </div>
-
-      {/* Filter Dropdown */}
-      <div className="relative w-full md:w-auto">
-        <div
-          onClick={() => setShowFilter(!showFilter)}
-          className={`flex items-center justify-between bg-white dark:bg-darkblack-600 border ${showFilter ? 'border-success-300 ring-4 ring-success-300/10' : 'border-bgray-200 dark:border-darkblack-400'} rounded-xl px-4 py-2 cursor-pointer transition-all duration-200 hover:border-success-300 min-w-[160px]`}
+    <div className="relative w-full z-10">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 w-full">
+        {/* Main Filter Container */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex-1 flex flex-col md:flex-row items-center gap-3 bg-white/40 dark:bg-darkblack-600/40 backdrop-blur-xl rounded-[2rem] p-2 border border-white/50 dark:border-darkblack-400/50 shadow-2xl shadow-blue-500/5 ring-1 ring-black/5 dark:ring-white/5"
         >
-          <div className="flex items-center gap-2 overflow-hidden">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className={showFilter || activeFilterLabel ? 'text-success-300' : 'text-bgray-400'}
+          {/* Search Section */}
+          <div className="flex-1 flex items-center bg-white/60 dark:bg-darkblack-500/60 rounded-2xl px-5 py-3 group focus-within:ring-2 focus-within:ring-blue-500/30 transition-all duration-300 border border-transparent focus-within:border-blue-500/20">
+            <motion.span
+              animate={term ? { scale: [1, 1.2, 1], color: "#3B82F6" } : { scale: 1, color: "#94A3B8" }}
+              className="flex-shrink-0"
             >
-              <path
-                d="M3 4.5H21M6.75 12H17.25M10.5 19.5H13.5"
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </motion.span>
+            <input
+              type="text"
+              className="bg-transparent border-0 w-full dark:text-white focus:outline-none focus:ring-0 ml-4 text-sm font-semibold placeholder:text-bgray-400"
+              placeholder={searchPlaceholder}
+              value={term}
+              onChange={handleTermChange}
+            />
+          </div>
+
+          {/* Date Range Section */}
+          {(onStartDateChange || onEndDateChange) && (
+            <div className="flex flex-row items-center gap-3 px-2">
+              {onStartDateChange && (
+                <div className="w-full md:w-44">
+                  <DatePicker
+                    value={startDate}
+                    onChange={onStartDateChange}
+                    placeholder={t("common.startDate") || "Start Date"}
+                    className="!space-y-0 sleek-datepicker"
+                  />
+                </div>
+              )}
+              <div className="h-4 w-[1px] bg-gray-200 dark:bg-darkblack-400 hidden md:block" />
+              {onEndDateChange && (
+                <div className="w-full md:w-44">
+                  <DatePicker
+                    value={endDate}
+                    onChange={onEndDateChange}
+                    placeholder={t("common.endDate") || "End Date"}
+                    className="!space-y-0 sleek-datepicker"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Filter Dropdown */}
+          <div className="relative w-full md:w-auto" ref={dropdownRef}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowFilter(!showFilter)}
+              className={`flex items-center justify-between bg-white/80 dark:bg-darkblack-500/80 backdrop-blur-md border ${showFilter ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-gray-100 dark:border-darkblack-400'} rounded-2xl px-5 py-3 cursor-pointer transition-all duration-300 hover:shadow-lg min-w-[180px]`}
+            >
+              <div className="flex items-center gap-3 overflow-hidden">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={showFilter || activeFilterLabel ? 'text-blue-500' : 'text-bgray-400'}
+                >
+                  <line x1="4" y1="21" x2="4" y2="14" />
+                  <line x1="4" y1="10" x2="4" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12" y2="3" />
+                  <line x1="20" y1="21" x2="20" y2="16" />
+                  <line x1="20" y1="12" x2="20" y2="3" />
+                  <line x1="1" y1="14" x2="7" y2="14" />
+                  <line x1="9" y1="8" x2="15" y2="8" />
+                  <line x1="17" y1="16" x2="23" y2="16" />
+                </svg>
+                <span className={`text-sm font-bold truncate ${activeFilterLabel ? 'text-bgray-900 dark:text-white' : 'text-bgray-400'}`}>
+                  {activeFilterLabel || filterPlaceholder}
+                </span>
+              </div>
+              <motion.svg
+                animate={{ rotate: showFilter ? 180 : 0 }}
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-              />
-            </svg>
-            <span className={`text-sm font-bold truncate ${activeFilterLabel ? 'text-bgray-900 dark:text-white' : 'text-bgray-400'}`}>
-              {activeFilterLabel || filterPlaceholder}
-            </span>
-          </div>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={`transition-transform duration-200 ml-2 ${showFilter ? 'rotate-180 text-success-300' : 'text-bgray-400'}`}
-          >
-            <path
-              d="M6 9L12 15L18 9"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+                className={`ml-3 transition-colors ${showFilter ? 'text-blue-500' : 'text-bgray-400'}`}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </motion.svg>
+            </motion.div>
 
-        {/* Dropdown list */}
-        {showFilter && (
-          <div
-            className="absolute top-full right-0 w-full md:w-56 bg-white dark:bg-darkblack-500 rounded-2xl shadow-xl z-50 mt-2 border border-bgray-100 dark:border-darkblack-400 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
-          >
-            <ul className="py-1">
-              {filterOptions.map((option) => (
-                <li
-                  key={option}
-                  className={`px-4 py-2.5 text-sm transition-colors border-l-2 ${selectedFilter === option ? 'bg-success-50 dark:bg-success-400/10 text-success-400 border-success-300 font-bold' : 'text-bgray-700 dark:text-bgray-300 border-transparent hover:bg-bgray-50 dark:hover:bg-darkblack-600 font-medium'} cursor-pointer`}
-                  onClick={() => {
-                    handleFilterSelect(option);
-                  }}
+            {/* Dropdown list */}
+            <AnimatePresence>
+              {showFilter && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                  className="absolute top-full right-0 w-full md:w-64 bg-white/90 dark:bg-darkblack-500/90 backdrop-blur-xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-[100] mt-3 border border-white/40 dark:border-darkblack-400/40 overflow-hidden"
                 >
-                  {option === "No Sort" ? "Default Sort" : option}
-                </li>
-              ))}
-            </ul>
+                  <div className="py-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+                    {filterOptions.map((option, idx) => {
+                      const value = typeof option === 'object' ? option.value : option;
+                      const label = typeof option === 'object' ? option.label : option;
+                      const isSelected = selectedFilter === value;
+
+                      return (
+                        <motion.li
+                          key={idx}
+                          whileHover={{ x: 5, backgroundColor: "rgba(59, 130, 246, 0.05)" }}
+                          className={`px-5 py-3 text-sm transition-all relative flex items-center justify-between group cursor-pointer ${isSelected ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-bgray-700 dark:text-bgray-300 font-medium'}`}
+                          onClick={() => handleFilterSelect(option)}
+                        >
+                          <span>{label === "No Sort" ? "Default Sort" : label}</span>
+                          {isSelected && (
+                            <motion.div
+                              layoutId="activeFilter"
+                              className="w-1.5 h-1.5 rounded-full bg-blue-500"
+                            />
+                          )}
+                        </motion.li>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        )}
+        </motion.div>
       </div>
     </div>
   );
@@ -193,6 +269,10 @@ GenericFilter.propTypes = {
   searchPlaceholder: PropTypes.string,
   filterPlaceholder: PropTypes.string,
   minSearchLength: PropTypes.number,
+  startDate: PropTypes.string,
+  endDate: PropTypes.string,
+  onStartDateChange: PropTypes.func,
+  onEndDateChange: PropTypes.func,
 };
 
 export default GenericFilter;

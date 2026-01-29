@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import Datepicker from 'tailwind-datepicker-react';
 
-const DatePicker = ({ 
-  value, 
-  onChange, 
-  placeholder = "Seleccionar fecha", 
+const DatePicker = ({
+  value,
+  onChange,
+  placeholder = "Seleccionar fecha",
   label,
   required = false,
   disabled = false,
@@ -26,15 +26,15 @@ const DatePicker = ({
     maxDate: new Date("2030-01-01"),
     minDate: new Date("2020-01-01"),
     theme: {
-      background: "bg-white dark:bg-darkblack-600 border border-gray-200 dark:border-darkblack-500 rounded-lg shadow-2xl",
-      todayBtn: "bg-blue-500 hover:bg-blue-600 text-white font-medium",
-      clearBtn: "bg-gray-100 hover:bg-gray-200 dark:bg-darkblack-500 dark:hover:bg-darkblack-400 text-bgray-900 dark:text-white font-medium",
-      icons: "text-bgray-900 dark:text-white",
-      text: "text-bgray-900 dark:text-white",
-      disabledText: "text-bgray-400 dark:text-bgray-600",
-      input: "w-full px-4 py-3 pr-12 border border-gray-200 dark:border-darkblack-500 rounded-lg bg-white dark:bg-darkblack-600 text-bgray-900 dark:text-white placeholder-bgray-500 dark:placeholder-bgray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200",
+      background: "bg-white/90 dark:bg-darkblack-600/90 backdrop-blur-xl border border-white/40 dark:border-darkblack-400/40 rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] p-4 overflow-visible",
+      todayBtn: "bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95",
+      clearBtn: "bg-gray-100 hover:bg-gray-200 dark:bg-darkblack-500 dark:hover:bg-darkblack-400 text-bgray-900 dark:text-white font-bold rounded-xl transition-all active:scale-95",
+      icons: "text-blue-500 transition-colors hover:text-blue-600",
+      text: "text-bgray-900 dark:text-white font-semibold",
+      disabledText: "text-bgray-300 dark:text-bgray-700",
+      input: "w-full px-5 py-3 pr-12 border-0 rounded-2xl bg-white/60 dark:bg-darkblack-500/60 text-bgray-900 dark:text-white placeholder-bgray-400 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 hover:bg-white/80 dark:hover:bg-darkblack-500/80 cursor-pointer shadow-sm",
       inputIcon: "hidden",
-      selected: "bg-blue-500 text-white hover:bg-blue-600"
+      selected: "bg-blue-600 text-white hover:bg-blue-700 font-bold shadow-md"
     },
     icons: {
       prev: () => (
@@ -58,7 +58,7 @@ const DatePicker = ({
     inputPlaceholderProp: placeholder,
     inputDateFormatProp: {
       day: "numeric",
-      month: "long", 
+      month: "long",
       year: "numeric"
     }
   };
@@ -102,17 +102,20 @@ const DatePicker = ({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      <div className="relative overflow-visible">
-        <Datepicker 
-          options={options} 
+      <div className="relative overflow-visible group">
+        <Datepicker
+          options={options}
           onChange={handleChange}
           show={show}
           setShow={handleClose}
-          classNames={disabled ? "opacity-50 cursor-not-allowed" : ""}
+          classNames={disabled ? "opacity-30 cursor-not-allowed" : ""}
         />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-          <svg className="w-5 h-5 text-bgray-500 dark:text-bgray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none group-focus-within:text-blue-500 transition-colors">
+          <svg className="w-5 h-5 text-bgray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
         </div>
       </div>
@@ -121,11 +124,11 @@ const DatePicker = ({
       )}
       {value && (
         <p className="text-xs text-bgray-500 dark:text-bgray-400">
-          Fecha seleccionada: {new Date(value).toLocaleDateString('es-ES', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+          Fecha seleccionada: {new Date(value).toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
           })}
         </p>
       )}

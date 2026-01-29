@@ -1,123 +1,230 @@
 import PropTypes from 'prop-types';
-import { formatStatus } from '../../utils/formatStatus';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faReceipt,
+  faArrowDown,
+  faArrowUp,
+  faCircle,
+  faMoneyBillWave,
+  faCalendarAlt,
+  faHashtag
+} from '@fortawesome/free-solid-svg-icons';
 import { useLocale } from '../../contexts/LocaleContext';
+import { formatStatus } from '../../utils/formatStatus';
 
 const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
   const { t } = useLocale();
+
+  // Calculate totals
+  const totals = (Array.isArray(ledgerEntries) ? ledgerEntries : []).reduce(
+    (acc, entry) => {
+      const amount = Number(entry.amount || 0);
+      if (amount > 0) acc.debits += amount;
+      if (amount < 0) acc.credits += Math.abs(amount);
+      acc.balance += amount;
+      return acc;
+    },
+    { debits: 0, credits: 0, balance: 0 }
+  );
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  if (ledgerLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center py-12 space-y-4">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full"
+        />
+        <div className="text-bgray-500 dark:text-bgray-400 font-medium">Cargando movimientos...</div>
+      </div>
+    );
+  }
+
+  if (!Array.isArray(ledgerEntries) || ledgerEntries.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center justify-center py-12 text-center"
+      >
+        <div className="w-16 h-16 bg-bgray-100 dark:bg-darkblack-500 rounded-full flex items-center justify-center mb-4">
+          <FontAwesomeIcon icon={faReceipt} className="text-2xl text-bgray-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-bgray-900 dark:text-white mb-2">Sin movimientos registados</h3>
+        <p className="text-bgray-500 dark:text-bgray-400 max-w-sm">
+          No hay asientos contables asociados a este contrato todavía.
+        </p>
+      </motion.div>
+    );
+  }
+
+  let runningBalance = 0;
+
   return (
-    <>
-      {ledgerLoading ? (
-        <div className="flex justify-center items-center py-8">
-          <div className="text-bgray-500 dark:text-bgray-300">Cargando asientos contables...</div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {(!Array.isArray(ledgerEntries) || ledgerEntries.length === 0) ? (
-            <div className="text-center py-8 text-bgray-500 dark:text-bgray-300">
-              No hay asientos contables registrados para este contrato.
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white dark:bg-darkblack-600 rounded-xl p-4 border border-bgray-200 dark:border-darkblack-400 shadow-sm"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-bgray-500 dark:text-bgray-400">Total Cargos</span>
+            <div className="w-8 h-8 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
+              <FontAwesomeIcon icon={faArrowUp} className="text-red-500 text-sm" />
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs md:text-sm">
-                <thead className="bg-white dark:bg-darkblack-600 sticky top-0">
-                  <tr className="text-left text-bgray-500 dark:text-bgray-300 border-b border-bgray-200 dark:border-darkblack-400">
-                    <th className="py-3 pr-3 font-medium">#</th>
-                    <th className="py-3 pr-3 font-medium">Fecha</th>
-                    <th className="py-3 pr-3 font-medium">Tipo</th>
-                    <th className="py-3 pr-3 font-medium">Descripción</th>
-                    <th className="py-3 pr-3 font-medium">Referencia</th>
-                    <th className="py-3 pr-3 font-medium text-right">Debe</th>
-                    <th className="py-3 pr-3 font-medium text-right">Haber</th>
-                    <th className="py-3 pr-3 font-medium text-right">Saldo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    const safeLedger = Array.isArray(ledgerEntries) ? ledgerEntries : [];
-                    const toNumeric = (val) => {
-                      if (val === null || val === undefined || val === "") return 0;
-                      if (typeof val === 'number' && !Number.isNaN(val)) return val;
-                      // Remove any non-numeric characters (like currency symbols, commas, spaces)
-                      const cleaned = String(val).replace(/[^0-9.-]+/g, '');
-                      const n = parseFloat(cleaned);
-                      return Number.isFinite(n) ? n : 0;
-                    };
+          </div>
+          <div className="text-xl font-bold text-bgray-900 dark:text-white">
+            {totals.debits.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' })}
+          </div>
+        </motion.div>
 
-                    return safeLedger.map((entry, idx) => {
-                      // Calculate accumulated balance (sum of amounts up to this entry)
-                      const previousEntries = safeLedger.slice(0, idx);
-                      const accumulatedBalance = previousEntries.reduce((sum, prevEntry) => {
-                        return sum + toNumeric(prevEntry.amount);
-                      }, 0) + toNumeric(entry.amount);
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white dark:bg-darkblack-600 rounded-xl p-4 border border-bgray-200 dark:border-darkblack-400 shadow-sm"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-bgray-500 dark:text-bgray-400">Total Abonos</span>
+            <div className="w-8 h-8 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+              <FontAwesomeIcon icon={faArrowDown} className="text-green-500 text-sm" />
+            </div>
+          </div>
+          <div className="text-xl font-bold text-bgray-900 dark:text-white">
+            {totals.credits.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' })}
+          </div>
+        </motion.div>
 
-                      return (
-                        <tr
-                          key={entry.id || idx}
-                          className="border-b border-bgray-100 dark:border-darkblack-500 last:border-b-0 hover:bg-bgray-50 dark:hover:bg-darkblack-500"
-                        >
-                          <td className="py-3 pr-3 font-medium text-bgray-900 dark:text-white">{idx + 1}</td>
-                          <td className="py-3 pr-3 text-bgray-900 dark:text-white">
-                            {entry.entry_date ? (() => {
-                              const date = new Date(entry.entry_date);
-                              const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                              const day = date.getDate().toString().padStart(2, '0');
-                              const year = date.getFullYear();
-                              return `${month}/${day}/${year}`;
-                            })() : "—"}
-                          </td>
-                          <td className="py-3 pr-3">
-                            <span className="px-2 py-1 bg-bgray-100 dark:bg-darkblack-400 text-bgray-900 dark:text-white rounded text-xs capitalize">
-                              {formatStatus(entry.entry_type, t) || 'N/A'}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white dark:bg-darkblack-600 rounded-xl p-4 border border-bgray-200 dark:border-darkblack-400 shadow-sm"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-bgray-500 dark:text-bgray-400">Saldo Actual</span>
+            <div className="w-8 h-8 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg flex items-center justify-center">
+              <FontAwesomeIcon icon={faMoneyBillWave} className="text-indigo-500 text-sm" />
+            </div>
+          </div>
+          <div className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+            {totals.balance.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' })}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Ledger Feed */}
+      <div className="bg-white dark:bg-darkblack-600 rounded-xl border border-bgray-200 dark:border-darkblack-400 shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-bgray-200 dark:border-darkblack-400 bg-bgray-50 dark:bg-darkblack-500 flex items-center justify-between">
+          <h3 className="font-bold text-bgray-900 dark:text-white flex items-center gap-2">
+            <FontAwesomeIcon icon={faReceipt} className="text-bgray-500" />
+            Movimientos Detallados
+          </h3>
+          <span className="text-xs font-medium text-bgray-500 bg-bgray-200 dark:bg-darkblack-400 px-2 py-1 rounded-md">
+            {ledgerEntries.length} registros
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-bgray-50/50 dark:bg-darkblack-500/50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-bgray-500 uppercase tracking-wider">Fecha / Ref</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-bgray-500 uppercase tracking-wider">Descripción</th>
+                <th className="px-6 py-3 text-right text-xs font-semibold text-bgray-500 uppercase tracking-wider">Monto</th>
+                <th className="px-6 py-3 text-right text-xs font-semibold text-bgray-500 uppercase tracking-wider">Saldo</th>
+              </tr>
+            </thead>
+            <motion.tbody
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="divide-y divide-bgray-100 dark:divide-darkblack-400"
+            >
+              {ledgerEntries.map((entry, idx) => {
+                const amount = Number(entry.amount || 0);
+                runningBalance += amount;
+                const isCredit = amount < 0;
+
+                return (
+                  <motion.tr
+                    key={entry.id || idx}
+                    variants={itemVariants}
+                    className="hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2 text-sm font-medium text-bgray-900 dark:text-white">
+                          <FontAwesomeIcon icon={faCalendarAlt} className="text-bgray-400 text-xs" />
+                          {entry.entry_date ? new Date(entry.entry_date).toLocaleDateString('es-HN', {
+                            day: '2-digit', month: 'short', year: 'numeric'
+                          }) : '—'}
+                        </div>
+                        <div className="text-xs text-bgray-500 mt-1 pl-5">
+                          #{String(idx + 1).padStart(3, '0')}
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-1.5 h-1.5 rounded-full ${isCredit ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                          <span className="text-sm font-medium text-bgray-900 dark:text-white">
+                            {entry.description || "Movimiento contable"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 pl-3.5">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold tracking-wide bg-bgray-100 dark:bg-darkblack-400 text-bgray-600 dark:text-bgray-400 border border-bgray-200 dark:border-darkblack-300">
+                            {formatStatus(entry.entry_type, t)}
+                          </span>
+                          {entry.payment_id && (
+                            <span className="text-xs text-bgray-400 flex items-center gap-1">
+                              Pago #{entry.payment_id}
                             </span>
-                          </td>
-                          <td className="py-3 pr-3 text-bgray-900 dark:text-white max-w-xs truncate" title={entry.description}>
-                            {entry.description || "Sin descripción"}
-                          </td>
-                          <td className="py-3 pr-3 text-bgray-600 dark:text-bgray-400 text-xs">
-                            {entry.payment_id ? `Pago #${entry.payment_id}` : "—"}
-                          </td>
-                          <td className="py-3 pr-3 text-right font-medium text-red-600 dark:text-red-400">
-                            {toNumeric(entry.amount) > 0 ? `${fmt(toNumeric(entry.amount))}` : "—"}
-                          </td>
-                          <td className="py-3 pr-3 text-right font-medium text-green-600 dark:text-green-400">
-                            {toNumeric(entry.amount) < 0 ? `${fmt(Math.abs(toNumeric(entry.amount)))}` : "—"}
-                          </td>
-                          <td className="py-3 pr-3 text-right font-semibold text-bgray-900 dark:text-white">
-                            {fmt(accumulatedBalance)}
-                          </td>
-                        </tr>
-                      );
-                    });
-                  })()}
-                </tbody>
-                <tfoot>
-                  <tr className="border-t-2 border-bgray-300 dark:border-darkblack-300 bg-bgray-50 dark:bg-darkblack-500">
-                    <td colSpan="5" className="py-3 pr-3 font-bold text-right text-bgray-900 dark:text-white">TOTALES:</td>
-                    <td className="py-3 pr-3 text-right font-bold text-red-600 dark:text-red-400">
-                      {Number((Array.isArray(ledgerEntries) ? ledgerEntries : [])
-                        .filter(entry => Number(entry.amount) > 0)
-                        .reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
-                      ).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HNL"}
+                          )}
+                        </div>
+                      </div>
                     </td>
-                    <td className="py-3 pr-3 text-right font-bold text-green-600 dark:text-green-400">
-                      {Number(Math.abs((Array.isArray(ledgerEntries) ? ledgerEntries : [])
-                        .filter(entry => Number(entry.amount) < 0)
-                        .reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
-                      )).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HNL"}
+
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className={`text-sm font-bold ${isCredit ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {isCredit ? '-' : '+'}{Math.abs(amount).toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} HNL
+                      </div>
                     </td>
-                    <td className="py-3 pr-3 text-right font-bold text-bgray-900 dark:text-white">
-                      {Number((Array.isArray(ledgerEntries) ? ledgerEntries : [])
-                        .reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
-                      ).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HNL"}
+
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <span className="text-sm font-semibold text-bgray-900 dark:text-white">
+                        {runningBalance.toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} HNL
+                      </span>
                     </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          )}
+                  </motion.tr>
+                );
+              })}
+            </motion.tbody>
+          </table>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 };
 

@@ -1,4 +1,23 @@
 import PropTypes from 'prop-types';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCalendarAlt,
+  faDollarSign,
+  faClock,
+  faCheckCircle,
+  faExclamationTriangle,
+  faBan,
+  faUndo,
+  faReceipt,
+  faInfoCircle,
+  faLock,
+  faHistory,
+  faCoins,
+  faCalculator,
+  faArrowRight,
+  faEllipsisV
+} from '@fortawesome/free-solid-svg-icons';
 import { useLocale } from '../../contexts/LocaleContext';
 
 const PaymentScheduleTab = ({
@@ -22,245 +41,325 @@ const PaymentScheduleTab = ({
   currentContract
 }) => {
   const { t } = useLocale();
-  return (
-    <>
-      {loading ? (
-        <div className="flex justify-center items-center py-8">
-          <div className="text-bgray-500 dark:text-bgray-300">{t('paymentSchedule.loading')}</div>
+
+  if (loading) {
+    return (
+      <div className="flex flex-col justify-center items-center py-32 bg-gray-50/30 dark:bg-darkblack-600/30 rounded-[3rem] border border-gray-100 dark:border-darkblack-500">
+        <div className="relative">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 border-4 border-blue-500/10 border-t-blue-500 rounded-full"
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <FontAwesomeIcon icon={faClock} className="text-blue-500 animate-pulse" />
+          </div>
         </div>
-      ) : (
-        <table className="w-full text-xs md:text-sm">
-          <thead className="sticky top-0 bg-white dark:bg-darkblack-600">
-            <tr className="text-left text-bgray-500 dark:text-bgray-300 border-b border-bgray-200 dark:border-darkblack-400">
-              <th className="py-3 pr-3 font-medium">#</th>
-              <th className="py-3 pr-3 font-medium">{t('paymentSchedule.id')}</th>
-              <th className="py-3 pr-3 font-medium">{t('paymentSchedule.date')}</th>
-              <th className="py-3 pr-3 font-medium">{t('paymentSchedule.type')}</th>
-              <th className="py-3 pr-3 font-medium text-right">{t('paymentSchedule.amount')}</th>
-              <th className="py-3 pr-3 font-medium text-right">{t('paymentSchedule.interest')}</th>
-              <th className="py-3 pr-3 font-medium text-center">{t('paymentSchedule.moratoryDays')}</th>
-              <th className="py-3 pr-3 font-medium">{t('paymentSchedule.status')}</th>
-              <th className="py-3 pr-3 font-medium text-center">{t('paymentSchedule.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(!Array.isArray(schedule) || schedule.length === 0) && (
-              <tr>
-                <td colSpan="9" className="py-6 text-center text-bgray-500 dark:text-bgray-300">
-                  {t('paymentSchedule.noScheduleAvailable')}
-                </td>
-              </tr>
-            )}
-            {(Array.isArray(schedule) ? schedule : []).map((row, idx) => {
-              const amount = row.amount || row.value || row.payment_amount;
-              const interest = row.interest_amount || 0;
-              const status = (row.status || 'pending').toLowerCase();
-              // Check if payment is a readjustment (disabled)
-              const isReadjustment = status === "readjustment";
-              // Normalize moratory days to a number in case the source is a string
-              const moratoryDaysRaw = (row.overdue_days ?? row.moratory_days ?? calculateMoratoryDays(row.due_date));
-              const moratoryDaysParsed = parseInt(moratoryDaysRaw, 10);
-              const moratoryDays = Number.isNaN(moratoryDaysParsed) ? 0 : moratoryDaysParsed;
+        <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-gray-400">{t('paymentSchedule.loading')}</p>
+      </div>
+    );
+  }
 
-              // Derive payment state: some APIs don't include an 'overdue' status
-              const isPaid = status === "paid";
-              const isOverdue = !isPaid && !isReadjustment && moratoryDays > 0;
+  const safeSchedule = Array.isArray(schedule) ? schedule : [];
 
-              const getMoratoryDaysColor = (days) => {
-                const d = Number(days) || 0;
-                if (d >= 90) return "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300";
-                if (d >= 60) return "text-orange bg-[rgba(255,120,75,0.08)] dark:bg-[rgba(255,120,75,0.12)] dark:text-orange";
-                if (d >= 30) return "text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-300";
-                return "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-300";
-              };
+  // Progress Calculations
+  const totalSteps = safeSchedule.length || 1;
+  const paidSteps = safeSchedule.filter(p => p.status?.toLowerCase() === 'paid').length;
+  const overdueSteps = safeSchedule.filter(p => {
+    const s = p.status?.toLowerCase() || 'pending';
+    const mora = calculateMoratoryDays(p.due_date);
+    return s !== 'paid' && s !== 'readjustment' && mora > 0;
+  }).length;
+  const progressPercent = (paidSteps / totalSteps) * 100;
 
-              return (
-                <tr
-                  key={row.id || idx}
-                  className={`border-b border-bgray-100 dark:border-darkblack-500 last:border-b-0 ${
-                    isReadjustment 
-                      ? 'bg-gray-100 dark:bg-gray-800 opacity-60 cursor-not-allowed' 
-                      : 'hover:bg-bgray-50 dark:hover:bg-darkblack-500'
-                  }`}
-                >
-                  <td className={`py-3 pr-3 font-medium ${isReadjustment ? 'text-gray-400 dark:text-gray-500' : 'text-bgray-900 dark:text-white'}`}>
-                    {row.number || idx + 1}
-                  </td>
-                  <td className={`py-3 pr-3 font-mono text-xs ${isReadjustment ? 'text-gray-400 dark:text-gray-500' : 'text-bgray-900 dark:text-white'}`}>
-                    {row.id || 'N/A'}
-                  </td>
-                  <td className={`py-3 pr-3 ${isReadjustment ? 'text-gray-400 dark:text-gray-500' : 'text-bgray-900 dark:text-white'}`}>
-                    {row.due_date ? new Date(row.due_date).toLocaleDateString() : "—"}
-                  </td>
-                  <td className="py-3 pr-3">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      isReadjustment 
-                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400' 
-                        : 'bg-bgray-100 dark:bg-darkblack-400 text-bgray-900 dark:text-white'
-                    }`}>
-                      {translatePaymentType(row.payment_type)}
-                    </span>
-                  </td>
-                  <td className={`py-3 pr-3 text-right font-medium ${isReadjustment ? 'text-gray-400 dark:text-gray-500' : 'text-bgray-900 dark:text-white'}`}>
-                    {fmt(amount)}
-                  </td>
-                  <td className={`py-3 pr-3 text-right font-medium ${isReadjustment ? 'text-gray-400 dark:text-gray-500' : 'text-bgray-900 dark:text-white'}`}>
-                    {fmt(interest)}
-                  </td>
-                  <td className="py-3 pr-3 text-center">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getMoratoryDaysColor(moratoryDays)}`}>
-                      {moratoryDays} {t('paymentSchedule.days')}
-                    </span>
-                  </td>
-                  <td className="py-3 pr-3">
-                    <span
-                      className={
-                        "px-2 py-0.5 rounded-full text-[11px] font-semibold " +
-                        (isReadjustment
-                          ? "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                          : isPaid
-                          ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                          : isOverdue
-                          ? "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300"
-                          : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300")
-                      }
-                    >
-                      {isReadjustment 
-                        ? t('paymentSchedule.readjustment') 
-                        : isPaid 
-                        ? t('paymentSchedule.paid') 
-                        : isOverdue 
-                        ? t('paymentSchedule.overdue') 
-                        : t('paymentSchedule.pending')
-                      }
-                    </span>
-                  </td>
-                  <td className="py-3 pr-3 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      {isReadjustment ? (
-                        <span className="px-2 py-1 text-xs text-gray-400 dark:text-gray-500" title={t('paymentSchedule.readjustment')}>
-                          🔒
-                        </span>
-                      ) : (
-                        <>
-                          {!isReadOnly && !isPaid && (
-                            <button
-                              onClick={() => {
-                                setSelectedPayment(row);
-                                setEditableAmount(amount?.toString() || "");
-                                setEditableInterest(interest?.toString() || "");
-                                setEditableTotal(((Number(amount) || 0) + (Number(interest) || 0)).toString());
-                                setApplyPaymentModal(true);
-                              }}
-                              className="px-2 py-1 text-xs font-medium bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
-                              title={t('paymentSchedule.applyPayment')}
-                            >
-                              💰
-                            </button>
-                          )}
-                          {!isReadOnly && !isPaid && moratoryDays > 0 && (
-                            <button
-                              onClick={() => {
-                                setEditingMora(row.id || idx);
-                                setMoratoryAmount(interest?.toString() || "0");
-                              }}
-                              className="px-2 py-1 text-xs font-medium bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded transition-colors"
-                              title={t('paymentSchedule.editMoratory')}
-                            >
-                              ⚠️
-                            </button>
-                          )}
-                          {isPaid && (
-                            <>
-                              <span className="px-2 py-1 text-xs text-green-600" title="Pagado">
-                                ✅
-                              </span>
-                              {!isReadOnly && (
-                                <button
-                                  onClick={() => {
-                                    // Handle undo payment logic
-                                    const safeSchedule = Array.isArray(schedule) ? schedule : [];
-                                    const updatedSchedule = safeSchedule.map((payment, paymentIdx) =>
-                                      (payment.id === row.id || paymentIdx === idx)
-                                        ? {
-                                            ...payment,
-                                            status: "pending",
-                                            paid_date: null,
-                                            undo_date: new Date().toISOString().split('T')[0]
-                                          }
-                                        : payment
-                                    );
-                                    setSchedule(updatedSchedule);
+  const getStatusConfig = (p) => {
+    const status = (p.status || 'pending').toLowerCase();
+    const isReadjustment = status === "readjustment";
+    const moratoryDays = calculateMoratoryDays(p.due_date);
+    const isPaid = status === "paid";
+    const isOverdue = !isPaid && !isReadjustment && moratoryDays > 0;
 
-                                    // Update balance by adding back the payment amount
-                                    const paymentAmount = row.amount || 0;
-                                    setCurrentContract(prev => ({
-                                      ...(prev || {}),
-                                      balance: (prev?.balance || 0) + paymentAmount
-                                    }));
+    if (isReadjustment) return {
+      label: t('paymentSchedule.readjustment'),
+      color: 'gray',
+      dotColor: 'bg-gray-300 dark:bg-gray-600',
+      textColor: 'text-gray-400',
+      badge: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
+      icon: faLock
+    };
+    if (isPaid) return {
+      label: t('paymentSchedule.paid'),
+      color: 'emerald',
+      dotColor: 'bg-emerald-500',
+      textColor: 'text-emerald-600 dark:text-emerald-400',
+      badge: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30',
+      icon: faCheckCircle
+    };
+    if (isOverdue) return {
+      label: t('paymentSchedule.overdue'),
+      color: 'rose',
+      dotColor: 'bg-rose-500',
+      textColor: 'text-rose-600 dark:text-rose-400',
+      badge: 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30',
+      icon: faExclamationTriangle
+    };
+    return {
+      label: t('paymentSchedule.pending'),
+      color: 'blue',
+      dotColor: 'bg-blue-500',
+      textColor: 'text-blue-600 dark:text-blue-400',
+      badge: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30',
+      icon: faClock
+    };
+  };
 
-                                    // Simulate undo payment response
-                                    const mockUndoResponse = {
-                                      payment: {
-                                        ...row,
-                                        status: "pending",
-                                        paid_date: null,
-                                        undo_date: new Date().toISOString().split('T')[0],
-                                        contract: {
-                                          id: currentContract?.id,
-                                          balance: (currentContract?.balance || 0) + paymentAmount,
-                                          status: currentContract?.status,
-                                          created_at: currentContract?.created_at,
-                                          currency: currentContract?.currency || "HNL"
-                                        }
-                                      }
-                                    };
+  return (
+    <div className="space-y-12 py-4">
+      {/* Dynamic Progress Header */}
+      <div className="bg-white dark:bg-darkblack-600 rounded-[2rem] p-6 border border-gray-100 dark:border-darkblack-500 shadow-2xl shadow-blue-500/5">
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
+          <div className="space-y-2">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">{t('paymentSchedule.summary')}</p>
+            <h4 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+              {paidSteps} <span className="text-gray-300 dark:text-gray-600 font-medium">/</span> {totalSteps}
+              <span className="text-sm font-bold text-gray-400 ml-2">{t('paymentSchedule.completed')}</span>
+            </h4>
+          </div>
 
-                                    // Call the callback if provided
-                                    if (onPaymentSuccess) {
-                                      onPaymentSuccess(mockUndoResponse);
-                                    }
+          <div className="flex gap-8">
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-widest text-rose-400 mb-1">{t('paymentSchedule.overdue')}</p>
+              <p className="text-lg font-black text-rose-500">{overdueSteps}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-1">{t('paymentSchedule.remaining')}</p>
+              <p className="text-lg font-black text-blue-500">{totalSteps - paidSteps}</p>
+            </div>
+          </div>
+        </div>
 
-                                  }}
-                                  className="px-2 py-1 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors"
-                                  title={t('paymentSchedule.undoPayment')}
-                                >
-                                  ↩️
-                                </button>
-                              )}
-                            </>
-                          )}
-                          {isReadOnly && !isPaid && (
-                            <span className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400" title="Solo lectura">
-                              👁️
-                            </span>
-                          )}
-                        </>
-                      )}
+        <div className="relative h-3 bg-gray-100 dark:bg-darkblack-500 rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 1, ease: "circOut" }}
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)]"
+          />
+        </div>
+      </div>
+
+      {/* Styled Payment List */}
+      <div className="relative pl-8 md:pl-12">
+        {/* Timeline Axis */}
+        <div className="absolute left-4 md:left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-indigo-500 to-transparent rounded-full opacity-10" />
+
+        <div className="space-y-4">
+          {safeSchedule.length === 0 ? (
+            <div className="py-20 text-center">
+              <FontAwesomeIcon icon={faHistory} className="text-5xl text-gray-100 dark:text-gray-800 mb-4" />
+              <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t('paymentSchedule.noScheduleAvailable')}</p>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {safeSchedule.map((row, idx) => {
+                const statusConfig = getStatusConfig(row);
+                const amount = row.amount || row.value || row.payment_amount;
+                const interest = row.interest_amount || 0;
+                const moratoryDays = calculateMoratoryDays(row.due_date);
+                const isReadjustment = row.status?.toLowerCase() === 'readjustment';
+                const isPaid = row.status?.toLowerCase() === 'paid';
+                const isUpcoming = !isPaid && !isReadjustment && idx === paidSteps;
+
+                return (
+                  <motion.div
+                    key={row.id || idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.03 }}
+                    className={`relative group flex flex-col md:flex-row items-stretch md:items-center gap-4 p-1 rounded-xl transition-all duration-300 ${isReadjustment ? 'opacity-40 grayscale pointer-events-none' : ''}`}
+                  >
+                    {/* Status Node */}
+                    <div className="absolute -left-8 md:-left-12 top-1/2 -translate-y-1/2 z-10">
+                      <motion.div
+                        whileHover={{ scale: 1.2 }}
+                        className={`w-6 h-6 rounded-full border-4 border-white dark:border-darkblack-600 shadow-lg ${statusConfig.dotColor} ${isUpcoming ? 'ring-4 ring-blue-500/20' : ''}`}
+                      />
                     </div>
-                  </td>
-                </tr>
-              );
-            })}
 
-            {/* Totals Row */}
-            <tr className="border-t-2 border-bgray-300 dark:border-darkblack-300 bg-bgray-50 dark:bg-darkblack-500">
-              <td colSpan="4" className="py-3 pr-3 font-bold text-right text-bgray-900 dark:text-white">Subtotal:</td>
-              <td className="py-3 pr-3 text-right font-bold text-bgray-900 dark:text-white">{fmt(totals.subtotal)}</td>
-              <td className="py-3 pr-3 text-right font-bold text-success-600 dark:text-success-400">{fmt(totals.totalInterest)}</td>
-              <td colSpan="3"></td>
-            </tr>
-            <tr className="bg-bgray-100 dark:bg-darkblack-400">
-              <td colSpan="4" className="py-3 pr-3 font-bold text-right text-lg text-bgray-900 dark:text-white">TOTAL:</td>
-              <td colSpan="2" className="py-3 pr-3 text-right font-bold text-lg text-bgray-900 dark:text-white">
-                {fmt(totals.total)}
-              </td>
-              <td colSpan="3"></td>
-            </tr>
-          </tbody>
-        </table>
-      )}
-    </>
+                    {/* Main Content Card */}
+                    <div className={`flex-1 flex flex-col md:flex-row items-center gap-3 p-3 rounded-xl border-2 transition-all duration-300 ${isUpcoming ? 'bg-blue-50/30 dark:bg-blue-900/10 border-blue-500 shadow-xl shadow-blue-500/10' : 'bg-white dark:bg-darkblack-600 border-gray-50 dark:border-darkblack-500 hover:border-blue-200 dark:hover:border-blue-800 hover:shadow-xl hover:shadow-blue-500/5'}`}>
+
+                      {/* Installment Badge */}
+                      <div className="flex-shrink-0">
+                        <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center ${isUpcoming ? 'bg-blue-600 text-white' : 'bg-gray-50 dark:bg-darkblack-500 text-gray-400'}`}>
+                          <p className="text-[8px] font-black uppercase mb-0.5 opacity-60">Cuota</p>
+                          <p className="text-lg font-black">{row.number || idx + 1}</p>
+                        </div>
+                      </div>
+
+                      {/* Date & Type */}
+                      <div className="flex-1 min-w-0 flex flex-col md:flex-row gap-8 items-center">
+                        <div className="w-full md:w-28 text-center md:text-left">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{t('paymentSchedule.date')}</p>
+                          <p className="text-[13px] font-black text-gray-900 dark:text-white truncate">
+                            {row.due_date ? new Date(row.due_date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) : "—"}
+                          </p>
+                        </div>
+
+                        <div className="w-full md:w-32 text-center md:text-left">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{t('paymentSchedule.type')}</p>
+                          <div className="inline-flex items-center px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-darkblack-500 text-[9px] font-black text-gray-500 uppercase">
+                            {translatePaymentType(row.payment_type)}
+                          </div>
+                        </div>
+
+                        <div className="flex-1 text-center md:text-left">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{t('paymentSchedule.amount')}</p>
+                          <div className="flex flex-col md:flex-row items-baseline gap-2">
+                            <p className={`text-xl font-black ${isUpcoming ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}`}>
+                              {fmt(amount)}
+                            </p>
+                            {(interest > 0 || moratoryDays > 0) && (
+                              <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-900/20">
+                                <FontAwesomeIcon icon={faExclamationTriangle} className="text-rose-500 text-[7px]" />
+                                <span className="text-[9px] font-black text-rose-600 dark:text-rose-400">+{fmt(interest)}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Status Label */}
+                      <div className="flex-shrink-0 flex items-center gap-4">
+                        {moratoryDays > 0 && !isPaid && (
+                          <div className="hidden lg:flex flex-col items-end">
+                            <p className="text-[9px] font-black uppercase text-rose-400 tracking-tighter">Mora</p>
+                            <p className="text-xs font-black text-rose-500">{moratoryDays}d</p>
+                          </div>
+                        )}
+                        <div className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 ${statusConfig.badge}`}>
+                          <FontAwesomeIcon icon={statusConfig.icon} className="text-[10px]" />
+                          {statusConfig.label}
+                        </div>
+                      </div>
+
+                      {/* Integrated Actions */}
+                      <div className="flex-shrink-0 h-full border-l border-gray-100 dark:border-darkblack-500 pl-6 flex items-center gap-2">
+                        {isReadjustment ? (
+                          <FontAwesomeIcon icon={faLock} className="text-gray-300" />
+                        ) : (
+                          <>
+                            {!isReadOnly && !isPaid && (
+                              <motion.button
+                                whileHover={{ scale: 1.1, backgroundColor: '#10B981' }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => {
+                                  setSelectedPayment(row);
+                                  setEditableAmount(amount?.toString() || "");
+                                  setEditableInterest(interest?.toString() || "");
+                                  setEditableTotal(((Number(amount) || 0) + (Number(interest) || 0)).toString());
+                                  setApplyPaymentModal(true);
+                                }}
+                                className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center transition-colors"
+                                title={t('paymentSchedule.applyPayment')}
+                              >
+                                <FontAwesomeIcon icon={faCoins} />
+                              </motion.button>
+                            )}
+
+                            {!isReadOnly && !isPaid && moratoryDays > 0 && (
+                              <motion.button
+                                whileHover={{ scale: 1.1, backgroundColor: '#F59E0B', color: '#fff' }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => {
+                                  setEditingMora(row.id || idx);
+                                  setMoratoryAmount(interest?.toString() || "0");
+                                }}
+                                className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center transition-colors"
+                                title={t('paymentSchedule.editMoratory')}
+                              >
+                                <FontAwesomeIcon icon={faExclamationTriangle} />
+                              </motion.button>
+                            )}
+
+                            {isPaid && !isReadOnly && (
+                              <motion.button
+                                whileHover={{ scale: 1.1, backgroundColor: '#EF4444', color: '#fff' }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => {
+                                  const updatedSchedule = safeSchedule.map((payment, paymentIdx) =>
+                                    (payment.id === row.id || paymentIdx === idx)
+                                      ? { ...payment, status: "pending", paid_date: null, undo_date: new Date().toISOString().split('T')[0] }
+                                      : payment
+                                  );
+                                  setSchedule(updatedSchedule);
+                                  const paymentAmount = row.amount || 0;
+                                  setCurrentContract(prev => ({
+                                    ...(prev || {}),
+                                    balance: (prev?.balance || 0) + paymentAmount
+                                  }));
+                                  if (onPaymentSuccess) onPaymentSuccess({ payment: { ...row, status: "pending", contract: { id: currentContract?.id, balance: (currentContract?.balance || 0) + paymentAmount } } });
+                                }}
+                                className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center transition-colors"
+                                title={t('paymentSchedule.undoPayment')}
+                              >
+                                <FontAwesomeIcon icon={faUndo} className="text-xs" />
+                              </motion.button>
+                            )}
+
+                            {isReadOnly && isPaid && (
+                              <div className="w-10 h-10 flex items-center justify-center text-emerald-500 opacity-60">
+                                <FontAwesomeIcon icon={faCheckCircle} />
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          )}
+        </div>
+      </div>
+
+      {/* Modern Totals Footer */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="mt-16 bg-white dark:bg-darkblack-600 rounded-[3rem] border border-gray-100 dark:border-darkblack-500 shadow-2xl overflow-hidden p-1"
+      >
+        <div className="bg-gradient-to-br from-gray-50 to-white dark:from-darkblack-600 dark:to-darkblack-500 p-6 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-12">
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Total Capital</p>
+              <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{fmt(totals.subtotal)}</p>
+            </div>
+            <div className="hidden md:block w-px h-8 bg-gray-200 dark:bg-darkblack-400" />
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">{t('paymentSchedule.interest')}</p>
+              <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{fmt(totals.totalInterest)}</p>
+            </div>
+          </div>
+
+          <div className="relative group">
+            <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[2.5rem] opacity-10 group-hover:opacity-20 transition-opacity blur-xl" />
+            <div className="relative flex items-center gap-6 bg-white dark:bg-darkblack-500 border border-gray-100 dark:border-darkblack-400 p-4 rounded-[2rem] shadow-xl">
+              <div className="w-14 h-14 rounded-[1.25rem] bg-blue-600 text-white flex items-center justify-center text-xl shadow-lg shadow-blue-500/30">
+                <FontAwesomeIcon icon={faCalculator} />
+              </div>
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-500 mb-1">{t('paymentSchedule.totalToPay')}</p>
+                <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter leading-none">
+                  {fmt(totals.total)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
   );
 };
 

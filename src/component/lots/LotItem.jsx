@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useLocale } from "../../contexts/LocaleContext";
 import { getStatusLabel, getStatusBadgeClass } from "../../utils/statusUtils";
+import { motion } from "framer-motion";
 
 /**
  * LotItem Component
@@ -14,7 +15,7 @@ import { getStatusLabel, getStatusBadgeClass } from "../../utils/statusUtils";
  * @param {boolean} isMobileCard - If true, renders full card; if false, returns only <td> elements
  * @param {boolean} isHighlighted - If true, applies highlighting styles (from contract navigation)
  */
-function LotItem({ lot, userRole, isMobileCard = false, isHighlighted = false }) {
+function LotItem({ lot, userRole, index = 0, isMobileCard = false, isHighlighted = false }) {
   const { t } = useLocale();
   const {
     id,
@@ -23,12 +24,15 @@ function LotItem({ lot, userRole, isMobileCard = false, isHighlighted = false })
     name,
     address,
     registration_number,
-    dimensions,
+    // dimensions, // dimensions string might be missing or unreliable in new data
+    length,
+    width,
     measurement_unit,
     area,
     override_area,
     price,
     override_price,
+    effective_price, // Now available directly from API
     balance,
     reserved_by,
     reserved_by_user_id,
@@ -38,303 +42,211 @@ function LotItem({ lot, userRole, isMobileCard = false, isHighlighted = false })
     contract_id,
   } = lot;
 
-  // Get status label and badge class using centralized utilities
   const statusLabel = getStatusLabel(status);
   const badgeClass = getStatusBadgeClass(status);
 
-  // Calculate effective price (override takes precedence)
-  const effectivePrice = override_price && override_price > 0 ? override_price : price;
-  const hasPriceOverride = override_price && override_price > 0;
-  const savings = hasPriceOverride ? Number(price - override_price) : 0;
+  // Price calculations
+  // Use effective_price from API if present, otherwise fall back to overrides or price
+  const finalPrice = effective_price !== undefined ? effective_price : (override_price && override_price > 0 ? override_price : price);
+  // Check if there is a discount/difference
+  const hasPriceOverride = price && finalPrice < price; // Highlight if final price is LOWER than base price
+  const savings = hasPriceOverride ? Number(price - finalPrice) : 0;
 
-  // Check if area is overridden
   const hasAreaOverride = override_area && override_area > 0;
 
-  // Format price with thousands separator
+  // Construct dimensions string
+  const dimensionsDisplay = (length && width) ? `${width} x ${length}` : (lot.dimensions || "—");
+
   const formatPrice = (value) => {
-    if (!value) return "N/A";
+    if (!value && value !== 0) return "N/A";
     return `${Number(value).toLocaleString()} HNL`;
   };
 
-  // Render dimensions with measurement unit
-  const renderDimensions = () => {
-    return (
-      <div className="space-y-2">
-        <p className="text-base font-medium text-bgray-900 dark:text-white">
-          {dimensions}{measurement_unit ? ` (${measurement_unit})` : ""}
-        </p>
-        {area !== undefined && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              {hasAreaOverride && (
-                <svg className="w-3.5 h-3.5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9, y: 30 }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        transition: {
+          delay: index * 0.05,
+          duration: 0.5,
+          ease: [0.23, 1, 0.32, 1]
+        }
+      }}
+      whileHover={{
+        y: -10,
+        scale: 1.02,
+        transition: { duration: 0.2, ease: "easeOut" }
+      }}
+      className={`relative group bg-white dark:bg-darkblack-600 rounded-[2.5rem] border-2 ${isHighlighted
+        ? "border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]"
+        : "border-bgray-100 dark:border-darkblack-400"
+        } p-6 transition-all duration-300 hover:border-success-300 dark:hover:border-success-500/50 shadow-sm hover:shadow-2xl overflow-hidden h-full flex flex-col`}
+    >
+      {/* Decorative background glass effect */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-success-300/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-success-300/10 transition-colors duration-500" />
+
+      {/* Header Area */}
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-bgray-400 dark:text-bgray-500 flex items-center">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              {project_name}
+            </span>
+          </div>
+          <h3 className="text-2xl font-black text-bgray-900 dark:text-white tracking-tight">
+            {name}
+          </h3>
+          <div className="flex flex-wrap items-center gap-3 mt-1.5">
+            <p className="text-[10px] font-mono text-bgray-400 bg-bgray-50 dark:bg-darkblack-500 px-2 py-0.5 rounded-md">
+              #{id}
+            </p>
+            {address && (
+              <div className="flex items-center text-xs font-bold text-bgray-500 dark:text-bgray-400">
+                <svg className="w-3.5 h-3.5 mr-1 text-bgray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-              )}
-              <p className={`text-xs font-medium ${hasAreaOverride ? 'text-yellow-600 dark:text-yellow-400' : 'text-bgray-600 dark:text-bgray-400'}`}>
-                {t("lots.area")}: {area} {measurement_unit || "m²"}
-              </p>
-            </div>
+                {address}
+              </div>
+            )}
+          </div>
+        </div>
+        <span className={`${badgeClass} shadow-sm px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-full border border-bgray-100 dark:border-darkblack-400`}>
+          {statusLabel}
+        </span>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        {/* Dimensions */}
+        <div className="space-y-1">
+          <p className="text-[10px] font-black uppercase tracking-wider text-bgray-400">
+            {t("lotsTable.dimensions")}
+          </p>
+          <div className="flex items-baseline gap-1">
+            <span className="text-sm font-bold text-bgray-900 dark:text-white">
+              {dimensionsDisplay}
+            </span>
+            <span className="text-[10px] font-medium text-bgray-500 italic">
+              {measurement_unit}
+            </span>
+          </div>
+        </div>
+
+        {/* Area */}
+        <div className="space-y-1 text-right">
+          <p className="text-[10px] font-black uppercase tracking-wider text-bgray-400">
+            {t("lots.area")}
+          </p>
+          <div className="flex items-center justify-end gap-1.5">
             {hasAreaOverride && (
-              <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-yellow-100 to-yellow-50 text-yellow-700 dark:from-yellow-900/50 dark:to-yellow-800/30 dark:text-yellow-300 rounded-full border border-yellow-200 dark:border-yellow-700/50 shadow-sm">
-                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                </svg>
-                {t("lots.overridden")}
+              <span className="flex h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
+            )}
+            <span className={`text-sm font-bold ${hasAreaOverride ? 'text-yellow-600 dark:text-yellow-400' : 'text-bgray-900 dark:text-white'}`}>
+              {area || "—"}
+            </span>
+            <span className="text-[10px] font-medium text-bgray-500 italic">
+              {measurement_unit || "m²"}
+            </span>
+          </div>
+        </div>
+
+        {/* Price */}
+        <div className="col-span-2 pt-4 border-t border-bgray-50 dark:border-darkblack-500">
+          <p className="text-[10px] font-black uppercase tracking-wider text-bgray-400 mb-1">
+            {t("lotsTable.price")}
+          </p>
+          <div className="flex items-end justify-between">
+            <div className="flex flex-col">
+              {hasPriceOverride && (
+                <span className="text-[10px] text-bgray-400 line-through mb-0.5">
+                  {formatPrice(price)}
+                </span>
+              )}
+              <span className={`text-xl font-black ${hasPriceOverride ? 'text-success-300' : 'text-bgray-900 dark:text-white'}`}>
+                {formatPrice(finalPrice)}
+              </span>
+            </div>
+            {hasPriceOverride && (
+              <span className="text-[10px] font-bold bg-success-50 dark:bg-success-900/30 text-success-600 dark:text-success-400 px-2 py-1 rounded-full border border-success-100 dark:border-success-800">
+                ⭐ {t("lots.specialPrice")}
               </span>
             )}
           </div>
-        )}
-      </div>
-    );
-  };
-
-  // Render price with override handling
-  const renderPrice = () => {
-    if (hasPriceOverride) {
-      return (
-        <div className="space-y-1.5">
-          <div className="flex items-center space-x-2 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-              <p className="text-base font-semibold text-green-600 dark:text-green-400">
-                {formatPrice(override_price)}
-              </p>
-            </div>
-            <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-green-100 to-emerald-50 text-green-700 dark:from-green-900/50 dark:to-emerald-800/30 dark:text-green-300 rounded-full border border-green-200 dark:border-green-700/50 shadow-sm">
-              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
-              </svg>
-              {t("lots.specialPrice")}
-            </span>
-          </div>
-          <p className="text-sm text-bgray-500 dark:text-bgray-400 line-through">
-            {t("lots.originalPrice")}: {formatPrice(price)}
-          </p>
-          <p className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-            {t("lots.savings")}: {formatPrice(savings)}
-          </p>
         </div>
-      );
-    }
-    return (
-      <p className="text-base font-semibold text-bgray-900 dark:text-white">
-        {formatPrice(price || balance)}
-      </p>
-    );
-  };
+      </div>
 
-  // Render reserved by with conditional link
-  const renderReservedBy = () => {
-    if (!reserved_by) {
-      return (
-        <p className="text-base font-medium text-bgray-500 dark:text-bgray-400 italic">
-          {t("lots.notReserved")}
+      {/* Reserved Info (if any) */}
+      <div className="mb-6 flex-grow">
+        <p className="text-[10px] font-black uppercase tracking-wider text-bgray-400 mb-1">
+          {t("lotsTable.reservedBy")}
         </p>
-      );
-    }
-
-    const canViewLink = reserved_by_user_id && (
-      userRole === "admin" || 
-      String(contract_created_user_id) === String(reserved_by_user_id)
-    );
-
-    return (
-      <div className="space-y-1">
-        {canViewLink ? (
-          <Link 
-            to={`/financing/user/${reserved_by_user_id}`} 
-            className="text-base font-medium text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            {reserved_by}
-          </Link>
+        {reserved_by ? (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 shrink-0">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-sm font-bold text-bgray-900 dark:text-white truncate">
+                {reserved_by}
+              </span>
+              {contract_created_by && (
+                <span className="text-[10px] text-bgray-400 truncate">
+                  {contract_created_by}
+                </span>
+              )}
+            </div>
+          </div>
         ) : (
-          <p className="text-base font-medium text-bgray-900 dark:text-white">
-            {reserved_by}
-          </p>
-        )}
-        {contract_created_by && (
-          <p className="text-xs text-bgray-500 dark:text-bgray-400">
-            {t("lots.reservationCreatedBy")}: {contract_created_by}
-          </p>
+          <div className="flex items-center gap-2 text-bgray-300 dark:text-bgray-600 italic text-sm">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span className="text-xs font-medium">{t("lots.notReserved")}</span>
+          </div>
         )}
       </div>
-    );
-  };
 
-  // Render action buttons
-  const renderActions = () => {
-    return (
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* RESERVAR link */}
+      {/* Action Buttons */}
+      <div className="flex gap-2 mt-auto">
         {status?.toLowerCase() === "available" && (
           <Link
             to={`/projects/${project_id}/lots/${id}/contracts/create`}
-            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md"
+            className="flex-1 inline-flex items-center justify-center px-4 py-3 text-sm font-black rounded-2xl bg-success-300 text-white hover:bg-success-400 transition-all shadow-lg shadow-success-300/20 active:scale-95"
           >
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
             {t("lots.reserve")}
           </Link>
         )}
 
-        {/* EDITAR button for admin */}
         {userRole === "admin" && status?.toLowerCase() !== "sold" && (
           <Link
             to={`/projects/${project_id}/lots/${id}/edit`}
-            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
+            className={`inline-flex items-center justify-center px-4 py-3 text-sm font-black rounded-2xl border-2 border-bgray-100 dark:border-darkblack-400 text-bgray-900 dark:text-white hover:bg-bgray-50 dark:hover:bg-darkblack-500 transition-all active:scale-95 ${status?.toLowerCase() === "available" ? 'w-auto' : 'flex-1'}`}
           >
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            {t("common.edit")}
+            {status?.toLowerCase() === "available" ? "" : t("common.edit")}
           </Link>
         )}
       </div>
-    );
-  };
 
-  // MOBILE CARD VIEW
-  if (isMobileCard) {
-    return (
-      <div
-        className={`bg-white dark:bg-darkblack-600 rounded-xl border-2 ${
-          isHighlighted
-            ? "border-blue-500 dark:border-blue-600 shadow-xl ring-2 ring-blue-200 dark:ring-blue-700"
-            : "border-gray-200 dark:border-darkblack-400 shadow-md"
-        } p-5 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200`}
-      >
-        {/* Header: Project Name */}
-        <div className="flex items-start justify-between mb-4 pb-3 border-b border-gray-200 dark:border-darkblack-400">
-          <div className="flex-1">
-            <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">
-              🏢 {project_name}
-            </p>
-            <h3 className="text-lg font-bold text-bgray-900 dark:text-white">
-              {name}
-            </h3>
-            <p className="text-xs text-bgray-500 dark:text-bgray-400 font-mono mt-1">
-              ID: {id}
-            </p>
-          </div>
-          <span className={badgeClass}>{statusLabel}</span>
-        </div>
-
-        {/* Lot Details */}
-        <div className="space-y-3 mb-4">
-          {/* Address and Registration */}
-          {(address || registration_number) && (
-            <div className="space-y-1">
-              {address && (
-                <p className="text-sm text-bgray-600 dark:text-bgray-300 flex items-start">
-                  <span className="mr-1">📍</span>
-                  {address}
-                </p>
-              )}
-              {registration_number && (
-                <p className="text-xs text-bgray-500 dark:text-bgray-400 font-mono">
-                  REG: {registration_number}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Dimensions */}
-          <div>
-            <p className="text-xs text-bgray-500 dark:text-bgray-400 uppercase tracking-wide mb-1">
-              {t("lotsTable.dimensions")}
-            </p>
-            {renderDimensions()}
-          </div>
-
-          {/* Price */}
-          <div>
-            <p className="text-xs text-bgray-500 dark:text-bgray-400 uppercase tracking-wide mb-1">
-              {t("lotsTable.price")}
-            </p>
-            {renderPrice()}
-          </div>
-
-          {/* Reserved By */}
-          {reserved_by && (
-            <div>
-              <p className="text-xs text-bgray-500 dark:text-bgray-400 uppercase tracking-wide mb-1">
-                {t("lotsTable.reservedBy")}
-              </p>
-              {renderReservedBy()}
-            </div>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="pt-3 border-t border-gray-200 dark:border-darkblack-400">
-          {renderActions()}
-        </div>
+      {/* Bottom info bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-bgray-50 dark:bg-darkblack-500 overflow-hidden">
+        <div className={`h-full transition-all duration-1000 w-full ${status?.toLowerCase() === 'available' ? 'bg-success-300' :
+          status?.toLowerCase() === 'reserved' ? 'bg-orange-400' : 'bg-red-400'
+          }`} />
       </div>
-    );
-  }
-
-  // DESKTOP TABLE ROW VIEW (return only <td> elements)
-  return (
-    <>
-      {/* Lote Info (Name, ID, Address, Registration) */}
-      <td className="px-6 py-5">
-        <div className="space-y-1">
-          <p className="text-base font-semibold text-bgray-900 dark:text-white">
-            {name}
-          </p>
-          <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-            🏢 {project_name}
-          </p>
-          <p className="text-xs text-bgray-500 dark:text-bgray-400 font-mono">
-            ID: {id}
-          </p>
-          {address && (
-            <p className="text-sm text-bgray-600 dark:text-bgray-300">
-              📍 {address}
-            </p>
-          )}
-          {registration_number && (
-            <p className="text-xs text-bgray-500 dark:text-bgray-400 font-mono">
-              REG: {registration_number}
-            </p>
-          )}
-        </div>
-      </td>
-
-      {/* Dimensiones */}
-      <td className="px-6 py-5">
-        {renderDimensions()}
-      </td>
-
-      {/* Precio */}
-      <td className="px-6 py-5">
-        {renderPrice()}
-      </td>
-
-      {/* Reservado Por */}
-      <td className="px-6 py-5">
-        {renderReservedBy()}
-      </td>
-
-      {/* Estado */}
-      <td className="px-6 py-5">
-        <div className="flex w-full items-center">
-          <span className={badgeClass}>{statusLabel}</span>
-        </div>
-      </td>
-
-      {/* Acciones */}
-      <td className="px-6 py-5">
-        {renderActions()}
-      </td>
-    </>
+    </motion.div>
   );
 }
 
@@ -346,12 +258,15 @@ LotItem.propTypes = {
     name: PropTypes.string.isRequired,
     address: PropTypes.string,
     registration_number: PropTypes.string,
-    dimensions: PropTypes.string.isRequired,
+    dimensions: PropTypes.string,
+    length: PropTypes.number,
+    width: PropTypes.number,
     measurement_unit: PropTypes.string,
     area: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     override_area: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     override_price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    effective_price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     balance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     reserved_by: PropTypes.string,
     reserved_by_user_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -360,7 +275,8 @@ LotItem.propTypes = {
     status: PropTypes.string.isRequired,
     contract_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }).isRequired,
-  userRole: PropTypes.string.isRequired,
+  userRole: PropTypes.string,
+  index: PropTypes.number,
   isMobileCard: PropTypes.bool,
   isHighlighted: PropTypes.bool,
 };

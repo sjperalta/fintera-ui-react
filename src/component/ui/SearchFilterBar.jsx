@@ -28,13 +28,14 @@ function SearchFilterBar({
   searchTerm = "",
   filterValue = "",
   filterOptions = [],
-  onSearchChange = () => {},
-  onFilterChange = () => {},
+  onSearchChange = () => { },
+  onFilterChange = () => { },
   searchPlaceholder = "Search...",
   filterPlaceholder = "Select Filter",
   minSearchLength = 3,
   showFilter = true,
   actions = [],
+  customClass = "",
 }) {
   const [term, setTerm] = useState(searchTerm);
   const [selectedFilter, setSelectedFilter] = useState(filterValue);
@@ -91,7 +92,7 @@ function SearchFilterBar({
   }, [filterValue, filterOptions]);
 
   return (
-    <div className="bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex">
+    <div className={customClass || "bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex"}>
       {/* Search Input */}
       <div className="flex items-center flex-1 pl-4 xl:border-r border-bgray-400 dark:border-darkblack-400">
         <span>
@@ -190,9 +191,8 @@ function SearchFilterBar({
 
           {/* Dropdown Menu */}
           <div
-            className={`rounded-lg shadow-lg w-full bg-white dark:bg-darkblack-500 absolute right-0 z-10 top-full overflow-hidden ${
-              showFilterDropdown ? "block" : "hidden"
-            }`}
+            className={`rounded-lg shadow-lg w-full bg-white dark:bg-darkblack-500 absolute right-0 z-10 top-full overflow-hidden ${showFilterDropdown ? "block" : "hidden"
+              }`}
           >
             <ul>
               {filterOptions.map((option) => (
@@ -273,6 +273,7 @@ SearchFilterBar.propTypes = {
       icon: PropTypes.node,
     })
   ),
+  customClass: PropTypes.string,
 };
 
 export default SearchFilterBar;
