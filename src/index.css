@@ -9,12 +9,15 @@
   0% {
     transform: translate(0px, 0px) scale(1);
   }
+
   33% {
     transform: translate(30px, -50px) scale(1.1);
   }
+
   66% {
     transform: translate(-20px, 20px) scale(0.9);
   }
+
   100% {
     transform: translate(0px, 0px) scale(1);
   }
@@ -25,6 +28,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -49,33 +53,50 @@
 
 /* Subtle float animation for decorative elements */
 @keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
 }
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
 
 /* Very gentle pulse used for large gradient overlays */
-@keyframes slow-pulse {
-  0% { opacity: 0.95; }
-  50% { opacity: 0.85; }
-  100% { opacity: 0.95; }
+@keyframes spin-once {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
-.animate-slow-pulse {
-  animation: slow-pulse 8s ease-in-out infinite;
+
+.animate-spin-once {
+  animation: spin-once 0.5s ease-in-out;
 }
 
 .switch-btn {
   @apply bg-bgray-300;
 }
+
 .switch-btn.active {
   @apply bg-success-300;
 }
+
 .switch-btn span {
   @apply translate-x-0;
 }
+
 .switch-btn.active span {
   @apply translate-x-[23px];
 }
@@ -95,6 +116,7 @@
   border-radius: 8px;
   overflow: hidden;
 }
+
 .dark .quill-support-wrapper {
   border: 1px solid #2a313c !important;
 }
@@ -110,6 +132,7 @@
   background: #ffff;
   border: 0px !important;
 }
+
 .dark .ql-container {
   background: #23262b;
 }
@@ -119,6 +142,7 @@
   color: white;
   opacity: 0.6;
 }
+
 .ql-container .ql-editor {
   min-height: 100px;
   width: 100%;
@@ -150,12 +174,15 @@
 .dark .quill-support-wrapper .ql-toolbar {
   background: #23262b !important;
 }
+
 .dark .ql-stroke {
   stroke: #ffff !important;
 }
+
 .dark .ql-fill {
   fill: #ffff !important;
 }
+
 .dark .ql-picker-label::before {
   color: #ffff !important;
 }
@@ -169,4 +196,5 @@
 .ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
   border: 0px !important;
 }
+
 /* end quill  */

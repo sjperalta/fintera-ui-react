@@ -5,6 +5,7 @@ function Author({ showProfile, user }) {
   return (
     <div
       onClick={() => showProfile("profile")}
+      id="profile-trigger"
       className="flex cursor-pointer space-x-0 lg:space-x-3 z-30"
     >
       <div className={`h-[52px] w-[52px] rounded-xl border border-bgray-300 ${getAvatarColor(user.full_name)} flex items-center justify-center`}>

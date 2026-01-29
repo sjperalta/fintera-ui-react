@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { ThemeContext } from "../layout";
+import { ThemeContext } from "../../context/ThemeContext";
 
 function ModeToggler() {
   // you can change default theme here

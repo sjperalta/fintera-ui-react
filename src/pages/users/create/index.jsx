@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "./../../../../config";
 import { getToken } from "./../../../../auth";
 import { useNavigate } from "react-router-dom";
@@ -112,7 +113,6 @@ function CreateUser() {
     }
 
     try {
-      // Ensure non-admin creators can only create users with role 'user'
       const safeRole = creator?.role === 'admin' ? formData.role : 'user';
       const payload = {
         ...formData,
@@ -138,7 +138,6 @@ function CreateUser() {
         throw new Error(msg);
       }
 
-      // Parse created user id and redirect to its detail page when available
       const successBody = await response.json().catch(() => ({}));
       const newUserId = successBody?.id || successBody?.user?.id || successBody?.data?.id;
       setSuccess(true);
@@ -153,263 +152,447 @@ function CreateUser() {
     }
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.4, ease: "easeOut" }
+    }
+  };
+
   return (
-    <main className="w-full xl:px-[48px] px-6 pb-6 xl:pb-[48px] sm:pt-[156px] pt-[100px]">
-      <div className="max-w-2xl mx-auto bg-white dark:bg-darkblack-600 p-8 shadow-lg dark:shadow-xl rounded-lg">
-        <h2 className="text-2xl font-bold pb-5 text-bgray-900 dark:text-white border-b border-bgray-200 dark:border-bgray-700">
-          {t('users.createUserTitle')}
-        </h2>
-        {success && <p className="text-green-500 dark:text-green-400">{t('users.userCreatedSuccess')}</p>}
-        {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
-        <form onSubmit={handleSubmit} className="mt-5 space-y-6">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="full_name" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.fullName')}
-            </label>
-            <input
-              type="text"
-              id="full_name"
-              name="full_name"
-              value={formData.full_name}
-              onChange={handleChange}
-              required
-              className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-            />
-          </div>
+    <motion.main
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      className="w-full xl:px-[48px] px-6 pb-6 xl:pb-[48px] sm:pt-[156px] pt-[100px] dark:bg-darkblack-700 min-h-screen"
+    >
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-8"
+        >
+          <h2 className="text-3xl font-extrabold text-bgray-900 dark:text-white mb-2 tracking-tight">
+            {t('users.createUserTitle')}
+          </h2>
+          <p className="text-bgray-500 dark:text-bgray-400 font-medium">
+            {t('users.subtitle') || 'Fill in the details to create a new user'}
+          </p>
+        </motion.div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="identity" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.identity')}
-            </label>
-            <input
-              type="text"
-              id="identity"
-              name="identity"
-              value={formData.identity}
-              onChange={handleChange}
-              placeholder={t('users.identityPlaceholder')}
-              required
-              className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-            />
-          </div>
+        {/* Form Container */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="bg-white/70 dark:bg-darkblack-600/70 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden"
+        >
+          {/* Decorative Background */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl -z-0"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-emerald-500/10 via-teal-500/5 to-transparent rounded-full blur-3xl -z-0"></div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="rtn" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.rtn')}
-            </label>
-            <input
-              type="text"
-              id="rtn"
-              name="rtn"
-              value={formData.rtn}
-              onChange={handleChange}
-              placeholder={t('users.rtnPlaceholder')}
-              required
-              className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="phone" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.phone')}
-            </label>
-            <input
-              type="phone"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="address" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.address')}
-            </label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              placeholder={t('users.addressOptional')}
-              className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="email" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.email')}
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="password" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.password')}
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-            />
-            <div className="mt-2">
-              <div className="mb-2">
-                <div className="w-full bg-bgray-100 dark:bg-darkblack-400 rounded-full h-2 overflow-hidden">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-200 ${
-                      pwFeedback.score >= 5
-                        ? 'bg-green-500'
-                        : pwFeedback.score >= 3
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
-                    }`}
-                    style={{ width: `${(pwFeedback.score / 5) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-sm mb-2">
-                <div className="flex items-center gap-2">
-                  <span className={`font-medium ${pwFeedback.label === t('users.strong') ? 'text-green-600 dark:text-green-400' : pwFeedback.label === t('users.medium') ? 'text-yellow-500 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {t('users.passwordStrength', { label: pwFeedback.label || '—' })}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500 dark:text-white">{formData.password.length} / 8 {t('users.chars')}</div>
-              </div>
-
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <li className="flex items-center gap-2">
-                  <span className={`w-4 h-4 flex items-center justify-center rounded-full text-white text-[10px] ${pwFeedback.criteria?.length ? 'bg-green-500' : 'bg-bgray-300 dark:bg-darkblack-400'}`}>
-                    {pwFeedback.criteria?.length ? '✓' : ''}
-                  </span>
-                  <span className="text-gray-700 dark:text-white">{t('users.minChars')}</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={`w-4 h-4 flex items-center justify-center rounded-full text-white text-[10px] ${pwFeedback.criteria?.upper ? 'bg-green-500' : 'bg-bgray-300 dark:bg-darkblack-400'}`}>
-                    {pwFeedback.criteria?.upper ? '✓' : ''}
-                  </span>
-                  <span className="text-gray-700 dark:text-white">{t('users.uppercase')}</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={`w-4 h-4 flex items-center justify-center rounded-full text-white text-[10px] ${pwFeedback.criteria?.lower ? 'bg-green-500' : 'bg-bgray-300 dark:bg-darkblack-400'}`}>
-                    {pwFeedback.criteria?.lower ? '✓' : ''}
-                  </span>
-                  <span className="text-gray-700 dark:text-white">{t('users.lowercase')}</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={`w-4 h-4 flex items-center justify-center rounded-full text-white text-[10px] ${pwFeedback.criteria?.number ? 'bg-green-500' : 'bg-bgray-300 dark:bg-darkblack-400'}`}>
-                    {pwFeedback.criteria?.number ? '✓' : ''}
-                  </span>
-                  <span className="text-gray-700 dark:text-white">{t('users.number')}</span>
-                </li>
-                <li className="flex items-center gap-2 col-span-1 sm:col-span-2">
-                  <span className={`w-4 h-4 flex items-center justify-center rounded-full text-white text-[10px] ${pwFeedback.criteria?.symbol ? 'bg-green-500' : 'bg-bgray-300 dark:bg-darkblack-400'}`}>
-                    {pwFeedback.criteria?.symbol ? '✓' : ''}
-                  </span>
-                  <span className="text-gray-700 dark:text-white">{t('users.symbol')}</span>
-                </li>
-              </ul>
-              <div className="sr-only" aria-live="polite">
-                {pwFeedback.label ? `${t('users.passwordStrength', { label: pwFeedback.label })}` : ''}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="password_confirmation" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.confirmPassword')}
-            </label>
-            <input
-              type="password"
-              id="password_confirmation"
-              name="password_confirmation"
-              value={formData.password_confirmation}
-              onChange={handleChange}
-              required
-              className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-            />
-            <div className="mt-2 text-sm">
-              {formData.password_confirmation ? (
-                pwMatch ? (
-                  <span className="text-green-600 dark:text-green-400">{t('users.passwordsMatch')}</span>
-                ) : (
-                  <span className="text-red-600 dark:text-red-400">{t('users.passwordsDoNotMatch')}</span>
-                )
-              ) : null}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="role" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.roleLabel')}
-            </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="bg-bgray-50 dark:bg-darkblack-500 p-4 rounded-lg border-0 focus:ring-2 focus:ring-success-300 dark:text-white"
-                disabled={creator?.role !== 'admin'}
-              >
-                <option value="user">{t('users.userRole')}</option>
-                {creator?.role === 'admin' && <option value="admin">{t('users.adminRole')}</option>}
-                {creator?.role === 'admin' && <option value="seller">{t('users.sellerRole')}</option>}
-              </select>
-              {creator?.role !== 'admin' && (
-                <p className="text-xs text-gray-500 dark:text-white mt-1">{t('users.adminOnlyRoleNote')}</p>
+          <div className="relative z-10">
+            {/* Alert Messages */}
+            <AnimatePresence mode="wait">
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  className="mb-6 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900/30 flex items-center gap-3"
+                >
+                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{t('users.userCreatedSuccess')}</p>
+                </motion.div>
               )}
-          </div>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  className="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/30 flex items-center gap-3"
+                >
+                  <svg className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">{error}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          {/* Creator read-only field */}
-          <div className="flex flex-col gap-2">
-            <label htmlFor="created_by" className="text-base font-medium text-bgray-900 dark:text-white">
-              {t('users.createdByLabel')}
-            </label>
-            <input
-              type="text"
-              id="created_by"
-              name="created_by"
-              value={creator?.full_name || ""}
-              readOnly
-              disabled
-              className="bg-bgray-100 dark:bg-darkblack-500 p-4 rounded-lg border-0 text-gray-700 dark:text-white"
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Personal Information Section */}
+              <motion.div variants={itemVariants} className="space-y-6">
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-bgray-400 dark:text-bgray-500 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {t('users.personalInfo') || 'Personal Information'}
+                </h3>
 
-          <div className="flex justify-between">
-            <button
-              aria-label="none"
-              type="button"
-              onClick={() => navigate(-1)}
-              className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white mt-10 py-3.5 px-4 rounded-lg transition-colors"
-            >
-              {t('users.back')}
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold mt-10 py-3.5 px-4 rounded-lg transition-colors"
-            >
-              {t('users.createUser')}
-            </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Full Name */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2">
+                    <label htmlFor="full_name" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.fullName')}
+                    </label>
+                    <input
+                      type="text"
+                      id="full_name"
+                      name="full_name"
+                      value={formData.full_name}
+                      onChange={handleChange}
+                      required
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                    />
+                  </motion.div>
+
+                  {/* Phone */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2">
+                    <label htmlFor="phone" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.phone')}
+                    </label>
+                    <input
+                      type="phone"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                    />
+                  </motion.div>
+
+                  {/* Email */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2 md:col-span-2">
+                    <label htmlFor="email" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.email')}
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                    />
+                  </motion.div>
+
+                  {/* Identity */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2">
+                    <label htmlFor="identity" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.identity')}
+                    </label>
+                    <input
+                      type="text"
+                      id="identity"
+                      name="identity"
+                      value={formData.identity}
+                      onChange={handleChange}
+                      placeholder={t('users.identityPlaceholder')}
+                      required
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                    />
+                  </motion.div>
+
+                  {/* RTN */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2">
+                    <label htmlFor="rtn" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.rtn')}
+                    </label>
+                    <input
+                      type="text"
+                      id="rtn"
+                      name="rtn"
+                      value={formData.rtn}
+                      onChange={handleChange}
+                      placeholder={t('users.rtnPlaceholder')}
+                      required
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                    />
+                  </motion.div>
+
+                  {/* Address */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2 md:col-span-2">
+                    <label htmlFor="address" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.address')}
+                    </label>
+                    <input
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      placeholder={t('users.addressOptional')}
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                    />
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              {/* Security Section */}
+              <motion.div variants={itemVariants} className="space-y-6 pt-6 border-t border-bgray-200 dark:border-darkblack-400">
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-bgray-400 dark:text-bgray-500 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  {t('users.security') || 'Security'}
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Password */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2 md:col-span-2">
+                    <label htmlFor="password" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.password')}
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                    />
+
+                    {/* Password Strength Indicator */}
+                    <div className="mt-4 p-4 rounded-xl bg-bgray-50 dark:bg-darkblack-500 border border-bgray-200 dark:border-darkblack-400">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-bgray-600 dark:text-bgray-400 uppercase tracking-wider">
+                          {t('users.passwordStrength', { label: '' })}
+                        </span>
+                        <span className={`text-xs font-extrabold uppercase tracking-wider ${pwFeedback.label === t('users.strong')
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : pwFeedback.label === t('users.medium')
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-rose-600 dark:text-rose-400'
+                          }`}>
+                          {pwFeedback.label || '—'}
+                        </span>
+                      </div>
+
+                      {/* Strength Bar */}
+                      <div className="flex gap-1.5 mb-4">
+                        {[1, 2, 3, 4, 5].map((segment) => (
+                          <motion.div
+                            key={segment}
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: segment <= pwFeedback.score ? 1 : 0 }}
+                            transition={{ duration: 0.3, delay: segment * 0.05 }}
+                            className={`h-2 flex-1 rounded-full ${segment <= pwFeedback.score
+                                ? pwFeedback.score >= 5
+                                  ? 'bg-emerald-500'
+                                  : pwFeedback.score >= 3
+                                    ? 'bg-amber-500'
+                                    : 'bg-rose-500'
+                                : 'bg-bgray-200 dark:bg-darkblack-400'
+                              }`}
+                            style={{ transformOrigin: 'left' }}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Criteria Checklist */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {[
+                          { key: 'length', label: t('users.minChars') },
+                          { key: 'upper', label: t('users.uppercase') },
+                          { key: 'lower', label: t('users.lowercase') },
+                          { key: 'number', label: t('users.number') },
+                          { key: 'symbol', label: t('users.symbol') }
+                        ].map((criterion) => (
+                          <motion.div
+                            key={criterion.key}
+                            initial={{ opacity: 0, x: -5 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center gap-2"
+                          >
+                            <motion.div
+                              animate={{
+                                scale: pwFeedback.criteria?.[criterion.key] ? [1, 1.2, 1] : 1,
+                                backgroundColor: pwFeedback.criteria?.[criterion.key]
+                                  ? 'rgb(16, 185, 129)'
+                                  : 'rgb(229, 231, 235)'
+                              }}
+                              transition={{ duration: 0.3 }}
+                              className="w-4 h-4 rounded-full flex items-center justify-center"
+                            >
+                              {pwFeedback.criteria?.[criterion.key] && (
+                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </motion.div>
+                            <span className="text-xs font-medium text-bgray-700 dark:text-bgray-300">
+                              {criterion.label}
+                            </span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Confirm Password */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2 md:col-span-2">
+                    <label htmlFor="password_confirmation" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.confirmPassword')}
+                    </label>
+                    <input
+                      type="password"
+                      id="password_confirmation"
+                      name="password_confirmation"
+                      value={formData.password_confirmation}
+                      onChange={handleChange}
+                      required
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                    />
+                    <AnimatePresence mode="wait">
+                      {formData.password_confirmation && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          className="flex items-center gap-2 mt-1"
+                        >
+                          {pwMatch ? (
+                            <>
+                              <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                {t('users.passwordsMatch')}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-4 h-4 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+                                {t('users.passwordsDoNotMatch')}
+                              </span>
+                            </>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              {/* Role & Creator Section */}
+              <motion.div variants={itemVariants} className="space-y-6 pt-6 border-t border-bgray-200 dark:border-darkblack-400">
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-bgray-400 dark:text-bgray-500 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {t('users.accountSettings') || 'Account Settings'}
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Role */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2">
+                    <label htmlFor="role" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.roleLabel')}
+                    </label>
+                    <select
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleChange}
+                      className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
+                      disabled={creator?.role !== 'admin'}
+                    >
+                      <option value="user">{t('users.userRole')}</option>
+                      {creator?.role === 'admin' && <option value="admin">{t('users.adminRole')}</option>}
+                      {creator?.role === 'admin' && <option value="seller">{t('users.sellerRole')}</option>}
+                    </select>
+                    {creator?.role !== 'admin' && (
+                      <p className="text-xs text-bgray-500 dark:text-bgray-400 mt-1">
+                        {t('users.adminOnlyRoleNote')}
+                      </p>
+                    )}
+                  </motion.div>
+
+                  {/* Created By */}
+                  <motion.div variants={itemVariants} className="flex flex-col gap-2">
+                    <label htmlFor="created_by" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
+                      {t('users.createdByLabel')}
+                    </label>
+                    <input
+                      type="text"
+                      id="created_by"
+                      name="created_by"
+                      value={creator?.full_name || ""}
+                      readOnly
+                      disabled
+                      className="bg-bgray-100 dark:bg-darkblack-500 p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 text-bgray-600 dark:text-bgray-400 cursor-not-allowed"
+                    />
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              {/* Action Buttons */}
+              <motion.div
+                variants={itemVariants}
+                className="flex flex-col sm:flex-row justify-between gap-4 pt-6"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.02, x: -5 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="px-8 py-4 rounded-xl bg-bgray-100 dark:bg-darkblack-500 text-bgray-700 dark:text-white font-bold hover:bg-bgray-200 dark:hover:bg-darkblack-400 transition-all flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  {t('users.back')}
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  {t('users.createUser')}
+                </motion.button>
+              </motion.div>
+            </form>
           </div>
-        </form>
+        </motion.div>
       </div>
-    </main>
+    </motion.main>
   );
 }
 

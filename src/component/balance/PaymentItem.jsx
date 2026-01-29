@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { format, parseISO, isBefore, startOfDay } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../auth";
 import { formatStatus } from "../../utils/formatStatus";
@@ -8,861 +9,440 @@ import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
 
 /**
- * PaymentItem Component - Dual rendering for GenericList
- * Supports both mobile card view and desktop table row view
+ * Version 2.0 PaymentItem - Highly refined with Liquid Animations and Glassmorphism
  */
 function PaymentItem({ paymentInfo, index, userRole, refreshPayments, onClick, isMobileCard = false }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const token = getToken();
 
-  // State for approve modal
+  // Modal State
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
   const [editAmount, setEditAmount] = useState(paymentInfo.amount);
   const [editInterest, setEditInterest] = useState(paymentInfo.interest_amount || 0);
-  const [approvalResult, setApprovalResult] = useState(null); // { type: 'success'|'error', message: string }
+  const [approvalResult, setApprovalResult] = useState(null);
 
-  // Check if document is available
   const hasReceipt = Boolean(paymentInfo.document_url);
 
-  // Format currency
   const formatCurrency = (value, currency = "HNL") => {
-    if (value === null || value === undefined || value === "") return "—";
-    return `${currency} ${Number(value).toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
+    if (value === null || value === undefined) return "—";
+    return `${currency} ${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  // Format date
   const formatDate = (dateString) => {
     if (!dateString) return t('common.notAvailable');
     try {
-      return format(parseISO(dateString), "dd MMM yyyy");
+      return format(parseISO(dateString), "dd MMM, yyyy");
     } catch {
       return dateString;
     }
   };
 
-  // Mask identity - shows first 4 and last 4 digits
   const maskIdentity = (identity) => {
     if (!identity) return "N/A";
     const str = String(identity);
-    if (str.length <= 8) return str;
-    const first4 = str.slice(0, 4);
-    const last4 = str.slice(-4);
-    const middleLength = str.length - 8;
-    return `${first4}${"*".repeat(middleLength)}${last4}`;
+    return str.length <= 8 ? str : `${str.slice(0, 4)}••••${str.slice(-4)}`;
   };
 
-  // Calculate overdue status
   const isOverdue = paymentInfo.due_date && !paymentInfo.payment_date
     ? isBefore(parseISO(paymentInfo.due_date), startOfDay(new Date()))
     : false;
 
-  // Calculate total amount
   const totalAmount = Number(paymentInfo.amount || 0) + Number(paymentInfo.interest_amount || 0);
-
-  // Status styling
   const statusLower = (paymentInfo.status || "").toLowerCase();
-  const getStatusBadgeClass = () => {
-    if (statusLower === "paid") {
-      return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300";
-    } else if (statusLower === "submitted") {
-      return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300";
-    } else if (isOverdue) {
-      return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300";
+
+  const getStatusConfig = () => {
+    switch (statusLower) {
+      case "paid":
+        return {
+          bg: "bg-blue-500/10",
+          text: "text-blue-600 dark:text-blue-400",
+          dot: "bg-blue-500",
+          border: "border-blue-500/20"
+        };
+      case "submitted":
+        return {
+          bg: "bg-amber-500/10",
+          text: "text-amber-600 dark:text-amber-400",
+          dot: "bg-amber-500",
+          border: "border-amber-500/20"
+        };
+      default:
+        if (isOverdue) return { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-500", border: "border-rose-500/20" };
+        return { bg: "bg-slate-500/10", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400", border: "border-slate-500/20" };
     }
-    return "bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-300";
   };
 
-  const statusLabel = statusLower === "submitted" 
+  const statusConfig = getStatusConfig();
+  const statusLabel = statusLower === "submitted"
     ? t('payments.statusOptions.submitted')
-    : statusLower === "paid" 
-    ? t('payments.statusOptions.paid')
-    : formatStatus(paymentInfo.status, t);
+    : statusLower === "paid"
+      ? t('payments.statusOptions.paid')
+      : formatStatus(paymentInfo.status, t);
 
-  // Handle approve payment
   const handleApprove = async () => {
     setApproveLoading(true);
-    setApprovalResult(null); // Clear previous result
+    setApprovalResult(null);
     try {
       const res = await fetch(`${API_URL}/api/v1/payments/${paymentInfo.id}/approve`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          amount: editAmount,
-          interest_amount: editInterest,
-        }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ amount: editAmount, interest_amount: editInterest }),
       });
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.errors?.join(" ") || t('payments.approveError'));
       }
-      // Success - show success message
-      setApprovalResult({
-        type: 'success',
-        message: t('payments.approveSuccess') || 'Payment approved successfully!'
-      });
-      // Refresh payments after a short delay
+      setApprovalResult({ type: 'success', message: t('payments.approveSuccess') });
       setTimeout(() => {
-        if (typeof refreshPayments === "function") {
-          refreshPayments();
-        }
+        if (typeof refreshPayments === "function") refreshPayments();
         setShowApproveModal(false);
         setApprovalResult(null);
-      }, 2000);
+      }, 1500);
     } catch (err) {
-      // Error - show error message in modal
-      setApprovalResult({
-        type: 'error',
-        message: err.message
-      });
+      setApprovalResult({ type: 'error', message: err.message });
     } finally {
       setApproveLoading(false);
     }
   };
 
-  // Handle download receipt
   const handleDownloadReceipt = async () => {
     try {
-      const response = await fetch(
-        `${API_URL}/api/v1/payments/${paymentInfo.id}/download_receipt`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(t('payments.downloadReceiptError'));
-      }
-
+      const response = await fetch(`${API_URL}/api/v1/payments/${paymentInfo.id}/download_receipt`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error(t('payments.downloadReceiptError'));
       const blob = await response.blob();
-      let extension = "";
-      switch (blob.type) {
-        case "application/pdf":
-          extension = ".pdf";
-          break;
-        case "image/jpeg":
-          extension = ".jpg";
-          break;
-        case "image/png":
-          extension = ".png";
-          break;
-        default:
-          extension = "";
-      }
-
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `comprobante-pago-${paymentInfo.id}${extension}`;
+      a.download = `receipt-${paymentInfo.id}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (error) {
       showToast(`Error: ${error.message}`, "error");
-      console.error(error);
     }
   };
 
-  // Mobile Card View
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", damping: 15, stiffness: 100 } }
+  };
+
+  // --- VERSION 2.0 MOBILE VIEW ---
   if (isMobileCard) {
     return (
-      <>
-        <div className="space-y-3">
-        {/* Header with description and status */}
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-base font-semibold text-bgray-900 dark:text-white mb-1">
-              {paymentInfo.description || t('common.notAvailable')}
-            </p>
-            {paymentInfo.contract?.lot?.name && (
-              <p className="text-sm text-bgray-500 dark:text-bgray-400 flex items-center gap-1">
-                <span className="text-blue-600">🏠</span>
-                <span>{paymentInfo.contract.lot.name}</span>
-              </p>
-            )}
-            {paymentInfo.contract?.lot?.address && (
-              <p className="text-xs text-bgray-400 dark:text-bgray-500 flex items-center gap-1 mt-0.5">
-                <span className="text-gray-500">📍</span>
-                <span>{paymentInfo.contract.lot?.address}</span>
-              </p>
-            )}
+      <motion.div
+        layout
+        variants={cardVariants}
+        initial="hidden"
+        animate="visible"
+        whileHover={{ y: -4, shadow: "0 10px 25px rgba(0,0,0,0.05)" }}
+        className="relative group bg-white dark:bg-darkblack-600 rounded-2xl p-6 border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden"
+      >
+
+        <div className="space-y-6 relative z-10">
+          <div className="flex justify-between items-center mb-4">
+            <div className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase flex items-center gap-1.5 border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot} animate-pulse`} />
+              {statusLabel}
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{t('payments.dueDate')}</span>
+              <span className={`text-[11px] font-black ${isOverdue ? 'text-rose-500' : 'text-slate-600 dark:text-slate-300'}`}>{formatDate(paymentInfo.due_date)}</span>
+            </div>
           </div>
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass()}`}>
-            {statusLabel}
-          </span>
-        </div>
 
-        {/* Applicant info */}
-        {paymentInfo.contract?.applicant_user && (
-          <div className="bg-gray-50 dark:bg-darkblack-500 p-3 rounded-lg space-y-1">
-            <p className="text-sm font-semibold text-bgray-900 dark:text-white">
-              {paymentInfo.contract.applicant_user.full_name}
-            </p>
-            {paymentInfo.contract?.applicant_user?.phone && (
-              <p className="text-xs text-bgray-500 dark:text-bgray-400 flex items-center gap-1">
-                <span>📞</span>
-                <span>{paymentInfo.contract.applicant_user.phone}</span>
-              </p>
-            )}
-            {paymentInfo.contract?.applicant_user?.identity && (
-              <p className="text-xs text-bgray-500 dark:text-bgray-400 flex items-center gap-1">
-                <span>🆔</span>
-                <span className="font-mono">{maskIdentity(paymentInfo.contract.applicant_user.identity)}</span>
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Amount and due date */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className={`p-3 rounded-lg ${isOverdue ? "bg-red-50 dark:bg-red-900/10" : "bg-gray-50 dark:bg-darkblack-500"}`}>
-            <p className="text-xs text-bgray-500 dark:text-bgray-400 mb-1">
-              {t('payments.totalAmount')}
-            </p>
-            <p className={`text-base font-bold ${isOverdue ? "text-red-600 dark:text-red-400" : "text-bgray-900 dark:text-white"}`}>
-              {formatCurrency(totalAmount, paymentInfo.contract?.currency)}
-            </p>
-            {paymentInfo.interest_amount > 0 && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                +{formatCurrency(paymentInfo.interest_amount, paymentInfo.contract?.currency)} {t('paymentHistory.interest')}
-              </p>
-            )}
-          </div>
-          <div className="bg-gray-50 dark:bg-darkblack-500 p-3 rounded-lg">
-            <p className="text-xs text-bgray-500 dark:text-bgray-400 mb-1">
-              {t('payments.dueDate')}
-            </p>
-            <p className={`text-sm font-semibold ${isOverdue ? "text-red-600 dark:text-red-400" : "text-bgray-900 dark:text-white"}`}>
-              {formatDate(paymentInfo.due_date)}
-            </p>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-2">
-          {statusLower === "submitted" && userRole === "admin" && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowApproveModal(true);
-              }}
-              className="flex-1 px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors"
-            >
-              {t('payments.approve')}
-            </button>
-          )}
-          {statusLower === "paid" && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (hasReceipt) {
-                  handleDownloadReceipt();
-                }
-              }}
-              disabled={!hasReceipt}
-              className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                hasReceipt
-                  ? "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-                  : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-              }`}
-            >
-              {t('payments.downloadReceipt')}
-            </button>
-          )}
-        </div>
-
-        {/* Approve Modal */}
-        {showApproveModal && (
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4"
-            onClick={() => setShowApproveModal(false)}
-          >
-            <div
-              className="bg-white dark:bg-darkblack-600 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 px-6 py-5 rounded-t-2xl">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/20 p-2 rounded-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h4 className="text-xl font-bold text-white">
-                    {t('payments.approvePayment')}
-                  </h4>
-                </div>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 space-y-5">
-                {/* Payment Info Summary */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">
-                    📄 {paymentInfo.description}
-                  </p>
-                  {paymentInfo.contract?.applicant_user && (
-                    <p className="text-xs text-blue-700 dark:text-blue-300">
-                      👤 {paymentInfo.contract.applicant_user.full_name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Document Preview */}
-                {hasReceipt && paymentInfo.document_url && (
-                  <div className="bg-gray-50 dark:bg-darkblack-500 border-2 border-gray-200 dark:border-darkblack-400 rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                        📎 {t('payments.attachedDocument')}
-                      </h5>
-                      <button
-                        onClick={handleDownloadReceipt}
-                        className="text-xs px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center gap-1"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        {t('common.download')}
-                      </button>
-                    </div>
-                    <div className="bg-white dark:bg-darkblack-600 rounded-lg overflow-hidden border border-gray-200 dark:border-darkblack-300">
-                      {paymentInfo.document_url.toLowerCase().endsWith('.pdf') ? (
-                        <iframe
-                          src={paymentInfo.document_url}
-                          className="w-full h-64"
-                          title="Document Preview"
-                        />
-                      ) : (
-                        <img
-                          src={paymentInfo.document_url}
-                          alt="Payment Receipt"
-                          className="w-full h-auto max-h-64 object-contain"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      )}
-                      <div className="hidden items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-                        <div className="text-center">
-                          <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <p className="text-sm">{t('payments.previewNotAvailable')}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Amount Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    💰 {t('payments.amount')}
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
-                      {paymentInfo.contract?.currency || "HNL"}
-                    </span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={editAmount}
-                      onChange={(e) => setEditAmount(e.target.value)}
-                      className="w-full pl-16 pr-4 py-3 text-lg font-semibold border-2 border-gray-300 dark:border-darkblack-400 rounded-xl bg-white dark:bg-darkblack-500 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-
-                {/* Interest Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    📈 {t('payments.lateInterest')}
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
-                      {paymentInfo.contract?.currency || "HNL"}
-                    </span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={editInterest}
-                      onChange={(e) => setEditInterest(e.target.value)}
-                      className="w-full pl-16 pr-4 py-3 text-lg font-semibold border-2 border-gray-300 dark:border-darkblack-400 rounded-xl bg-white dark:bg-darkblack-500 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-
-                {/* Total Summary */}
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-darkblack-500 dark:to-darkblack-400 rounded-xl p-4 border-2 border-gray-200 dark:border-darkblack-300">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      💵 Total a Aprobar:
-                    </span>
-                    <span className="text-xl font-bold text-green-600 dark:text-green-400">
-                      {paymentInfo.contract?.currency || "HNL"} {(Number(editAmount) + Number(editInterest)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Approval Result */}
-                {approvalResult && (
-                  <div className={`rounded-xl p-4 border-2 ${
-                    approvalResult.type === 'success'
-                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                      : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                  }`}>
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        approvalResult.type === 'success'
-                          ? 'bg-green-100 dark:bg-green-800/50'
-                          : 'bg-red-100 dark:bg-red-800/50'
-                      }`}>
-                        {approvalResult.type === 'success' ? (
-                          <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        ) : (
-                          <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className={`text-sm font-semibold ${
-                          approvalResult.type === 'success'
-                            ? 'text-green-800 dark:text-green-200'
-                            : 'text-red-800 dark:text-red-200'
-                        }`}>
-                          {approvalResult.type === 'success' ? '¡Éxito!' : 'Error'}
-                        </p>
-                        <p className={`text-sm ${
-                          approvalResult.type === 'success'
-                            ? 'text-green-700 dark:text-green-300'
-                            : 'text-red-700 dark:text-red-300'
-                        }`}>
-                          {approvalResult.message}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="bg-gray-50 dark:bg-darkblack-500 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
-                <button
-                  onClick={() => {
-                    setShowApproveModal(false);
-                    setApprovalResult(null);
-                  }}
-                  className="px-6 py-2.5 text-sm font-semibold rounded-xl bg-white dark:bg-darkblack-600 border-2 border-gray-300 dark:border-darkblack-400 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-darkblack-700 transition-all shadow-sm hover:shadow"
-                >
-                  ✕ {t('common.cancel')}
-                </button>
-                {!approvalResult?.type && (
-                  <button
-                    onClick={handleApprove}
-                    disabled={approveLoading}
-                    className="px-6 py-2.5 text-sm font-semibold rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:hover:shadow-lg flex items-center gap-2"
-                  >
-                    {approveLoading ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>{t('common.processing')}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>✓</span>
-                        <span>{t('payments.approve')}</span>
-                      </>
-                    )}
-                  </button>
-                )}
+          <div>
+            <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2 leading-tight">
+              {paymentInfo.description} <span className="text-blue-500 font-normal">.</span>
+            </h4>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="text-[10px] font-black bg-slate-900 dark:bg-darkblack-400 text-white px-2.5 py-1 rounded-lg uppercase tracking-tighter">
+                {paymentInfo.contract?.lot?.name || "N/A"}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-white/10" />
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{paymentInfo.contract?.applicant_user?.full_name || "-"}</span>
               </div>
             </div>
           </div>
-        )}
-      </div>
-      </>
+
+          <div className="flex items-end justify-between pt-6 border-t border-slate-50 dark:border-white/5">
+            <div>
+              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Grand Total</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {formatCurrency(totalAmount, paymentInfo.contract?.currency)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              {statusLower === "submitted" && userRole === "admin" && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={(e) => { e.stopPropagation(); setShowApproveModal(true); }}
+                  className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm hover:bg-slate-800 transition-all flex items-center justify-center"
+                >
+                  {t('payments.approve')}
+                </motion.button>
+              )}
+              {statusLower === "paid" && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={(e) => { e.stopPropagation(); hasReceipt && handleDownloadReceipt(); }}
+                  disabled={!hasReceipt}
+                  className={`p-4 rounded-[22px] transition-all flex items-center justify-center ${hasReceipt ? "bg-white dark:bg-darkblack-500 text-blue-600 shadow-xl border border-slate-100 dark:border-white/5" : "bg-slate-50 text-slate-200 dark:bg-darkblack-500/50"}`}
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                </motion.button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {showApproveModal && <ApproveModal
+          paymentInfo={paymentInfo} onClose={() => setShowApproveModal(false)}
+          handleApprove={handleApprove} approveLoading={approveLoading} approvalResult={approvalResult}
+          editAmount={editAmount} setEditAmount={setEditAmount} editInterest={editInterest} setEditInterest={setEditInterest}
+          t={t} hasReceipt={hasReceipt} handleDownloadReceipt={handleDownloadReceipt}
+        />}
+      </motion.div>
     );
   }
 
-  // Desktop Table Row View - Return only <td> elements
+  // --- VERSION 2.0 DESKTOP VIEW ---
   return (
-    <>
-      {/* Description */}
-      <td className="px-6 py-5">
-        <div className="space-y-1">
-          <p className="text-base font-semibold text-bgray-900 dark:text-white">
-            {paymentInfo.description || t('common.notAvailable')}
-          </p>
-          {paymentInfo.contract?.lot?.name && (
-            <p className="text-sm text-bgray-500 dark:text-bgray-400 flex items-center gap-1">
-              <span className="text-blue-600">🏠</span>
-              <span>{paymentInfo.contract.lot.name}</span>
-            </p>
-          )}
-          {paymentInfo.contract?.lot?.address && (
-            <p className="text-xs text-bgray-400 dark:text-bgray-500 flex items-center gap-1">
-              <span className="text-gray-500">📍</span>
-              <span>{paymentInfo.contract.lot.address}</span>
-            </p>
-          )}
-        </div>
-      </td>
-
-      {/* Applicant */}
-      <td className="px-6 py-5">
-        {paymentInfo.contract?.applicant_user ? (
-          <div className="space-y-1">
-            <p className="text-base font-semibold text-bgray-900 dark:text-white">
-              {paymentInfo.contract.applicant_user.full_name}
-            </p>
-            {paymentInfo.contract.applicant_user.phone && (
-              <p className="text-sm text-bgray-500 dark:text-bgray-400 flex items-center gap-1">
-                <span className="text-green-600">📞</span>
-                <span>{paymentInfo.contract.applicant_user.phone}</span>
-              </p>
-            )}
-            {paymentInfo.contract.applicant_user.identity && (
-              <p className="text-sm text-bgray-500 dark:text-bgray-400 flex items-center gap-1">
-                <span className="text-blue-600">🆔</span>
-                <span className="font-mono">{maskIdentity(paymentInfo.contract.applicant_user.identity)}</span>
-              </p>
-            )}
+    <motion.tr
+      layout
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+      className="group border-b border-slate-100/50 dark:border-white/5 last:border-0 hover:bg-slate-50/40 dark:hover:bg-white/[0.02] transition-colors duration-400"
+    >
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-5">
+          <div className="relative w-10 h-10 rounded-xl bg-white dark:bg-darkblack-500 shadow-sm border border-slate-100 dark:border-white/10 flex items-center justify-center text-slate-400 group-hover:text-blue-500 group-hover:border-blue-500/20 transition-all duration-500 overflow-hidden">
+            <svg className="w-5 h-5 z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
-        ) : (
-          <p className="text-sm text-bgray-500 dark:text-bgray-400">{t('common.notAvailable')}</p>
-        )}
-      </td>
-
-      {/* Amount */}
-      <td className="px-6 py-5 text-right">
-        <p className={`text-base font-bold ${isOverdue ? "text-red-600 dark:text-red-400" : "text-bgray-900 dark:text-white"}`}>
-          {formatCurrency(totalAmount, paymentInfo.contract?.currency)}
-        </p>
-        {paymentInfo.interest_amount > 0 && (
-          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-            +{formatCurrency(paymentInfo.interest_amount, paymentInfo.contract?.currency)}
-          </p>
-        )}
-      </td>
-
-      {/* Due Date */}
-      <td className="px-6 py-5">
-        <p className={`text-sm font-semibold ${isOverdue ? "text-red-600 dark:text-red-400" : "text-bgray-900 dark:text-white"}`}>
-          {formatDate(paymentInfo.due_date)}
-        </p>
-      </td>
-
-      {/* Status */}
-      <td className="px-6 py-5">
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass()}`}>
-          {statusLabel}
-        </span>
-      </td>
-
-      {/* Actions */}
-      <td className="px-6 py-5">
-        <div className="flex gap-2">
-          {statusLower === "submitted" && userRole === "admin" && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowApproveModal(true);
-              }}
-              className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-lg transition-colors"
-            >
-              {t('payments.approve')}
-            </button>
-          )}
-          {statusLower === "paid" && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (hasReceipt) {
-                  handleDownloadReceipt();
-                }
-              }}
-              disabled={!hasReceipt}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                hasReceipt
-                  ? "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-                  : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-              }`}
-            >
-              {t('payments.downloadReceipt')}
-            </button>
-          )}
-        </div>
-
-        {/* Approve Modal */}
-        {showApproveModal && (
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4"
-            onClick={() => setShowApproveModal(false)}
-          >
-            <div
-              className="bg-white dark:bg-darkblack-600 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 px-6 py-5 rounded-t-2xl">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/20 p-2 rounded-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h4 className="text-xl font-bold text-white">
-                    {t('payments.approvePayment')}
-                  </h4>
-                </div>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 space-y-5">
-                {/* Payment Info Summary */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">
-                    📄 {paymentInfo.description}
-                  </p>
-                  {paymentInfo.contract?.applicant_user && (
-                    <p className="text-xs text-blue-700 dark:text-blue-300">
-                      👤 {paymentInfo.contract.applicant_user.full_name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Document Preview */}
-                {hasReceipt && paymentInfo.document_url && (
-                  <div className="bg-gray-50 dark:bg-darkblack-500 border-2 border-gray-200 dark:border-darkblack-400 rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                        📎 {t('payments.attachedDocument')}
-                      </h5>
-                      <button
-                        onClick={handleDownloadReceipt}
-                        className="text-xs px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center gap-1"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        {t('common.download')}
-                      </button>
-                    </div>
-                    <div className="bg-white dark:bg-darkblack-600 rounded-lg overflow-hidden border border-gray-200 dark:border-darkblack-300">
-                      {paymentInfo.document_url.toLowerCase().endsWith('.pdf') ? (
-                        <iframe
-                          src={paymentInfo.document_url}
-                          className="w-full h-64"
-                          title="Document Preview"
-                        />
-                      ) : (
-                        <img
-                          src={paymentInfo.document_url}
-                          alt="Payment Receipt"
-                          className="w-full h-auto max-h-64 object-contain"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      )}
-                      <div className="hidden items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-                        <div className="text-center">
-                          <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <p className="text-sm">{t('payments.previewNotAvailable')}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Amount Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    💰 {t('payments.amount')}
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
-                      {paymentInfo.contract?.currency || "HNL"}
-                    </span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={editAmount}
-                      onChange={(e) => setEditAmount(e.target.value)}
-                      className="w-full pl-16 pr-4 py-3 text-lg font-semibold border-2 border-gray-300 dark:border-darkblack-400 rounded-xl bg-white dark:bg-darkblack-500 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-
-                {/* Interest Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    📈 {t('payments.lateInterest')}
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
-                      {paymentInfo.contract?.currency || "HNL"}
-                    </span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={editInterest}
-                      onChange={(e) => setEditInterest(e.target.value)}
-                      className="w-full pl-16 pr-4 py-3 text-lg font-semibold border-2 border-gray-300 dark:border-darkblack-400 rounded-xl bg-white dark:bg-darkblack-500 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-
-                {/* Total Summary */}
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-darkblack-500 dark:to-darkblack-400 rounded-xl p-4 border-2 border-gray-200 dark:border-darkblack-300">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      💵 Total a Aprobar:
-                    </span>
-                    <span className="text-xl font-bold text-green-600 dark:text-green-400">
-                      {paymentInfo.contract?.currency || "HNL"} {(Number(editAmount) + Number(editInterest)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Approval Result */}
-                {approvalResult && (
-                  <div className={`rounded-xl p-4 border-2 ${
-                    approvalResult.type === 'success'
-                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                      : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                  }`}>
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        approvalResult.type === 'success'
-                          ? 'bg-green-100 dark:bg-green-800/50'
-                          : 'bg-red-100 dark:bg-red-800/50'
-                      }`}>
-                        {approvalResult.type === 'success' ? (
-                          <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        ) : (
-                          <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className={`text-sm font-semibold ${
-                          approvalResult.type === 'success'
-                            ? 'text-green-800 dark:text-green-200'
-                            : 'text-red-800 dark:text-red-200'
-                        }`}>
-                          {approvalResult.type === 'success' ? '¡Éxito!' : 'Error'}
-                        </p>
-                        <p className={`text-sm ${
-                          approvalResult.type === 'success'
-                            ? 'text-green-700 dark:text-green-300'
-                            : 'text-red-700 dark:text-red-300'
-                        }`}>
-                          {approvalResult.message}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="bg-gray-50 dark:bg-darkblack-500 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
-                <button
-                  onClick={() => {
-                    setShowApproveModal(false);
-                    setApprovalResult(null);
-                  }}
-                  className="px-6 py-2.5 text-sm font-semibold rounded-xl bg-white dark:bg-darkblack-600 border-2 border-gray-300 dark:border-darkblack-400 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-darkblack-700 transition-all shadow-sm hover:shadow"
-                >
-                  ✕ {t('common.cancel')}
-                </button>
-                {!approvalResult?.type && (
-                  <button
-                    onClick={handleApprove}
-                    disabled={approveLoading}
-                    className="px-6 py-2.5 text-sm font-semibold rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:hover:shadow-lg flex items-center gap-2"
-                  >
-                    {approveLoading ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>{t('common.processing')}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>✓</span>
-                        <span>{t('payments.approve')}</span>
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-900 dark:text-white mb-0.5 truncate">{paymentInfo.description}</p>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-bold tracking-wider text-blue-500 uppercase opacity-40">PROPERTY</span>
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase">{paymentInfo.contract?.lot?.name || "-"}</span>
             </div>
           </div>
-        )}
+        </div>
       </td>
-    </>
+      <td className="px-6 py-4">
+        <div className="flex flex-col">
+          <span className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{paymentInfo.contract?.applicant_user?.full_name || "-"}</span>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 opacity-60 mt-0.5">{maskIdentity(paymentInfo.contract?.applicant_user?.identity)}</span>
+        </div>
+      </td>
+      <td className="px-6 py-4 text-right">
+        <div className="flex flex-col items-end">
+          <div className="flex items-center gap-1.5">
+            <span className={`text-xl font-bold ${isOverdue ? "text-rose-600 dark:text-rose-400" : "text-slate-900 dark:text-white"}`}>
+              {formatCurrency(totalAmount, paymentInfo.contract?.currency)}
+            </span>
+          </div>
+          {paymentInfo.interest_amount > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase mt-0.5">+{formatCurrency(paymentInfo.interest_amount)} ACCRUED</span>}
+        </div>
+      </td>
+      <td className="px-6 py-4">
+        <div className="flex flex-col">
+          <span className={`text-[13px] font-bold ${isOverdue ? "text-rose-600" : "text-slate-900 dark:text-slate-300"}`}>{formatDate(paymentInfo.due_date)}</span>
+          {isOverdue && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider mt-1">PAST DUE</span>}
+        </div>
+      </td>
+      <td className="px-6 py-4">
+        <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border} shadow-sm shadow-black/5`}>
+          <span className={`w-1.5 h-1.5 rounded-full mr-2 ${statusConfig.dot} animate-pulse`} />
+          {statusLabel}
+        </div>
+      </td>
+      <td className="px-6 py-4">
+        <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-500 ease-out">
+          {statusLower === "submitted" && userRole === "admin" && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={(e) => { e.stopPropagation(); setShowApproveModal(true); }}
+              className="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-md hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-95 transition-all"
+            >
+              {t('payments.approve')}
+            </motion.button>
+          )}
+          {statusLower === "paid" && (
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: -5 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => { e.stopPropagation(); hasReceipt && handleDownloadReceipt(); }}
+              disabled={!hasReceipt}
+              className={`p-3 rounded-2xl transition-all ${hasReceipt ? "bg-white dark:bg-darkblack-500 text-blue-600 shadow-lg border border-slate-100 dark:border-white/10" : "text-slate-200 cursor-not-allowed"}`}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            </motion.button>
+          )}
+        </div>
+      </td>
+
+      <AnimatePresence>
+        {showApproveModal && (
+          <ApproveModal
+            key="approve-modal"
+            paymentInfo={paymentInfo} onClose={() => setShowApproveModal(false)}
+            handleApprove={handleApprove} approveLoading={approveLoading} approvalResult={approvalResult}
+            editAmount={editAmount} setEditAmount={setEditAmount} editInterest={editInterest} setEditInterest={setEditInterest}
+            t={t} hasReceipt={hasReceipt} handleDownloadReceipt={handleDownloadReceipt}
+          />
+        )}
+      </AnimatePresence>
+    </motion.tr>
+  );
+}
+
+/**
+ * Version 2.0 Approve Modal - Ultra Premium
+ */
+function ApproveModal({
+  paymentInfo, onClose, handleApprove, approveLoading, approvalResult,
+  editAmount, setEditAmount, editInterest, setEditInterest, t, hasReceipt, handleDownloadReceipt
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-slate-900/50 backdrop-blur-[12px] flex items-center justify-center z-[100] p-6 lg:ml-[280px]" onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
+        className="bg-white dark:bg-darkblack-600 rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden border border-gray-100 dark:border-white/10"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="relative flex flex-col lg:flex-row h-full max-h-[90vh]">
+          {/* Left Side: Receipt Preview */}
+          <div className="lg:w-1/2 p-2 hidden lg:block">
+            {hasReceipt ? (
+              <div className="h-full w-full rounded-[40px] overflow-hidden bg-slate-50 dark:bg-darkblack-500 relative group">
+                {paymentInfo.document_url.toLowerCase().endsWith('.pdf') ? (
+                  <iframe src={paymentInfo.document_url} title="PDF" className="w-full h-full border-0" />
+                ) : (
+                  <img src={paymentInfo.document_url} alt="Receipt" className="w-full h-full object-cover" />
+                )}
+                <div className="absolute inset-0 bg-slate-900/20 group-hover:opacity-100 transition-opacity" />
+                <button
+                  onClick={handleDownloadReceipt}
+                  className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-6 py-3 rounded-xl font-bold uppercase text-xs tracking-wider shadow-lg hover:bg-slate-50 transition-all"
+                >
+                  Download Receipt
+                </button>
+              </div>
+            ) : (
+              <div className="h-full w-full rounded-[40px] border-4 border-dashed border-slate-100 dark:border-white/5 flex flex-col items-center justify-center text-slate-300 space-y-4">
+                <svg className="w-16 h-16 opacity-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                <span className="text-xs font-black uppercase tracking-[0.3em] opacity-30 italic">No artifact uploaded</span>
+              </div>
+            )}
+          </div>
+
+          {/* Right Side: Controls */}
+          <div className="flex-1 p-10 lg:p-14 flex flex-col justify-between">
+            <div className="space-y-12">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="inline-flex px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-4">
+                    Payment Verification
+                  </div>
+                  <h3 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    Approve <span className="text-emerald-500 font-normal">.</span>
+                  </h3>
+                  <p className="text-slate-400 font-medium mt-2 uppercase text-[10px] tracking-wider max-w-[300px]">{paymentInfo.description}</p>
+                </div>
+                <button onClick={onClose} className="p-4 rounded-full bg-slate-100 dark:bg-white/5 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-sm">
+                  <svg className="w-6 h-6 border-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-10">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">{t('payments.amount')}</label>
+                  <div className="relative group">
+                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg pr-2 border-r border-gray-100 dark:border-white/10 uppercase">{paymentInfo.contract?.currency}</span>
+                    <input
+                      type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)}
+                      className="w-full pl-24 pr-10 py-5 bg-slate-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/10 focus:border-emerald-500 rounded-2xl outline-none font-bold text-2xl dark:text-white transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-4">{t('payments.lateInterest')}</label>
+                  <div className="relative group">
+                    <span className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-300/50 font-black italic text-xl pr-2 border-r border-white/10">{paymentInfo.contract?.currency}</span>
+                    <input
+                      type="number" value={editInterest} onChange={e => setEditInterest(e.target.value)}
+                      className="w-full pl-28 pr-12 py-7 bg-slate-50 dark:bg-white/[0.03] border-4 border-transparent focus:border-emerald-500/30 rounded-[32px] outline-none font-black text-3xl dark:text-white transition-all shadow-inner"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-12 space-y-8">
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 pr-1">Total Receivable Value</span>
+                <div className="text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                  {(Number(editAmount) + Number(editInterest)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  <span className="text-lg font-medium ml-2 opacity-30 uppercase tracking-widest">{paymentInfo.contract?.currency}</span>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {approvalResult && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`p-5 rounded-2xl text-center text-[10px] font-bold uppercase tracking-wider shadow-sm ${approvalResult.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+                    {approvalResult.message}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {!approvalResult?.type && (
+                <motion.button
+                  whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}
+                  onClick={handleApprove} disabled={approveLoading}
+                  className="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-3"
+                >
+                  {approveLoading ? (
+                    <span className="animate-spin block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                  ) : (
+                    <>
+                      Authorize Transaction
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                    </>
+                  )}
+                </motion.button>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
 PaymentItem.propTypes = {
-  paymentInfo: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    description: PropTypes.string,
-    amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    due_date: PropTypes.string,
-    payment_date: PropTypes.string,
-    status: PropTypes.string,
-    interest_amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    contract: PropTypes.shape({
-      currency: PropTypes.string,
-      lot: PropTypes.shape({
-        name: PropTypes.string,
-        address: PropTypes.string,
-      }),
-      applicant_user: PropTypes.shape({
-        full_name: PropTypes.string,
-        phone: PropTypes.string,
-        identity: PropTypes.string,
-      }),
-    }),
-  }).isRequired,
+  paymentInfo: PropTypes.object.isRequired,
   index: PropTypes.number,
   userRole: PropTypes.string,
   refreshPayments: PropTypes.func,
   onClick: PropTypes.func,
-  isMobileCard: PropTypes.bool,
+  isMobileCard: PropTypes.bool
 };
 
 export default PaymentItem;

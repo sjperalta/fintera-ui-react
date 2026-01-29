@@ -1,6 +1,38 @@
 // src/component/contracts/ContractDetailsModal.jsx
 import { createPortal } from "react-dom";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBuilding,
+  faMapMarkerAlt,
+  faUser,
+  faCreditCard,
+  faCalendarAlt,
+  faTachometerAlt,
+  faInfoCircle,
+  faExclamationTriangle,
+  faHistory,
+  faTimes,
+  faEdit,
+  faSave,
+  faWindowClose,
+  faIdCard,
+  faPhone,
+  faTag,
+  faChartLine,
+  faDollarSign,
+  faCalculator,
+  faStickyNote,
+  faCheckCircle,
+  faLock,
+  faBan,
+  faClock,
+  faClipboardList,
+  faFilePdf,
+  faFileAlt,
+  faFileSignature
+} from "@fortawesome/free-solid-svg-icons";
 import { formatStatus } from "../../utils/formatStatus";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
@@ -11,12 +43,80 @@ const formatCurrency = (v) => {
   if (v === null || v === undefined || v === "") return "—";
   const num = Number(v);
   if (isNaN(num)) return v;
-  return (
-    num.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }) + " HNL"
-  );
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(num).replace('$', '') + " HNL";
+};
+
+// Color mapping for status
+const getStatusTheme = (status) => {
+  const s = status?.toLowerCase();
+  switch (s) {
+    case "pending":
+      return {
+        bg: "bg-yellow-50 dark:bg-yellow-900/10",
+        text: "text-yellow-700 dark:text-yellow-400",
+        border: "border-yellow-300 dark:border-yellow-500/40",
+        icon: faClock,
+        color: "#EAB308",
+        shadow: "shadow-yellow-500/10"
+      };
+    case "submitted":
+      return {
+        bg: "bg-blue-50 dark:bg-blue-900/10",
+        text: "text-blue-700 dark:text-blue-400",
+        border: "border-blue-300 dark:border-blue-500/40",
+        icon: faClipboardList,
+        color: "#3B82F6",
+        shadow: "shadow-blue-500/10"
+      };
+    case "approved":
+      return {
+        bg: "bg-green-50 dark:bg-green-900/10",
+        text: "text-green-700 dark:text-green-400",
+        border: "border-green-300 dark:border-green-500/40",
+        icon: faCheckCircle,
+        color: "#22C55E",
+        shadow: "shadow-green-500/10"
+      };
+    case "rejected":
+      return {
+        bg: "bg-red-50 dark:bg-red-900/10",
+        text: "text-red-700 dark:text-red-400",
+        border: "border-red-300 dark:border-red-500/40",
+        icon: faExclamationTriangle,
+        color: "#EF4444",
+        shadow: "shadow-red-500/10"
+      };
+    case "closed":
+      return {
+        bg: "bg-blue-50 dark:bg-blue-900/10",
+        text: "text-blue-700 dark:text-blue-400",
+        border: "border-blue-300 dark:border-blue-500/40",
+        icon: faLock,
+        color: "#3B82F6",
+        shadow: "shadow-blue-500/10"
+      };
+    case "canceled":
+    case "cancelled":
+      return {
+        bg: "bg-gray-100 dark:bg-gray-800",
+        text: "text-gray-500 dark:text-gray-400",
+        border: "border-gray-400 dark:border-gray-600",
+        icon: faBan,
+        color: "#9CA3AF"
+      };
+    default:
+      return {
+        bg: "bg-gray-50 dark:bg-gray-900/10",
+        text: "text-gray-700 dark:text-gray-400",
+        border: "border-gray-300 dark:border-gray-800/30",
+        icon: faInfoCircle,
+        color: "#6B7280"
+      };
+  }
 };
 
 // Contract Details Modal Component
@@ -41,6 +141,11 @@ const ContractDetailsModal = ({
     contract?.reserve_amount ?? ""
   );
   const [downPayment, setDownPayment] = useState(contract?.down_payment ?? "");
+  const [activeTab, setActiveTab] = useState("overview");
+  const [fullContract, setFullContract] = useState(null);
+  const [isLoadingFull, setIsLoadingFull] = useState(false);
+
+  const statusTheme = useMemo(() => getStatusTheme(contract?.status), [contract?.status]);
 
   // Update local state when contract changes (after save)
   useEffect(() => {
@@ -56,10 +161,62 @@ const ContractDetailsModal = ({
     contract?.down_payment,
   ]);
 
+  // Fetch full contract details (including payment schedule)
+  useEffect(() => {
+    const fetchFullContract = async () => {
+      if (!contract?.id || !token) return;
+
+      setIsLoadingFull(true);
+      try {
+        const response = await fetch(
+          `${API_URL}/api/v1/projects/${contract.project_id}/lots/${contract.lot_id}/contracts/${contract.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setFullContract(data.contract || null);
+        }
+      } catch (error) {
+        console.error("Error fetching full contract details:", error);
+      } finally {
+        setIsLoadingFull(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchFullContract();
+    } else {
+      setFullContract(null);
+    }
+  }, [isOpen, contract?.id, contract?.project_id, contract?.lot_id, token]);
+
   if (!isOpen || !contract) return null;
+
+  const displayContract = fullContract || contract;
+  // Calculate paid amount and progress for the overview tab
+  const paidAmount = displayContract?.total_paid ?? (Number(displayContract?.amount || 0) - Number(displayContract?.balance || 0));
+  const progressPercent = Math.min(100, Math.max(0, (paidAmount / (Number(displayContract?.amount) || 1)) * 100));
 
   // Calculate monthly payment with current values
   const calculateCurrentMonthlyPayment = () => {
+    // If we have full contract details, check the payment schedule for the first installment
+    if (fullContract?.payment_schedule && fullContract.payment_schedule.length > 0) {
+      const installments = fullContract.payment_schedule.filter(p => p.type?.toLowerCase() === 'installment');
+      if (installments.length > 0) {
+        // Return first installment amount + interest_amount
+        const first = installments[0];
+        const totalAmount = Number(first.amount || 0) + Number(first.interest_amount || 0);
+        return formatCurrency(totalAmount);
+      }
+    }
+
+    // Fallback to manual calculation if no schedule is available
     const amount = Number(contract.amount);
     const term = Number(paymentTerm || 0);
     const down = Number(downPayment || 0);
@@ -102,8 +259,8 @@ const ContractDetailsModal = ({
         const errorData = await response.json();
         throw new Error(
           errorData.error ||
-            errorData.errors?.join(", ") ||
-            t("contractDetailsModal.errorSaving")
+          errorData.errors?.join(", ") ||
+          t("contractDetailsModal.errorSaving")
         );
       }
 
@@ -134,671 +291,687 @@ const ContractDetailsModal = ({
     setIsEditMode(false);
   };
 
+  const handleDownloadCustomerRecord = async () => {
+    try {
+      showToast(t("common.processing"), "info");
+      const response = await fetch(
+        `${API_URL}/reports/customer_record_pdf?contract_id=${contract.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(t("contracts.errorDownloadingRecord"));
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      console.log(response);
+
+      a.href = url;
+      a.download = `ficha_cliente_${contract.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showToast(t("common.downloadSuccess"), "success");
+    } catch (error) {
+      console.error("Error downloading customer record:", error);
+      showToast(t("contracts.errorDownloadingRecord"), "error");
+    }
+  };
+
+  const handleDownloadDocument = async (document_name, document_label) => {
+    try {
+      showToast(t("common.processing"), "info");
+      let endpoint = `${API_URL}/api/v1/reports/${document_name}?contract_id=${contract.id}`;
+
+      if (contract.financing_type && document_name === 'user_promise_contract_pdf') {
+        endpoint += `&financing_type=${contract.financing_type}`;
+      }
+
+      if (contract.applicant_user_id) {
+        endpoint += `&user_id=${contract.applicant_user_id}`;
+      }
+
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error downloading ${document_label}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${document_name}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showToast(`${document_label} descargado exitosamente.`, "success");
+    } catch (error) {
+      console.error(`Error downloading ${document_label}:`, error);
+      showToast(`Error: ${error.message}`, "error");
+    }
+  };
+
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-4 overflow-hidden">
+      {/* Animated Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         onClick={onClose}
+        className="absolute inset-0 bg-bgray-900/60 dark:bg-black/80 backdrop-blur-md"
       />
-      <div className="relative w-full max-w-5xl bg-white dark:bg-darkblack-600 rounded-2xl shadow-2xl mx-4 max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-bgray-200 dark:border-darkblack-400 bg-indigo-500">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <span className="text-white text-xl">📋</span>
+
+      {/* Main Modal Container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        className="relative w-full max-w-6xl h-full sm:h-[90vh] bg-white dark:bg-darkblack-600 sm:rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-white/20"
+      >
+        {/* Sidebar - Mobile Top / Desktop Left */}
+        <div className="w-full md:w-80 flex-shrink-0 bg-gray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm border-b md:border-b-0 md:border-r border-gray-100 dark:border-darkblack-400 flex flex-col">
+          {/* Sidebar Header with Status */}
+          <div className={`p-8 ${statusTheme.bg} transition-colors duration-500`}>
+            <div className="flex items-center gap-4 mb-4">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg ${statusTheme.shadow}`} style={{ backgroundColor: statusTheme.color }}>
+                <FontAwesomeIcon icon={statusTheme.icon} className="text-2xl" />
+              </div>
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] opacity-60 dark:opacity-40">{t("common.status")}</p>
+                <p className={`text-lg font-black ${statusTheme.text} capitalize`}>{formatStatus(contract.status, t)}</p>
+              </div>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">
-                {t("contractDetailsModal.title")}
+              <h3 className="text-xl font-black text-bgray-900 dark:text-white leading-tight">
+                {contract.contract_id || "#N/A"}
               </h3>
-              <p className="text-sm text-indigo-100">
-                {t("contractDetailsModal.subtitle", {
-                  contractId: contract.contract_id || "N/A",
-                })}
+              <p className="text-sm font-medium text-bgray-500 dark:text-bgray-400">
+                {t("contracts.created")} {new Date(contract.created_at).toLocaleDateString()}
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            {isAdmin && !isEditMode && (
+
+          {/* Navigation Tabs */}
+          <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
+            {[
+              { id: 'overview', label: t('common.overview') || 'Resumen', icon: faChartLine },
+              { id: 'financial', label: t('contracts.financial') || 'Financiero', icon: faDollarSign },
+              { id: 'lot_project', label: t('contracts.lotAndProject') || 'Lote y Proyecto', icon: faBuilding },
+              { id: 'applicant', label: t('contracts.applicant') || 'Solicitante', icon: faUser },
+              { id: 'notes', label: t('contracts.notes') || 'Notas', icon: faStickyNote, show: !!contract.note },
+              { id: 'documents', label: t('contracts.documents') || 'Documentos', icon: faFileAlt },
+            ].map((tab) => (tab.show !== false && (
               <button
-                onClick={() => setIsEditMode(true)}
-                className="px-4 py-2 text-sm font-semibold rounded-lg bg-white/90 hover:bg-white/30 text-white border border-white/30 hover:border-white/40 transition-all duration-200 flex items-center space-x-2"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`group flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${activeTab === tab.id
+                  ? "bg-blue-600 text-white shadow-xl shadow-blue-500/20 translate-x-1"
+                  : "text-bgray-500 dark:text-bgray-400 hover:bg-white dark:hover:bg-darkblack-400 hover:text-blue-500"
+                  }`}
               >
-                <span>✏️</span>
-                <span>{t("contractDetailsModal.edit")}</span>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${activeTab === tab.id ? "bg-white/20" : "bg-gray-100 dark:bg-darkblack-400 group-hover:scale-110"
+                  }`}>
+                  <FontAwesomeIcon icon={tab.icon} />
+                </div>
+                {tab.label}
               </button>
-            )}
+            )))}
+          </nav>
+
+          {/* Sidebar Footer */}
+          <div className="p-6 border-t border-gray-100 dark:border-darkblack-400">
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/30 text-white hover:text-indigo-200 transition-all duration-200 text-xl font-light"
-              aria-label={t("contractDetailsModal.close")}
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gray-100 dark:bg-darkblack-400 text-bgray-600 dark:text-bgray-300 font-black hover:bg-gray-200 dark:hover:bg-darkblack-300 transition-all duration-300"
             >
-              ×
+              <FontAwesomeIcon icon={faWindowClose} />
+              {t("common.close")}
             </button>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="px-8 py-6 max-h-[calc(90vh-140px)] overflow-y-auto">
-          {/* Main Information Grid - 3 columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Project Information */}
-            <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">🏢</span>
-                </div>
-                <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200">
-                  {t("contractDetailsModal.project")}
-                </h4>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-2">
-                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">
-                    📍
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                      {t("contractDetailsModal.name")}
-                    </p>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      {contract.project_name || "N/A"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">
-                    🏠
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                      {t("contractDetailsModal.address")}
-                    </p>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      {contract.project_address || "N/A"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">
-                    🆔
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                      {t("contractDetailsModal.id")}
-                    </p>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 font-mono">
-                      {contract.project_id || "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
+        {/* Content Area */}
+        <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-darkblack-600 relative">
+          {/* Top Bar - Content Controls */}
+          <div className="h-20 flex-shrink-0 flex items-center justify-between px-10 border-b border-gray-50 dark:border-darkblack-500">
+            <h4 className="text-2xl font-black text-bgray-900 dark:text-white capitalize">
+              {activeTab.replace('_', ' & ')}
+            </h4>
+            <div className="flex items-center gap-3">
+              {isAdmin && (
+                <button
+                  onClick={() => setIsEditMode(!isEditMode)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 ${isEditMode
+                    ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
+                    : "bg-gray-50 dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 hover:bg-amber-50 hover:text-amber-600"
+                    }`}
+                >
+                  <FontAwesomeIcon icon={isEditMode ? faTimes : faEdit} />
+                  {isEditMode ? t("common.cancel") : t("common.edit")}
+                </button>
+              )}
             </div>
+          </div>
 
-            {/* Lot Information */}
-            <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">🏡</span>
-                </div>
-                <h4 className="text-lg font-semibold text-green-800 dark:text-green-200">
-                  {t("contractDetailsModal.lot")}
-                </h4>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-2">
-                  <span className="text-green-600 dark:text-green-400 mt-0.5">
-                    🏠
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                      {t("contractDetailsModal.name")}
-                    </p>
-                    <p className="text-sm text-green-700 dark:text-green-300">
-                      {contract.lot_name || "N/A"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-green-600 dark:text-green-400 mt-0.5">
-                    📍
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                      {t("contractDetailsModal.address")}
-                    </p>
-                    <p className="text-sm text-green-700 dark:text-green-300">
-                      {contract.lot_address || "N/A"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-green-600 dark:text-green-400 mt-0.5">
-                    🆔
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                      {t("contractDetailsModal.id")}
-                    </p>
-                    <p className="text-sm text-green-700 dark:text-green-300 font-mono">
-                      {contract.lot_id || "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Applicant Information */}
-            <div className="bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">👤</span>
-                </div>
-                <h4 className="text-lg font-semibold text-purple-800 dark:text-purple-200">
-                  {t("contractDetailsModal.applicant")}
-                </h4>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-2">
-                  <span className="text-purple-600 dark:text-purple-400 mt-0.5">
-                    👤
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                      {t("contractDetailsModal.name")}
-                    </p>
-                    <p className="text-sm text-purple-700 dark:text-purple-300">
-                      {contract.applicant_name || "N/A"}
-                    </p>
-                  </div>
-                </div>
-                {contract.applicant_identity && (
-                  <div className="flex items-start space-x-2">
-                    <span className="text-purple-600 dark:text-purple-400 mt-0.5">
-                      🆔
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                        {t("contractDetailsModal.identity")}
-                      </p>
-                      <p className="text-sm text-purple-700 dark:text-purple-300 font-mono">
-                        {contract.applicant_identity}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {contract.applicant_phone && (
-                  <div className="flex items-start space-x-2">
-                    <span className="text-purple-600 dark:text-purple-400 mt-0.5">
-                      📞
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                        {t("contractDetailsModal.phone")}
-                      </p>
-                      <p className="text-sm text-purple-700 dark:text-purple-300">
-                        {contract.applicant_phone}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {(contract.applicant_credit_score ||
-                  contract.applicant_credit_score >= 0) && (
-                  <div className="flex items-start space-x-2">
-                    <span className="text-purple-600 dark:text-purple-400 mt-0.5">
-                      📊
-                    </span>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-2">
-                        {t("contractDetailsModal.creditScore")}
-                      </p>
-                      <div className="flex items-center space-x-3">
-                        {/* Circular Progress */}
-                        <div className="relative w-12 h-12 flex-shrink-0">
-                          <svg
-                            className="w-12 h-12 transform -rotate-90"
-                            viewBox="0 0 100 100"
-                          >
-                            <circle
-                              cx="50"
-                              cy="50"
-                              r="40"
-                              stroke="currentColor"
-                              strokeWidth="8"
-                              fill="none"
-                              className="text-purple-200 dark:text-purple-900"
-                            />
-                            <circle
-                              cx="50"
-                              cy="50"
-                              r="40"
-                              stroke="currentColor"
-                              strokeWidth="8"
-                              fill="none"
-                              strokeLinecap="round"
-                              strokeDasharray={`${
-                                (contract.applicant_credit_score / 100) * 251.2
-                              } 251.2`}
-                              className={`transition-all duration-500 ${
-                                contract.applicant_credit_score >= 80
-                                  ? "text-green-500 dark:text-green-400"
-                                  : contract.applicant_credit_score >= 60
-                                  ? "text-yellow-500 dark:text-yellow-400"
-                                  : "text-red-500 dark:text-red-400"
-                              }`}
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-bold text-purple-800 dark:text-purple-200">
-                              {Math.round(contract.applicant_credit_score)}%
-                            </span>
+          {/* Tab Content */}
+          <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="h-full"
+              >
+                {activeTab === 'overview' && (
+                  <div className="space-y-8">
+                    {/* Status Summary Card */}
+                    <div className={`p-8 rounded-[2rem] border-2 ${statusTheme.border} ${statusTheme.bg} transition-all duration-500`}>
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                          <h5 className={`text-sm font-black uppercase tracking-widest ${statusTheme.text} mb-2 opacity-70`}>{t("contracts.statusSummary") || "Resumen de Estado"}</h5>
+                          <p className="text-3xl font-black text-bgray-900 dark:text-white leading-tight max-w-xl">
+                            {contract.status?.toLowerCase() === 'approved'
+                              ? (t("contracts.approvedWelcome") || "El contrato ha sido aprobado y está activo.")
+                              : contract.status?.toLowerCase() === 'rejected'
+                                ? (t("contracts.rejectedNotice") || "Este contrato ha sido rechazado.")
+                                : (t("contracts.pendingReview") || "El contrato está esperando revisión administrativa.")}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <div className={`px-6 py-3 rounded-2xl bg-white dark:bg-darkblack-500 shadow-xl border ${statusTheme.border} flex items-center gap-3`}>
+                            <FontAwesomeIcon icon={statusTheme.icon} className={statusTheme.text} />
+                            <span className={`text-lg font-black ${statusTheme.text}`}>{formatStatus(contract.status, t)}</span>
                           </div>
                         </div>
-                        {/* Score Label */}
-                        <div className="flex-1">
-                          <div
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                              contract.applicant_credit_score >= 80
-                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                : contract.applicant_credit_score >= 60
-                                ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                            }`}
-                          >
-                            {contract.applicant_credit_score >= 80
-                              ? t("creditScore.excellent")
-                              : contract.applicant_credit_score >= 60
-                              ? t("creditScore.good")
-                              : t("creditScore.needsImprovement")}
+                      </div>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="bg-gray-50/50 dark:bg-darkblack-500/50 p-6 rounded-3xl border border-gray-100 dark:border-darkblack-400">
+                        <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-2">{t("contracts.total") || "Total Deuda"}</p>
+                        <p className="text-2xl font-black text-bgray-900 dark:text-white">{formatCurrency(contract.amount)}</p>
+                      </div>
+                      <div className="bg-gray-50/50 dark:bg-darkblack-500/50 p-6 rounded-3xl border border-gray-100 dark:border-darkblack-400">
+                        <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-2">{t("contracts.balance") || "Saldo Pendiente"}</p>
+                        <p className="text-2xl font-black text-blue-600 dark:text-blue-400">{formatCurrency(contract.balance)}</p>
+                      </div>
+                      <div className="bg-gray-50/50 dark:bg-darkblack-500/50 p-6 rounded-3xl border border-gray-100 dark:border-darkblack-400">
+                        <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-2">{t("contracts.progress") || "Progreso"}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 h-3 bg-gray-200 dark:bg-darkblack-400 rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{
+                                width: `${progressPercent}%`
+                              }}
+                              className="h-full bg-blue-600 rounded-full"
+                            />
                           </div>
-                          <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
-                            {t("creditScore.description")}
+                          <p className="text-sm font-black text-bgray-900 dark:text-white">
+                            {formatCurrency(paidAmount)} / {formatCurrency(displayContract.amount)}
                           </p>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
 
-          {/* Financial Information - Full Width */}
-          <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-xl p-6 shadow-sm mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">💰</span>
-                </div>
-                <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200">
-                  {t("contractDetailsModal.financialInfo")}
-                </h4>
-              </div>
-              {isEditMode && (
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={handleCancelEdit}
-                    disabled={isSaving}
-                    className="px-4 py-2 text-sm font-semibold rounded-lg bg-gray-500 hover:bg-gray-600 text-white transition-all duration-200 disabled:opacity-50"
-                  >
-                    {t("contractDetailsModal.cancel")}
-                  </button>
-                  <button
-                    onClick={handleSaveChanges}
-                    disabled={isSaving}
-                    className="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-all duration-200 disabled:opacity-50 flex items-center space-x-2"
-                  >
-                    {isSaving ? (
-                      <>
-                        <svg
-                          className="animate-spin h-4 w-4"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                            fill="none"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        <span>{t("contractDetailsModal.saving")}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>💾</span>
-                        <span>{t("contractDetailsModal.save")}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="flex items-start space-x-2">
-                <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">
-                  💵
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200 mb-1">
-                    {t("contractDetailsModal.totalPrice")}
-                  </p>
-                  <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
-                    {contract.amount ? formatCurrency(contract.amount) : "N/A"}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-2">
-                <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">
-                  💳
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200 mb-1">
-                    {t("contractDetailsModal.financingType")}
-                  </p>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                    {t(
-                      `contractDetailsModal.financingTypes.${contract.financing_type?.toLowerCase()}`
-                    ) || "N/A"}
-                  </p>
-                </div>
-              </div>
-              {contract.financing_type?.toLowerCase() === "direct" && (
-                <div className="flex items-start space-x-2">
-                  <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">
-                    📅
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200 mb-1">
-                      {t("contractDetailsModal.paymentTerm")}
-                    </p>
-                    {isEditMode ? (
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="number"
-                          value={paymentTerm}
-                          onChange={(e) => setPaymentTerm(e.target.value)}
-                          className="w-24 px-3 py-1.5 text-sm border border-emerald-300 dark:border-emerald-600 rounded-lg bg-white dark:bg-darkblack-600 text-emerald-800 dark:text-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                          min="1"
-                        />
-                        <span className="text-sm text-emerald-700 dark:text-emerald-300">
-                          {t("contractDetailsModal.months")}
-                        </span>
+                    {/* Timeline / Additional Info Placeholder */}
+                    {contract.rejection_reason && (
+                      <div className="p-8 bg-red-50/50 dark:bg-red-900/10 rounded-[2rem] border-2 border-red-100 dark:border-red-900/20">
+                        <h5 className="text-sm font-black uppercase tracking-widest text-red-600 mb-4">{t("contracts.rejectionReason") || "Motivo de Rechazo"}</h5>
+                        <p className="text-lg font-medium text-red-800 dark:text-red-300 leading-relaxed italic">
+                          "{contract.rejection_reason}"
+                        </p>
                       </div>
-                    ) : (
-                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                        {paymentTerm !== ""
-                          ? `${paymentTerm} ${t("contractDetailsModal.months")}`
-                          : "N/A"}
-                      </p>
                     )}
                   </div>
-                </div>
-              )}
-              <div className="flex items-start space-x-2">
-                <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">
-                  💰
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200 mb-1">
-                    {t("contractDetailsModal.reserveAmount")}
-                  </p>
-                  {isEditMode ? (
-                    <input
-                      type="number"
-                      value={reserveAmount}
-                      onChange={(e) => setReserveAmount(e.target.value)}
-                      className="w-full px-3 py-1.5 text-sm border border-emerald-300 dark:border-emerald-600 rounded-lg bg-white dark:bg-darkblack-600 text-emerald-800 dark:text-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      min="0"
-                      step="0.01"
-                    />
-                  ) : (
-                    <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                      {reserveAmount !== ""
-                        ? formatCurrency(Number(reserveAmount))
-                        : "N/A"}
-                    </p>
-                  )}
-                </div>
-              </div>
-              {contract.financing_type?.toLowerCase() === "direct" && (
-                <div className="flex items-start space-x-2">
-                  <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">
-                    💵
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200 mb-1">
-                      {t("contractDetailsModal.downPayment")}
-                    </p>
-                    {isEditMode ? (
-                      <input
-                        type="number"
-                        value={downPayment}
-                        onChange={(e) => setDownPayment(e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm border border-emerald-300 dark:border-emerald-600 rounded-lg bg-white dark:bg-darkblack-600 text-emerald-800 dark:text-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        min="0"
-                        step="0.01"
-                      />
-                    ) : (
-                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                        {downPayment !== ""
-                          ? formatCurrency(Number(downPayment))
-                          : "N/A"}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-              <div className="flex items-start space-x-2">
-                <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">
-                  💳
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200 mb-1">
-                    {t("contractDetailsModal.financedAmount")}
-                  </p>
-                  <p
-                    className={`text-lg font-bold ${
-                      isEditMode
-                        ? "text-emerald-900 dark:text-emerald-100 bg-emerald-200 dark:bg-emerald-800/50 px-2 py-1 rounded"
-                        : "text-emerald-700 dark:text-emerald-300"
-                    }`}
-                  >
-                    {contract.amount
-                      ? formatCurrency(
-                          Number(contract.amount) -
-                            Number(reserveAmount || 0) -
-                            (contract.financing_type?.toLowerCase() === "direct"
-                              ? Number(downPayment || 0)
-                              : 0)
-                        )
-                      : "N/A"}
-                  </p>
-                  {isEditMode && (
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                      {t("contractDetailsModal.autoCalculated")}
-                    </p>
-                  )}
-                </div>
-              </div>
-              {contract.financing_type?.toLowerCase() === "direct" && (
-                <div className="flex items-start space-x-2">
-                  <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">
-                    📅
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200 mb-1">
-                      {t("contractDetailsModal.monthlyPayment")}
-                    </p>
-                    <p
-                      className={`text-sm font-semibold ${
-                        isEditMode
-                          ? "text-emerald-900 dark:text-emerald-100 bg-emerald-200 dark:bg-emerald-800/50 px-2 py-1 rounded"
-                          : "text-emerald-700 dark:text-emerald-300"
-                      }`}
-                    >
-                      {calculateCurrentMonthlyPayment()}
-                    </p>
-                    {isEditMode && (
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                        {t("contractDetailsModal.autoCalculated")}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+                )}
 
-          {/* Contract Status and Additional Info - 2 columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Contract Status */}
-            <div className="bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">📊</span>
-                </div>
-                <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                  {t("contractDetailsModal.contractStatus")}
-                </h4>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-2">
-                  <span className="text-gray-600 dark:text-gray-400 mt-0.5">
-                    📋
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                      {t("contractDetailsModal.status")}
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 capitalize">
-                      {formatStatus(contract.status, t) ||
-                        t("common.notAvailable")}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-gray-600 dark:text-gray-400 mt-0.5">
-                    🆔
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                      {t("contractDetailsModal.contractId")}
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 font-mono">
-                      {contract.contract_id || "N/A"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-gray-600 dark:text-gray-400 mt-0.5">
-                    📅
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                      {t("contractDetailsModal.creationDate")}
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                      {contract.created_at
-                        ? new Date(contract.created_at).toLocaleDateString()
-                        : "N/A"}
-                    </p>
-                  </div>
-                </div>
-                {contract.approved_at && (
-                  <div className="flex items-start space-x-2">
-                    <span className="text-gray-600 dark:text-gray-400 mt-0.5">
-                      ✅
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                        {t("contractDetailsModal.approvalDate")}
-                      </p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {new Date(contract.approved_at).toLocaleDateString()}
-                      </p>
+                {activeTab === 'lot_project' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    {/* Project Card */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-4 mb-2">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600">
+                          <FontAwesomeIcon icon={faBuilding} className="text-xl" />
+                        </div>
+                        <h5 className="text-xl font-black text-bgray-900 dark:text-white">{t("contractDetailsModal.project")}</h5>
+                      </div>
+
+                      <div className="bg-white dark:bg-darkblack-500 rounded-3xl border border-gray-100 dark:border-darkblack-400 shadow-sm p-8 space-y-6">
+                        <div>
+                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.name")}</p>
+                          <p className="text-lg font-black text-bgray-900 dark:text-white">{contract.project_name || "N/A"}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.address")}</p>
+                          <div className="flex items-start gap-2">
+                            <FontAwesomeIcon icon={faMapMarkerAlt} className="text-bgray-400 mt-1" />
+                            <p className="text-base font-medium text-bgray-600 dark:text-bgray-300 leading-relaxed">{contract.project_address || "N/A"}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.id")}</p>
+                          <p className="text-sm font-mono font-bold text-bgray-500">{contract.project_id || "N/A"}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Lot Card */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-4 mb-2">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+                          <FontAwesomeIcon icon={faTag} className="text-xl" />
+                        </div>
+                        <h5 className="text-xl font-black text-bgray-900 dark:text-white">{t("contractDetailsModal.lot")}</h5>
+                      </div>
+
+                      <div className="bg-white dark:bg-darkblack-500 rounded-3xl border border-gray-100 dark:border-darkblack-400 shadow-sm p-8 space-y-6">
+                        <div>
+                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.name")}</p>
+                          <p className="text-lg font-black text-bgray-900 dark:text-white">{contract.lot_name || "N/A"}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.address")}</p>
+                          <div className="flex items-start gap-2">
+                            <FontAwesomeIcon icon={faMapMarkerAlt} className="text-bgray-400 mt-1" />
+                            <p className="text-base font-medium text-bgray-600 dark:text-bgray-300 leading-relaxed">{contract.lot_address || "N/A"}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.id")}</p>
+                          <p className="text-sm font-mono font-bold text-bgray-500">{contract.lot_id || "N/A"}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
+                {activeTab === 'financial' && (
+                  <div className="space-y-10">
+                    {/* Financial Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600">
+                          <FontAwesomeIcon icon={faCalculator} className="text-xl" />
+                        </div>
+                        <div>
+                          <h5 className="text-xl font-black text-bgray-900 dark:text-white">{t("contractDetailsModal.financialInfo")}</h5>
+                          <p className="text-sm font-medium text-bgray-500">{t("contracts.paymentSummary") || "Resumen de pagos y financiamiento"}</p>
+                        </div>
+                      </div>
+                      {isEditMode && (
+                        <button
+                          onClick={handleSaveChanges}
+                          disabled={isSaving}
+                          className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 disabled:opacity-50"
+                        >
+                          {isSaving ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          ) : (
+                            <FontAwesomeIcon icon={faSave} />
+                          )}
+                          {isSaving ? t("common.saving") : t("common.save")}
+                        </button>
+                      )}
+                    </div>
 
-            {/* Additional Contract Information */}
-            <div className="bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">📝</span>
-                </div>
-                <h4 className="text-lg font-semibold text-orange-800 dark:text-orange-200">
-                  {t("contractDetailsModal.additionalInfo")}
-                </h4>
-              </div>
-              <div className="space-y-3">
-                {contract.rejection_reason && (
-                  <div className="flex items-start space-x-2">
-                    <span className="text-orange dark:text-orange mt-0.5">
-                      ❌
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
-                        {t("contractDetailsModal.rejectionReason")}
-                      </p>
-                      <p className="text-sm text-orange-700 dark:text-orange-300">
-                        {contract.rejection_reason}
-                      </p>
+                    {/* Main Numbers */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="p-6 rounded-3xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
+                        <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">{t("contractDetailsModal.totalPrice")}</p>
+                        <p className="text-2xl font-black text-bgray-900 dark:text-white">{formatCurrency(contract.amount)}</p>
+                      </div>
+                      <div className="p-6 rounded-3xl bg-gray-50 dark:bg-darkblack-500/50 border border-gray-100 dark:border-darkblack-400">
+                        <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-2">{t("contractDetailsModal.financingType")}</p>
+                        <p className="text-lg font-black text-bgray-900 dark:text-white capitalize">{t(`contractDetailsModal.financingTypes.${contract.financing_type?.toLowerCase()}`) || "N/A"}</p>
+                      </div>
+                      <div className="p-6 rounded-3xl bg-gray-50 dark:bg-darkblack-500/50 border border-gray-100 dark:border-darkblack-400">
+                        <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-2">{t("contractDetailsModal.financedAmount")}</p>
+                        <p className="text-xl font-black text-bgray-900 dark:text-white">
+                          {formatCurrency(Number(contract.amount) - Number(reserveAmount || 0) - (contract.financing_type?.toLowerCase() === "direct" ? Number(downPayment || 0) : 0))}
+                        </p>
+                      </div>
+                      {contract.financing_type?.toLowerCase() === "direct" && (
+                        <div className="p-6 rounded-3xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20">
+                          <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2">{t("contractDetailsModal.monthlyPayment")}</p>
+                          <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
+                            {isLoadingFull ? (
+                              <span className="animate-pulse">...</span>
+                            ) : (
+                              calculateCurrentMonthlyPayment()
+                            )}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Editable Fields Grid */}
+                    <div className="bg-white dark:bg-darkblack-500 rounded-[2.5rem] border border-gray-100 dark:border-darkblack-400 shadow-sm p-10">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        {/* Payment Term */}
+                        <div className="space-y-3">
+                          <label className="text-sm font-black text-bgray-900 dark:text-white block uppercase tracking-wider">{t("contractDetailsModal.paymentTerm")}</label>
+                          <div className="relative group">
+                            <FontAwesomeIcon icon={faCalendarAlt} className="absolute left-5 top-1/2 -translate-y-1/2 text-bgray-400 group-focus-within:text-blue-500 transition-colors" />
+                            {isEditMode ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  value={paymentTerm}
+                                  onChange={(e) => setPaymentTerm(e.target.value)}
+                                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 dark:bg-darkblack-400 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-darkblack-600 outline-none transition-all font-bold text-bgray-900 dark:text-white"
+                                  min="1"
+                                />
+                                <span className="text-sm font-bold text-bgray-400">{t("contractDetailsModal.months")}</span>
+                              </div>
+                            ) : (
+                              <p className="pl-12 py-4 text-bgray-600 dark:text-bgray-300 font-bold">{paymentTerm || "—"} {t("contractDetailsModal.months")}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Reserve Amount */}
+                        <div className="space-y-3">
+                          <label className="text-sm font-black text-bgray-900 dark:text-white block uppercase tracking-wider">{t("contractDetailsModal.reserveAmount")}</label>
+                          <div className="relative group">
+                            <FontAwesomeIcon icon={faDollarSign} className="absolute left-5 top-1/2 -translate-y-1/2 text-bgray-400 group-focus-within:text-blue-500 transition-colors" />
+                            {isEditMode ? (
+                              <input
+                                type="number"
+                                value={reserveAmount}
+                                onChange={(e) => setReserveAmount(e.target.value)}
+                                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 dark:bg-darkblack-400 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-darkblack-600 outline-none transition-all font-bold text-bgray-900 dark:text-white"
+                                step="0.01"
+                              />
+                            ) : (
+                              <p className="pl-12 py-4 text-bgray-600 dark:text-bgray-300 font-bold">{formatCurrency(reserveAmount)}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Down Payment */}
+                        <div className="space-y-3">
+                          <label className="text-sm font-black text-bgray-900 dark:text-white block uppercase tracking-wider">{t("contractDetailsModal.downPayment")}</label>
+                          <div className="relative group">
+                            <FontAwesomeIcon icon={faCreditCard} className="absolute left-5 top-1/2 -translate-y-1/2 text-bgray-400 group-focus-within:text-blue-500 transition-colors" />
+                            {isEditMode ? (
+                              <input
+                                type="number"
+                                value={downPayment}
+                                onChange={(e) => setDownPayment(e.target.value)}
+                                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 dark:bg-darkblack-400 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-darkblack-600 outline-none transition-all font-bold text-bgray-900 dark:text-white"
+                                step="0.01"
+                              />
+                            ) : (
+                              <p className="pl-12 py-4 text-bgray-600 dark:text-bgray-300 font-bold">{formatCurrency(downPayment)}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
-                {!contract.rejection_reason && (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-orange dark:text-orange">
-                      {t("contractDetailsModal.noAdditionalInfo")}
-                    </p>
+
+                {activeTab === 'applicant' && (
+                  <div className="space-y-10">
+                    {/* Applicant Header */}
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600">
+                        <FontAwesomeIcon icon={faUser} className="text-xl" />
+                      </div>
+                      <div>
+                        <h5 className="text-xl font-black text-bgray-900 dark:text-white">{t("contractDetailsModal.applicant")}</h5>
+                        <p className="text-sm font-medium text-bgray-500">{t("contracts.clientDetails") || "Información del cliente y perfil crediticio"}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                      {/* Details Card */}
+                      <div className="bg-white dark:bg-darkblack-500 rounded-3xl border border-gray-100 dark:border-darkblack-400 shadow-sm p-8 space-y-8">
+                        <div className="flex items-center gap-6">
+                          <div className="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-900/20 flex items-center justify-center text-3xl font-black text-indigo-600">
+                            {contract.applicant_name?.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.name")}</p>
+                            <p className="text-xl font-black text-bgray-900 dark:text-white">{contract.applicant_name || "N/A"}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-8 pt-4 border-t border-gray-50 dark:border-darkblack-400">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <FontAwesomeIcon icon={faIdCard} className="text-bgray-400 text-xs" />
+                              <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest">{t("contractDetailsModal.identity")}</p>
+                            </div>
+                            <p className="text-base font-bold text-bgray-900 dark:text-white font-mono">{contract.applicant_identity || "N/A"}</p>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <FontAwesomeIcon icon={faPhone} className="text-bgray-400 text-xs" />
+                              <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest">{t("contractDetailsModal.phone")}</p>
+                            </div>
+                            <p className="text-base font-bold text-bgray-900 dark:text-white">{contract.applicant_phone || "N/A"}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Credit Score Visualization */}
+                      {contract.applicant_credit_score !== undefined && (
+                        <div className="bg-white dark:bg-darkblack-500 rounded-3xl border border-gray-100 dark:border-darkblack-400 shadow-sm p-8 flex flex-col items-center justify-center text-center">
+                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-6">{t("contractDetailsModal.creditScore")}</p>
+
+                          <div className="relative w-40 h-40 mb-6">
+                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                              <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="10" fill="none" className="text-gray-100 dark:text-darkblack-400" />
+                              <motion.circle
+                                cx="50"
+                                cy="50"
+                                r="45"
+                                stroke="currentColor"
+                                strokeWidth="10"
+                                fill="none"
+                                strokeLinecap="round"
+                                initial={{ strokeDasharray: "0 283" }}
+                                animate={{ strokeDasharray: `${(contract.applicant_credit_score / 100) * 283} 283` }}
+                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                className={`${contract.applicant_credit_score >= 80 ? "text-emerald-500" :
+                                  contract.applicant_credit_score >= 60 ? "text-amber-500" : "text-red-500"
+                                  }`}
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                              <span className="text-4xl font-black text-bgray-900 dark:text-white">{Math.round(contract.applicant_credit_score)}</span>
+                              <span className="text-xs font-bold text-bgray-400">/ 100</span>
+                            </div>
+                          </div>
+
+                          <div className={`px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest ${contract.applicant_credit_score >= 80 ? "bg-emerald-50 text-emerald-600" :
+                            contract.applicant_credit_score >= 60 ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-600"
+                            }`}>
+                            {contract.applicant_credit_score >= 80 ? t("creditScore.excellent") :
+                              contract.applicant_credit_score >= 60 ? t("creditScore.good") : t("creditScore.needsImprovement")}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-              </div>
-            </div>
+
+                {activeTab === 'notes' && (
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-darkblack-900/30 flex items-center justify-center text-gray-600">
+                        <FontAwesomeIcon icon={faStickyNote} className="text-xl" />
+                      </div>
+                      <div>
+                        <h5 className="text-xl font-black text-bgray-900 dark:text-white">{t("contracts.notes")}</h5>
+                        <p className="text-sm font-medium text-bgray-500">{t("contracts.internalNotes") || "Notas internas y comentarios del contrato"}</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-darkblack-500 rounded-[2.5rem] border border-gray-100 dark:border-darkblack-400 shadow-sm p-10 min-h-[300px]">
+                      {contract.note ? (
+                        <div
+                          className="text-lg text-bgray-600 dark:text-bgray-300 leading-relaxed prose prose-lg dark:prose-invert max-w-none"
+                          dangerouslySetInnerHTML={{ __html: contract.note }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-bgray-400 space-y-4">
+                          <FontAwesomeIcon icon={faStickyNote} className="text-5xl opacity-20" />
+                          <p className="font-bold">{t("contracts.noNotes") || "No hay notas disponibles para este contrato."}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'documents' && (
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                        <FontAwesomeIcon icon={faFileAlt} className="text-xl" />
+                      </div>
+                      <div>
+                        <h5 className="text-xl font-black text-bgray-900 dark:text-white">{t("contracts.documents")}</h5>
+                        <p className="text-sm font-medium text-bgray-500">{t("contracts.availableDocuments") || "Documentos disponibles para descarga"}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Ficha de Cliente */}
+                      <button
+                        onClick={handleDownloadCustomerRecord}
+                        className="w-full p-5 rounded-2xl bg-white dark:bg-darkblack-500 border border-bgray-100 dark:border-transparent hover:border-blue-500 dark:hover:border-blue-500/40 transition-all flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FontAwesomeIcon icon={faFilePdf} className="text-2xl text-rose-500" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-base font-bold text-bgray-900 dark:text-white">Ficha de Cliente</p>
+                            <p className="text-xs font-medium text-bgray-400 dark:text-bgray-500">{t("contracts.customerRecord") || "Información del cliente"}</p>
+                          </div>
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </div>
+                      </button>
+
+                      {/* Promesa de Compra Venta */}
+                      {["direct", "cash", "bank"].includes(contract.financing_type?.toLowerCase()) && (
+                        <button
+                          onClick={() => handleDownloadDocument('user_promise_contract_pdf', 'Promesa de Compra Venta')}
+                          className="w-full p-5 rounded-2xl bg-white dark:bg-darkblack-500 border border-bgray-100 dark:border-transparent hover:border-blue-500 dark:hover:border-blue-500/40 transition-all flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <FontAwesomeIcon icon={faFileSignature} className="text-2xl text-indigo-500" />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-base font-bold text-bgray-900 dark:text-white">Promesa de Compra Venta</p>
+                              <p className="text-xs font-medium text-bgray-400 dark:text-bgray-500">Contrato de promesa</p>
+                            </div>
+                          </div>
+                          <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                          </div>
+                        </button>
+                      )}
+
+                      {/* Rescisión de Contrato */}
+                      {["cancelled", "canceled", "rejected"].includes(contract.status?.toLowerCase()) ? (
+                        <button
+                          onClick={() => handleDownloadDocument('user_rescission_contract_pdf', 'Rescisión de Contrato')}
+                          className="w-full p-5 rounded-2xl bg-white dark:bg-darkblack-500 border border-bgray-100 dark:border-transparent hover:border-blue-500 dark:hover:border-blue-500/40 transition-all flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <FontAwesomeIcon icon={faFileAlt} className="text-2xl text-amber-500" />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-base font-bold text-bgray-900 dark:text-white">Rescisión de Contrato</p>
+                              <p className="text-xs font-medium text-bgray-400 dark:text-bgray-500">Documento de rescisión</p>
+                            </div>
+                          </div>
+                          <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                          </div>
+                        </button>
+                      ) : (
+                        <div className="w-full p-5 rounded-2xl bg-gray-50 dark:bg-darkblack-500/50 border border-gray-200 dark:border-darkblack-400 opacity-50 cursor-not-allowed flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                              <FontAwesomeIcon icon={faFileAlt} className="text-2xl text-gray-400" />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-base font-bold text-gray-400 dark:text-gray-500">Rescisión de Contrato</p>
+                              <p className="text-xs font-medium text-gray-400 dark:text-gray-500">Solo disponible para contratos cancelados/rechazados</p>
+                            </div>
+                          </div>
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Estado de Cuenta */}
+                      <button
+                        onClick={() => handleDownloadDocument('user_information_pdf', 'Estado de Cuenta')}
+                        className="w-full p-5 rounded-2xl bg-white dark:bg-darkblack-500 border border-bgray-100 dark:border-transparent hover:border-blue-500 dark:hover:border-blue-500/40 transition-all flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FontAwesomeIcon icon={faFileAlt} className="text-2xl text-emerald-500" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-base font-bold text-bgray-900 dark:text-white">Estado de Cuenta</p>
+                            <p className="text-xs font-medium text-bgray-400 dark:text-bgray-500">Detalle de movimientos y saldo</p>
+                          </div>
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
-
-          {/* Contract Notes - Full Width */}
-          {contract.note && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">📝</span>
-                </div>
-                <h4 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200">
-                  {t("contractDetailsModal.contractNotes")}
-                </h4>
-              </div>
-              <div className="bg-white/50 dark:bg-yellow-900/10 rounded-lg p-4 border border-yellow-200 dark:border-yellow-600">
-                <div
-                  className="text-sm text-yellow-800 dark:text-yellow-200 leading-relaxed prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: contract.note }}
-                />
-              </div>
-            </div>
-          )}
         </div>
-
-        {/* Footer */}
-        <div className="flex justify-end px-8 py-4 border-t border-bgray-200 dark:border-darkblack-400 bg-gray-50 dark:bg-darkblack-500">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
-          >
-            {t("contractDetailsModal.close")}
-          </button>
-        </div>
-      </div>
-    </div>,
+      </motion.div >
+    </div >,
     document.body
   );
 };

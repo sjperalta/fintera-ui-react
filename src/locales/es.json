@@ -3,6 +3,8 @@
     "loading": "Cargando...",
     "error": "Error",
     "success": "Éxito",
+    "startDate": "Fecha Inicio",
+    "endDate": "Fecha Fin",
     "save": "Guardar",
     "cancel": "Cancelar",
     "close": "Cerrar",
@@ -18,6 +20,8 @@
     "filter": "Filtrar",
     "actions": "Acciones",
     "download": "Descargar",
+    "downloadSuccess": "Descarga exitosa",
+    "downloadError": "Error al descargar el archivo",
     "yes": "Sí",
     "no": "No",
     "required": "Requerido",
@@ -38,6 +42,9 @@
     "noItemsFound": "No se encontraron elementos",
     "tryAdjustingFilters": "Intenta ajustar tus filtros",
     "all": "Todos",
+    "overview": "Resumen",
+    "showing": "Mostrando",
+    "results": "resultados",
     "months": {
       "jan": "Ene",
       "feb": "Feb",
@@ -51,12 +58,23 @@
       "oct": "Oct",
       "nov": "Nov",
       "dec": "Dic"
-    }
+    },
+    "view": "Ver",
+    "saveChanges": "Guardar Cambios",
+    "saving": "Guardando...",
+    "justNow": "Justo ahora",
+    "viewAll": "Ver Todo",
+    "viewMore": "Ver Más",
+    "export": "Exportar",
+    "downloadCsv": "Descargar .csv"
   },
   "status": {
     "available": "Disponible",
     "reserved": "Reservado",
-    "sold": "Vendido"
+    "sold": "Financiado",
+    "closed": "Pagado",
+    "financed": "Financiado",
+    "fully_paid": "Pagado"
   },
   "personalInfo": {
     "title": "Información Personal",
@@ -134,6 +152,7 @@
     "settings": "Configuración",
     "menu": "Menú",
     "dashboard": "Dashboard",
+    "analytics": "Análisis",
     "audits": "Auditoría",
     "logout": "Salir",
     "signIn": "Iniciar Sesión",
@@ -141,12 +160,32 @@
     "configuration": "Configuración",
     "annualRevenueProjection": "Proyección de Ingresos Anual",
     "loadingRevenueData": "Cargando datos de ingresos...",
-    "currentStatus": "Estado Actual"
+    "currentStatus": "Estado Actual",
+    "quickActions": "Acciones Rápidas",
+    "newPayment": "Registrar Pago",
+    "newPaymentDesc": "Registrar un nuevo pago para un contrato.",
+    "newContract": "Nuevo Contrato",
+    "newContractDesc": "Iniciar un nuevo proceso de venta en un proyecto.",
+    "manageUsers": "Gestionar Usuarios",
+    "manageUsersDesc": "Agregar o actualizar usuarios del sistema.",
+    "viewAnalytics": "Ver Análisis",
+    "viewAnalyticsDesc": "Profundizar en reportes financieros.",
+    "systemHealth": "Estado del Sistema",
+    "systemHealthDesc": "Todos los sistemas están operativos. Ver registros de auditoría para seguimiento detallado.",
+    "viewLogs": "Ver Registros del Sistema",
+    "recentActivity": "Actividad Reciente",
+    "recentActivityDesc": "Últimos eventos y actualizaciones del sistema",
+    "noActivity": "No se encontró actividad reciente"
   },
   "sidebar": {
     "paymentHistory": "Historial de Pagos"
   },
   "projectsPage": {
+    "title": "Proyectos",
+    "subtitle": "Gestiona y visualiza tus proyectos inmobiliarios",
+    "addProject": "Nuevo Proyecto",
+    "importCSV": "Importar CSV",
+    "importOptions": "Opciones de Importación CSV",
     "searchPlaceholder": "Buscar Proyectos...",
     "sortPlaceholder": "Ordenar...",
     "updateExisting": "Actualizar existente",
@@ -157,7 +196,17 @@
     "page": "Página",
     "of": "de",
     "prev": "Ant",
-    "next": "Sig"
+    "next": "Sig",
+    "loadingProjects": "Cargando proyectos...",
+    "errorPrefix": "Error:",
+    "importErrorPrefix": "Error de importación:",
+    "sorting": {
+      "noSort": "Sin Ordenar",
+      "nameAsc": "Nombre (A-Z)",
+      "nameDesc": "Nombre (Z-A)",
+      "dateDesc": "Más Recientes",
+      "dateAsc": "Más Antiguos"
+    }
   },
   "projects": {
     "squareMeters": "m²",
@@ -197,7 +246,27 @@
     "failedToLoadProject": "Error al cargar el proyecto",
     "errorUpdatingProject": "Error al actualizar el proyecto",
     "saving": "Guardando...",
-    "saveChanges": "Guardar Cambios"
+    "saveChanges": "Guardar Cambios",
+    "deliveryDate": "Fecha de Entrega",
+    "enterDeliveryDate": "Ingrese fecha de entrega",
+    "delivery": "Entrega",
+    "projectType": "Tipo de Proyecto",
+    "residential": "Residencial",
+    "commercial": "Comercial",
+    "industrial": "Industrial",
+    "area": "Área",
+    "dimensions": "Dimensiones",
+    "mixed_use": "Uso Mixto",
+    "mixedUse": "Uso Mixto",
+    "availableLots": "Lotes Disponibles",
+    "reservedLots": "Lotes Reservados",
+    "soldLots": "Lotes Vendidos",
+    "available": "Libres",
+    "reserved": "Res.",
+    "sold": "Fin.",
+    "closed": "Pag.",
+    "financed": "Fin.",
+    "fully_paid": "Pag."
   },
   "lotsTable": {
     "project": "Proyecto",
@@ -219,6 +288,10 @@
     "overdue": "Vencido",
     "paymentSchedule": "Cronograma de Pagos",
     "managePayments": "Gestiona tus pagos pendientes",
+    "completed": "Completado",
+    "pendingPaidMonthly": "Pendiente por Cobrar este Mes",
+    "overdueTotal": "Total Vencido",
+    "totalPaidThisMonth": "Total Recaudado este Mes",
     "viewPaymentSummary": "Ver tu resumen de pagos",
     "detailedPaymentInfo": "Información detallada de pagos",
     "uploadPaymentReceipt": "Sube tu comprobante de pago",
@@ -273,7 +346,7 @@
     "approvePayment": "Aprobar Pago",
     "confirmApproval": "Confirmar Aprobación de Pago",
     "interest": "Interés",
-    "total": "Total",
+    "total": "Total Deuda",
     "previewReceipt": "Vista Previa Comprobante",
     "approveError": "Error al aprobar pago",
     "approving": "Aprobando...",
@@ -292,7 +365,8 @@
     "approve": "Aprobar",
     "attachedDocument": "Documento Adjunto",
     "previewNotAvailable": "Vista previa no disponible",
-    "approveSuccess": "¡Pago aprobado exitosamente!"
+    "approveSuccess": "¡Pago aprobado exitosamente!",
+    "subtitle": "Administra y supervisa los pagos de tus clientes"
   },
   "reports": {
     "financialReports": "Reportes Financieros",
@@ -310,7 +384,8 @@
     "overduePaymentsCsv": "Pagos Vencidos CSV",
     "downloadOverdue": "Descargar Pagos Vencidos",
     "selectStartDate": "Seleccionar fecha de inicio",
-    "selectEndDate": "Seleccionar fecha de fin"
+    "selectEndDate": "Seleccionar fecha de fin",
+    "dataExport": "Exportación de Datos"
   },
   "profile": {
     "myProfile": "Mi Perfil",
@@ -320,6 +395,10 @@
   },
   "users": {
     "title": "Usuarios",
+    "subtitle": "Completa los detalles para crear un nuevo usuario",
+    "personalInfo": "Información Personal",
+    "security": "Seguridad",
+    "accountSettings": "Configuración de Cuenta",
     "create": "Crear Usuario",
     "role": "Rol",
     "manageSystemUsers": "Gestiona usuarios del sistema",
@@ -372,7 +451,9 @@
     "weak": "Débil",
     "medium": "Media",
     "strong": "Fuerte",
-    "errorCreatingUser": "Error creando usuario"
+    "errorCreatingUser": "Error creando usuario",
+    "statusUpdatedTo_active": "Estado de usuario actualizado a activo",
+    "statusUpdatedTo_inactive": "Estado de usuario actualizado a inactivo"
   },
   "settings": {
     "personal": "Personal",
@@ -474,6 +555,7 @@
     "area": "Área",
     "baseUnitPrice": "Precio Base por Unidad",
     "status": "Estado",
+    "deliveryDate": "Fecha de Entrega",
     "interest": "Interés",
     "commission": "Comisión",
     "financingDescription": "Selecciona el método de financiamiento para esta reserva",
@@ -498,7 +580,13 @@
     "typeAtLeast3Chars": "Escribe al menos 3 caracteres",
     "creating": "Creando...",
     "createRequest": "Crear Solicitud",
-    "searchExisting": "Buscar existente"
+    "searchExisting": "Buscar existente",
+    "summary": "Resumen Financiero",
+    "estimatedInterest": "Interés Estimado",
+    "estimatedInstallment": "Cuota Mensual Estimada",
+    "searchExistingClient": "Buscar Cliente Existente",
+    "uploadDocuments": "Subir documentos",
+    "loading": "Cargando..."
   },
   "header": {
     "administrator": "Administrador",
@@ -605,6 +693,33 @@
     "errorUpdatingStats": "Error al actualizar las estadísticas",
     "user": "Usuario"
   },
+  "analytics": {
+    "title": "Análisis y Métricas",
+    "subtitle": "Visualiza el rendimiento y crecimiento de tus proyectos",
+    "totalRevenue": "Ingresos Totales",
+    "activeContracts": "Contratos Activos",
+    "averagePayment": "Pago Promedio",
+    "occupancyRate": "Tasa de Ocupación",
+    "revenueTrend": "Tendencia de Ingresos",
+    "contractDistribution": "Distribución de Contratos",
+    "monthlyPerformance": "Rendimiento Mensual",
+    "projections": "Proyecciones",
+    "realData": "Datos Reales",
+    "comparedToLastMonth": "comparado con el mes pasado",
+    "lotsAvailability": "Disponibilidad de Lotes",
+    "sold": "Financiado",
+    "reserved": "Reservado",
+    "available": "Disponible",
+    "closed": "Pagado",
+    "financed": "Financiado",
+    "fully_paid": "Pagado",
+    "growthAnalysis": "Análisis de Crecimiento",
+    "topProjects": "Proyectos Principales",
+    "performanceDetails": "Detalles de Rendimiento",
+    "errorFetchingData": "Error al obtener datos de análisis",
+    "previousYear": "Año Anterior",
+    "nextYear": "Año Siguiente"
+  },
   "filters": {
     "contractSearchPlaceholder": "Buscar contratos...",
     "contractStatusPlaceholder": "Filtrar por estado",
@@ -614,6 +729,7 @@
   },
   "contracts": {
     "balance": "Saldo",
+    "totalBalance": "Saldo Total",
     "noContracts": "Sin Contratos",
     "contactInformation": "Información de Contacto",
     "note": "Nota",
@@ -674,19 +790,55 @@
     "statusLabel": "Estado",
     "financingTypes": {
       "direct": "Directo",
-      "bank": "Bancario"
+      "bank": "Bancario",
+      "cash": "Contado"
     },
     "approve": "Aprobar",
     "reject": "Rechazar",
     "cancel": "Cancelar",
     "viewDetails": "Ver Detalles",
+    "customerRecord": "Ficha de Cliente",
+    "downloadCustomerRecord": "Descargar Ficha",
+    "errorDownloadingRecord": "Error al descargar ficha de cliente",
+    "availableDocuments": "Documentos Disponibles",
     "price": "Precio",
     "reserve": "Reserva",
     "downPayment": "Prima",
     "financed": "Financiado",
     "months": "Meses",
+    "totalValue": "Monto del Contrato",
+    "progress": "Progreso",
+    "statusSummary": "Resumen de Estado",
+    "approvedWelcome": "El contrato ha sido aprobado y está activo.",
+    "rejectedNotice": "Este contrato ha sido rechazado.",
+    "pendingReview": "El contrato está esperando revisión administrativa.",
+    "lotAndProject": "Lote y Proyecto",
+    "financial": "Financiero",
+    "applicant": "Solicitante",
+    "notes": "Notas",
+    "total": "Total Deuda",
+    "internalNotes": "Notas internas y comentarios",
+    "clientDetails": "Detalles del Cliente",
+    "paymentSummary": "Resumen de pago",
+    "noNotes": "No hay notas disponibles",
+    "rejectContract": "Rechazar Contrato",
+    "rejectionReasonLong": "Proporcione una razón clara para el rechazo.",
+    "rejectionReasonLabel": "Razón del rechazo",
+    "rejectionReasonPlaceholder": "Ingrese detalladamente por qué este contrato no puede ser aprobado...",
+    "rejecting": "Rechazando...",
+    "confirmRejection": "Confirmar Rechazo",
+    "pleaseEnterReason": "Por favor ingrese una razón para el rechazo",
     "estimatedInstallment": "Cuota Est.",
-    "financingType": "Financiamiento"
+    "financingType": "Financiamiento",
+    "clientRecord": "Registro de Cliente",
+    "lotInformation": "Información del Lote",
+    "timeline": "Línea de Tiempo",
+    "activeSince": "Activo hace",
+    "healthIndicator": "Indicador de Salud",
+    "terms": "Términos",
+    "paid": "Pagado",
+    "rate": "Tasa de Int.",
+    "completed": "Completado"
   },
   "contractNotes": {
     "generalNotes": "Notas Generales",
@@ -752,6 +904,19 @@
     "applyPayment": "Aplicar Pago",
     "editMoratory": "Editar Mora",
     "undoPayment": "Deshacer Pago",
+    "updateMoratoryInfo": "Ajuste el monto del interés moratorio para este pago.",
+    "capitalPaymentDescription": "Realice un abono directo al capital del contrato.",
+    "capitalPaymentInfo": "Los pagos a capital reducirán el saldo pendiente y reajustarán las cuotas futuras.",
+    "amountInterestWarning": "El monto total incluye el pago base más los intereses moratorios.",
+    "summary": "Resumen del Cronograma",
+    "details": "Detalles del Pago",
+    "totalToPay": "Total a Pagar",
+    "completed": "Completado",
+    "remaining": "Restante",
+    "overdueAmount": "Monto Vencido",
+    "installment": "Cuota",
+    "interestAmount": "Monto de Interés",
+    "moratoryInterest": "Interés Moratorio",
     "reopenContract": "Reabrir Contrato",
     "reopening": "Reabriendo...",
     "contractReopenedSuccess": "Contrato reabierto exitosamente",
@@ -778,7 +943,7 @@
     "phone": "Teléfono",
     "creditScore": "Puntuación Crediticia",
     "financialInfo": "Información Financiera",
-    "totalPrice": "Precio Total",
+    "totalPrice": "Total Deuda",
     "financingType": "Tipo de Financiamiento",
     "paymentTerm": "Plazo de Pago",
     "reserveAmount": "Monto de Reserva",
@@ -840,7 +1005,30 @@
     "northBoundary": "Descripción del lindero norte",
     "eastBoundary": "Descripción del lindero este",
     "westBoundary": "Descripción del lindero oeste",
-    "southBoundary": "Descripción del lindero sur"
+    "southBoundary": "Descripción del lindero sur",
+    "loading": "Cargando detalles del lote...",
+    "editLot": "Editar Lote",
+    "basicInfo": "Información Básica",
+    "lotName": "Nombre del Lote",
+    "status": "Estado",
+    "address": "Dirección",
+    "optionalAddress": "Dirección opcional",
+    "registrationNumber": "Número de Registro",
+    "optionalRegistration": "Número de registro opcional",
+    "geometryPrice": "Geometría y Precio",
+    "length": "Largo",
+    "width": "Ancho",
+    "calculatedArea": "Área Calculada",
+    "estimatedPrice": "Precio Estimado",
+    "overrideArea": "Sobrescribir Área",
+    "enterManualArea": "Ingresar área manual",
+    "areaOverrideWarning": "Cambiar esto ignorará el área calculada a partir de las dimensiones.",
+    "overridePrice": "Sobrescribir Precio",
+    "enterManualPrice": "Ingresar precio manual",
+    "priceOverrideWarning": "Cambiar esto ignorará el precio estimado a partir del área.",
+    "limitWith": "Limita con...",
+    "notes": "Notas",
+    "additionalNotes": "Notas adicionales..."
   },
   "audits": {
     "viewSystemActivity": "Ver historial de actividad del sistema",
@@ -932,5 +1120,146 @@
     "project": "Proyecto",
     "receiptAttached": "Comprobante adjunto a este pago",
     "fetchError": "Error al cargar historial de pagos"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "¡Bienvenido a Fintera!",
+      "desc": "Este es tu panel principal donde puedes ver un resumen de todas tus actividades y métricas clave."
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "desc": "Accede directamente a las tareas más comunes como registrar pagos o crear contratos desde aquí."
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "desc": "Mantente al tanto de todos los eventos del sistema y auditorías en tiempo real."
+    },
+    "projects": {
+      "title": "Gestión de Proyectos",
+      "desc": "Administra tus proyectos inmobiliarios, inventario de lotes y visualiza su estado aquí."
+    },
+    "payments": {
+      "title": "Pagos y Financiamiento",
+      "desc": "Monitorea y registra los pagos de tus clientes de manera eficiente."
+    },
+    "profile": {
+      "title": "Tu Perfil",
+      "desc": "Accede a tu configuración, cambia el idioma o reinicia este recorrido en cualquier momento desde aquí."
+    },
+    "projectsTour": {
+      "addProject": {
+        "title": "Añadir Proyecto",
+        "desc": "Crea nuevos proyectos inmobiliarios desde cero."
+      },
+      "import": {
+        "title": "Importar Proyectos",
+        "desc": "Carga múltiples proyectos masivamente usando archivos CSV."
+      },
+      "filter": {
+        "title": "Filtrar y Buscar",
+        "desc": "Encuentra proyectos específicos utilizando filtros avanzados y búsqueda."
+      },
+      "projectCard": {
+        "title": "Tarjeta de Proyecto",
+        "desc": "Cada tarjeta de proyecto muestra información clave y acciones disponibles."
+      },
+      "viewLots": {
+        "title": "Ver Lotes",
+        "desc": "Haz clic aquí para gestionar y ver todos los lotes dentro de este proyecto."
+      },
+      "editProject": {
+        "title": "Editar Proyecto",
+        "desc": "Modifica los detalles y configuración del proyecto."
+      },
+      "deleteProject": {
+        "title": "Eliminar Proyecto",
+        "desc": "Elimina este proyecto permanentemente (requiere confirmación)."
+      }
+    },
+    "contractsTour": {
+      "stats": {
+        "title": "Estadísticas de Contratos",
+        "desc": "Visualiza métricas clave sobre el estado de tus contratos."
+      },
+      "viewMode": {
+        "title": "Modo de Vista",
+        "desc": "Alterna entre vista de cuadrícula y lista según tu preferencia."
+      },
+      "filter": {
+        "title": "Gestión de Contratos",
+        "desc": "Filtra, busca y gestiona todos tus contratos desde aquí."
+      },
+      "schedule": {
+        "title": "Cronograma de Pagos",
+        "desc": "Visualiza y gestiona el cronograma completo de pagos de este contrato."
+      },
+      "viewDetails": {
+        "title": "Ver Detalles del Contrato",
+        "desc": "Haz clic aquí para acceder a la información completa del contrato, cronogramas de pago y documentos."
+      }
+    },
+    "usersTour": {
+      "search": {
+        "title": "Buscar Usuarios",
+        "desc": "Busca y filtra usuarios por nombre o rol."
+      },
+      "addUser": {
+        "title": "Añadir Nuevo Usuario",
+        "desc": "Crea nuevas cuentas de usuario con roles y permisos específicos."
+      },
+      "userCard": {
+        "title": "Tarjeta de Usuario",
+        "desc": "Cada tarjeta muestra información del usuario y acciones disponibles."
+      },
+      "statusToggle": {
+        "title": "Activar/Desactivar Usuario",
+        "desc": "Usa este interruptor para activar o desactivar el acceso del usuario al sistema."
+      },
+      "editUser": {
+        "title": "Editar Usuario",
+        "desc": "Modifica la información y permisos del usuario."
+      },
+      "inviteUser": {
+        "title": "Reenviar Invitación",
+        "desc": "Envía nuevamente el correo de confirmación al usuario."
+      }
+    },
+    "auditsTour": {
+      "filter": {
+        "title": "Registros de Auditoría",
+        "desc": "Busca eventos específicos del sistema."
+      },
+      "model": {
+        "title": "Filtrar por Modelo",
+        "desc": "Filtra auditorías por tipo de recurso (Contrato, Lote, Usuario, etc.)."
+      },
+      "timeline": {
+        "title": "Línea de Tiempo",
+        "desc": "Visualiza la actividad del sistema de manera cronológica."
+      }
+    },
+    "analyticsTour": {
+      "header": {
+        "title": "Panel de Analíticas",
+        "desc": "Visualiza métricas clave y tendencias de tu negocio inmobiliario."
+      },
+      "filters": {
+        "title": "Filtros de Datos",
+        "desc": "Filtra las analíticas por proyecto y rango de fechas para obtener información específica."
+      },
+      "export": {
+        "title": "Exportar Reportes",
+        "desc": "Descarga reportes en diferentes formatos (CSV, Excel, PDF) para análisis externo."
+      },
+      "stats": {
+        "title": "Métricas Clave",
+        "desc": "Visualiza rápidamente ingresos totales, contratos activos, pago promedio y tasa de ocupación."
+      },
+      "revenueChart": {
+        "title": "Tendencia de Ingresos",
+        "desc": "Gráfico principal que muestra ingresos reales vs proyectados. Usa los controles para cambiar el año."
+      }
+    },
+    "restartTour": "Guía de Bienvenida"
   }
 }

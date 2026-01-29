@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo/logo-short.svg";
 import logoW from "../../assets/images/logo/logo-short-white.svg";
 
-function SidebarV2({user, handleLogout }) {
+function SidebarV2({ user, handleLogout }) {
   const { pathname: location } = useLocation();
   const isAdmin = user.role === "admin";
   const isSeller = user.role === "seller";
@@ -25,13 +25,13 @@ function SidebarV2({user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/"
-                      className={`${
-                        location.includes("home")
-                          ? "nav-active"
-                          : location === "/"
+                      id="sidebar-home"
+                      className={`${location.includes("home")
+                        ? "nav-active"
+                        : location === "/"
                           ? "nav-active"
                           : ""
-                      }`}
+                        }`}
                     >
                       <span className="item-ico">
                         <svg
@@ -58,9 +58,8 @@ function SidebarV2({user, handleLogout }) {
                       <li>
                         <Link
                           to="/"
-                          className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${
-                            location === "/" ? "nav-active" : ""
-                          } `}
+                          className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${location === "/" ? "nav-active" : ""
+                            } `}
                         >
                           Dashboard Default
                         </Link>
@@ -68,9 +67,8 @@ function SidebarV2({user, handleLogout }) {
                       <li>
                         <Link
                           to="/home-3"
-                          className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${
-                            location === "/home-3" ? "nav-active" : ""
-                          } `}
+                          className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${location === "/home-3" ? "nav-active" : ""
+                            } `}
                         >
                           Statistics
                         </Link>
@@ -78,9 +76,8 @@ function SidebarV2({user, handleLogout }) {
                       <li>
                         <Link
                           to="/home-4"
-                          className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${
-                            location === "/home-4" ? "nav-active" : ""
-                          } `}
+                          className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${location === "/home-4" ? "nav-active" : ""
+                            } `}
                         >
                           Analytics
                         </Link>
@@ -88,21 +85,19 @@ function SidebarV2({user, handleLogout }) {
                       <li>
                         <Link
                           to="/home-5"
-                          className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${
-                            location === "/home-5" ? "nav-active" : ""
-                          } `}
+                          className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${location === "/home-5" ? "nav-active" : ""
+                            } `}
                         >
                           Landing page
                         </Link>
                       </li>
                     </ul>
                   </li>
-                   {/* Balance: All roles */}
+                  {/* Balance: All roles */}
                   {(isUser) && (
                     <li
-                      className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${
-                        location.includes("/financing/user") ? "nav-active" : ""
-                      } `}
+                      className={`text-md inline-block py-1.5 font-medium text-bgray-600 hover:text-bgray-800 ${location.includes("/financing/user") ? "nav-active" : ""
+                        } `}
                     >
                       <Link to={`/financing/user/${user.id}`}>
                         <div className="flex items-center space-x-2.5">
@@ -124,9 +119,9 @@ function SidebarV2({user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/payments"
-                      className={`${
-                        location === "/payments" ? "nav-active" : ""
-                      }`}
+                      id="sidebar-payments"
+                      className={`${location === "/payments" ? "nav-active" : ""
+                        }`}
                     >
                       <span className="item-ico">
                         <svg
@@ -174,9 +169,8 @@ function SidebarV2({user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/contracts"
-                      className={`${
-                        location === "/contracts" ? "nav-active" : ""
-                      }`}
+                      className={`${location === "/contracts" ? "nav-active" : ""
+                        }`}
                     >
                       <span className="item-ico">
                         <svg
@@ -204,13 +198,13 @@ function SidebarV2({user, handleLogout }) {
                         </svg>
                       </span>
                     </Link>
-                  </li>            
+                  </li>
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/projects"
-                      className={`${
-                        location === "/projects" ? "nav-active" : ""
-                      }`}
+                      id="sidebar-projects"
+                      className={`${location === "/projects" ? "nav-active" : ""
+                        }`}
                     >
                       <span className="item-ico">
                         <svg
@@ -243,6 +237,32 @@ function SidebarV2({user, handleLogout }) {
                             d="M18 2C18.4142 2 18.75 2.33579 18.75 2.75V5.25H21.25C21.6642 5.25 22 5.58579 22 6C22 6.41421 21.6642 6.75 21.25 6.75H18.75V9.25C18.75 9.66421 18.4142 10 18 10C17.5858 10 17.25 9.66421 17.25 9.25V6.75H14.75C14.3358 6.75 14 6.41421 14 6C14 5.58579 14.3358 5.25 14.75 5.25H17.25V2.75C17.25 2.33579 17.5858 2 18 2Z"
                             fill="#22C55E"
                             className="path-2"
+                          />
+                        </svg>
+                      </span>
+                    </Link>
+                  </li>
+                  <li className="item px-[43px] py-[11px]">
+                    <Link
+                      to="/analytics"
+                      className={`${location === "/analytics" ? "nav-active" : ""
+                        }`}
+                    >
+                      <span className="item-ico">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3M7 16V12M11 16V8M15 16V13M19 16V10"
+                            stroke="#1A202C"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="path-1"
                           />
                         </svg>
                       </span>
@@ -283,9 +303,8 @@ function SidebarV2({user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/audits"
-                      className={`${
-                        location === "/audits" ? "nav-active" : ""
-                      }`}
+                      className={`${location === "/audits" ? "nav-active" : ""
+                        }`}
                     >
                       <span className="item-ico">
                         <svg
@@ -326,9 +345,8 @@ function SidebarV2({user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/notifications"
-                      className={`${
-                        location === "/notifications" ? "nav-active" : ""
-                      }`}
+                      className={`${location === "/notifications" ? "nav-active" : ""
+                        }`}
                     >
                       <span className="item-ico">
                         <svg
@@ -368,9 +386,8 @@ function SidebarV2({user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to={`/settings/user/${user.id}`}
-                      className={`${
-                        location.includes("settings/user") ? "nav-active" : ""
-                      }`}
+                      className={`${location.includes("settings/user") ? "nav-active" : ""
+                        }`}
                     >
                       <span className="item-ico">
                         <svg
@@ -397,9 +414,8 @@ function SidebarV2({user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/signin"
-                      className={`${
-                        location === "/signin" ? "nav-active" : ""
-                      }`}
+                      className={`${location === "/signin" ? "nav-active" : ""
+                        }`}
                     >
                       <span className="item-ico">
                         <svg

@@ -17,8 +17,13 @@ export const STATUS_CONFIG = {
     priority: 2
   },
   sold: {
-    label: 'Vendido',
-    badgeClass: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200',
+    label: 'Financiado',
+    badgeClass: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+    priority: 3
+  },
+  financed: {
+    label: 'Financiado',
+    badgeClass: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
     priority: 3
   },
   pending: {
@@ -42,8 +47,13 @@ export const STATUS_CONFIG = {
     priority: 7
   },
   closed: {
-    label: 'Cerrado',
-    badgeClass: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200',
+    label: 'Pagado',
+    badgeClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+    priority: 8
+  },
+  fully_paid: {
+    label: 'Pagado',
+    badgeClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
     priority: 8
   }
 };
@@ -108,7 +118,7 @@ export const isActiveStatus = (status) => {
   if (!status) return false;
 
   const statusKey = String(status).toLowerCase().trim();
-  const activeStatuses = ['available', 'reserved', 'pending'];
+  const activeStatuses = ['available', 'reserved', 'pending', 'financed', 'sold'];
   return activeStatuses.includes(statusKey);
 };
 
