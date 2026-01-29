@@ -125,7 +125,7 @@ function Home() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => window.location.href = '/audits'}
+                onClick={() => navigate('/audits')}
                 className="px-6 py-3 bg-white text-blue-600 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
               >
                 {t("dashboard.viewLogs") || "View System Logs"}

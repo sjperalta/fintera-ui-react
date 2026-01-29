@@ -759,6 +759,7 @@
     "capitalPaymentAmount": "Monto del Pago de Capital",
     "enterCapitalPaymentAmount": "Ingrese el monto del pago de capital",
     "interestMoratory": "Interés/Moratorio",
+    "totalPaymentAmount": "Monto Total del Pago",
     "amountInterestWarning": "El monto del pago no puede ser mayor que el saldo pendiente",
     "applyingPayment": "Aplicando pago...",
     "applyCapitalPayment": "Aplicar Pago de Capital",

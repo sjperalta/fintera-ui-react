@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import enTranslations from '../locales/en.json';
 import esTranslations from '../locales/es.json';
+import AuthContext from '../context/AuthContext';
 
 // Constants
 const STORAGE_KEY = 'userLocale';
@@ -44,20 +45,25 @@ export const useLocale = () => {
 };
 
 export const LocaleProvider = ({ children }) => {
-  const [locale, setLocale] = useState(DEFAULT_LOCALE);
-
-  // Load locale from localStorage on mount
-  useEffect(() => {
+  // Initialize from localStorage directly to avoid flicker
+  const [locale, setLocale] = useState(() => {
     try {
       const savedLocale = localStorage.getItem(STORAGE_KEY);
-      if (savedLocale && translations[savedLocale]) {
-        setLocale(savedLocale);
-      }
-    } catch (error) {
-      // Handle localStorage errors (e.g., in private browsing mode)
-      console.warn('Failed to load locale from localStorage:', error);
+      return (savedLocale && translations[savedLocale]) ? savedLocale : DEFAULT_LOCALE;
+    } catch {
+      return DEFAULT_LOCALE;
     }
-  }, []);
+  });
+
+  const { user } = useContext(AuthContext);
+
+  // Sync with AuthContext user locale if available
+  useEffect(() => {
+    if (user && user.locale && translations[user.locale] && user.locale !== locale) {
+      setLocale(user.locale);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Save locale to localStorage whenever it changes
   useEffect(() => {
@@ -113,6 +119,7 @@ export const LocaleProvider = ({ children }) => {
 
   // In development, validate all translation keys exist
   if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-unused-vars
     const validateTranslations = (locale, translations) => {
       // Check for missing keys compared to fallback
       // Log warnings for incomplete translations

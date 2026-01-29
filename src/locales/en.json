@@ -740,6 +740,7 @@
     "capitalPaymentAmount": "Capital Payment Amount",
     "enterCapitalPaymentAmount": "Enter capital payment amount",
     "interestMoratory": "Interest/Moratory",
+    "totalPaymentAmount": "Total Payment Amount",
     "amountInterestWarning": "Payment amount cannot be greater than outstanding balance",
     "applyingPayment": "Applying payment...",
     "applyCapitalPayment": "Apply Capital Payment",
@@ -1095,5 +1096,146 @@
     "project": "Project",
     "receiptAttached": "Receipt attached to this payment",
     "fetchError": "Failed to fetch payment history"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Fintera!",
+      "desc": "This is your main dashboard where you can see a summary of all your activities and key metrics."
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "desc": "Access common tasks directly like registering payments or creating contracts from here."
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "desc": "Stay updated with all system events and audits in real time."
+    },
+    "projects": {
+      "title": "Project Management",
+      "desc": "Manage your real estate projects, lot inventory, and view their status here."
+    },
+    "payments": {
+      "title": "Payments & Financing",
+      "desc": "Monitor and record your clients' payments efficiently."
+    },
+    "profile": {
+      "title": "Your Profile",
+      "desc": "Access your settings, change language, or restart this tour at any time from here."
+    },
+    "projectsTour": {
+      "addProject": {
+        "title": "Add Project",
+        "desc": "Create new real estate projects from scratch."
+      },
+      "import": {
+        "title": "Import Projects",
+        "desc": "Mass load multiple projects using CSV files."
+      },
+      "filter": {
+        "title": "Filter and Search",
+        "desc": "Find specific projects using advanced filters and search."
+      },
+      "projectCard": {
+        "title": "Project Card",
+        "desc": "Each project card shows key information and available actions."
+      },
+      "viewLots": {
+        "title": "View Lots",
+        "desc": "Click here to manage and view all lots within this project."
+      },
+      "editProject": {
+        "title": "Edit Project",
+        "desc": "Modify project details and configuration."
+      },
+      "deleteProject": {
+        "title": "Delete Project",
+        "desc": "Delete this project permanently (requires confirmation)."
+      }
+    },
+    "contractsTour": {
+      "stats": {
+        "title": "Contract Statistics",
+        "desc": "View key metrics about the status of your contracts."
+      },
+      "viewMode": {
+        "title": "View Mode",
+        "desc": "Toggle between grid and list view based on your preference."
+      },
+      "filter": {
+        "title": "Contract Management",
+        "desc": "Filter, search, and manage all your contracts from here."
+      },
+      "schedule": {
+        "title": "Payment Schedule",
+        "desc": "View and manage the full payment schedule for this contract."
+      },
+      "viewDetails": {
+        "title": "View Contract Details",
+        "desc": "Click here to access full contract information, payment schedules, and documents."
+      }
+    },
+    "usersTour": {
+      "search": {
+        "title": "Search Users",
+        "desc": "Search and filter users by name or role."
+      },
+      "addUser": {
+        "title": "Add New User",
+        "desc": "Create new user accounts with specific roles and permissions."
+      },
+      "userCard": {
+        "title": "User Card",
+        "desc": "Each card shows user information and available actions."
+      },
+      "statusToggle": {
+        "title": "Activate/Deactivate User",
+        "desc": "Use this switch to activate or deactivate user access to the system."
+      },
+      "editUser": {
+        "title": "Edit User",
+        "desc": "Modify user information and permissions."
+      },
+      "inviteUser": {
+        "title": "Resend Invitation",
+        "desc": "Send the confirmation email to the user again."
+      }
+    },
+    "auditsTour": {
+      "filter": {
+        "title": "Audit Logs",
+        "desc": "Search for specific system events."
+      },
+      "model": {
+        "title": "Filter by Model",
+        "desc": "Filter audits by resource type (Contract, Lot, User, etc.)."
+      },
+      "timeline": {
+        "title": "Timeline",
+        "desc": "View system activity chronologically."
+      }
+    },
+    "analyticsTour": {
+      "header": {
+        "title": "Analytics Dashboard",
+        "desc": "Visualize key metrics and trends of your real estate business."
+      },
+      "filters": {
+        "title": "Data Filters",
+        "desc": "Filter analytics by project and date range for specific information."
+      },
+      "export": {
+        "title": "Export Reports",
+        "desc": "Download reports in different formats (CSV, Excel, PDF) for external analysis."
+      },
+      "stats": {
+        "title": "Key Metrics",
+        "desc": "Quickly visualize total revenue, active contracts, average payment, and occupancy rate."
+      },
+      "revenueChart": {
+        "title": "Revenue Trend",
+        "desc": "Main chart showing actual vs projected revenue. Use controls to change the year."
+      }
+    },
+    "restartTour": "Welcome Tour"
   }
 }

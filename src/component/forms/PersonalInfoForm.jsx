@@ -32,7 +32,7 @@ function formatRTN(raw) {
 }
 
 function PersonalInfoForm({ userId }) {
-  const { t, setLocale } = useLocale();
+  const { t, setLocale, locale } = useLocale();
   const [user, setUser] = useState({
     full_name: "",
     phone: "",
@@ -40,7 +40,7 @@ function PersonalInfoForm({ userId }) {
     identity: "",
     rtn: "",
     address: "",
-    locale: "es", // default to Spanish
+    locale: locale, // Initialize with current locale from context
   });
 
   const [loading, setLoading] = useState(true);
@@ -76,9 +76,10 @@ function PersonalInfoForm({ userId }) {
           ...data,
           identity: formatCedula(data.identity),
           rtn: formatRTN(data.rtn),
+          locale: data.locale || locale, // Use fetched locale or current context locale
         });
-        if (data.locale) {
-          setLocale(data.locale); // Load and set locale if present in user data
+        if (data.locale && data.locale !== locale) {
+          setLocale(data.locale); // Sync context if fetched user has different locale
         }
         setLoading(false);
       } catch (err) {

@@ -1,15 +1,15 @@
 import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
-import PersonalInfoFrom from "../../../component/forms/PersonalInfoFrom";
+import PersonalInfoForm from "../../../component/forms/PersonalInfoForm";
 
-function PersonalInfo() { 
+function PersonalInfo() {
   const { userId } = useParams(); // Extract userId from the route
 
   return (
     <div id="tab1" className="tab-pane active">
       <div className="xl:grid grid-cols-12 gap-12 flex 2xl:flex-row flex-col-reverse">
         {/* Pass userId as a prop */}
-        <PersonalInfoFrom userId={userId} />
+        <PersonalInfoForm userId={userId} />
       </div>
     </div>
   );
