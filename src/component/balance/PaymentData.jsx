@@ -12,7 +12,7 @@ import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
 
 function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
-  const { id, contract, description, amount, due_date, status: initialStatus, interest_amount } = paymentData;
+  const { id, contract, description, amount, due_date, status: initialStatus, interest_amount, paid_amount } = paymentData;
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
   const { t } = useLocale();
@@ -33,7 +33,7 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
       requestAnimationFrame(() => {
         setIsModalVisible(true);
       });
-      
+
       // Focus after animation starts
       setTimeout(() => {
         if (modalRef.current) {
@@ -73,13 +73,13 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
     v === null || v === undefined || v === ""
       ? "—"
       : Number(v).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }) + " " + (contract.currency || "HNL");
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }) + " " + (contract.currency || "HNL");
 
   // Parse the due_date string into a Date object
   const dueDate = parseISO(due_date);
-  
+
   // Get the start of today to ignore time components
   const todayStart = startOfDay(new Date());
 
@@ -89,18 +89,18 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
   // Format the due date for display
   const formattedDueDate = format(dueDate, "dd MMM yyyy"); // e.g., "24 Oct 2023"
 
-    // normalize status for comparisons and UI
-    const statusKey = (initialStatus || "").toLowerCase();
+  // normalize status for comparisons and UI
+  const statusKey = (initialStatus || "").toLowerCase();
 
-    // Determine the color for the status
-    const statusColor =
-      statusKey === "paid" || statusKey === "submitted"
-        ? "bg-green-100 text-green-800"
-        : statusKey === "pending"
+  // Determine the color for the status
+  const statusColor =
+    statusKey === "paid" || statusKey === "submitted"
+      ? "bg-green-100 text-green-800"
+      : statusKey === "pending"
         ? "bg-yellow-100 text-yellow-800"
         : isOverdue
-        ? "bg-red-100 text-red-800"
-        : "bg-gray-100 text-gray-800";
+          ? "bg-red-100 text-red-800"
+          : "bg-gray-100 text-gray-800";
 
   const getStatusIcon = () => {
     switch (statusKey) {
@@ -184,6 +184,12 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
               {t('payments.lateInterest')}: {contract.currency} {Number(interest_amount).toLocaleString()}
             </p>
           )}
+          {paid_amount > (Number(amount) + Number(interest_amount)) && (
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              {t('payments.extraAmount')}: {contract.currency} {Number(paid_amount - (Number(amount) + Number(interest_amount))).toLocaleString()}
+            </p>
+          )}
         </div>
 
         <div className="bg-gray-50 dark:bg-darkblack-600 p-4 rounded-lg">
@@ -238,11 +244,10 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
       {/* Payment Modal - Rendered as Portal */}
       {paymentModal && createPortal(
         <div
-          className={`fixed inset-0 flex items-center justify-center z-50 overflow-y-auto transition-all duration-300 ease-out ${
-            isModalVisible 
-              ? 'bg-black/50 backdrop-blur-sm' 
+          className={`fixed inset-0 flex items-center justify-center z-50 overflow-y-auto transition-all duration-300 ease-out ${isModalVisible
+              ? 'bg-black/50 backdrop-blur-sm'
               : 'bg-black/0 backdrop-blur-none'
-          }`}
+            }`}
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               closePaymentModal();
@@ -251,11 +256,10 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
         >
           <div
             ref={modalRef}
-            className={`bg-white dark:bg-darkblack-600 rounded-lg p-6 w-full max-w-md mx-4 transition-all duration-300 ease-out transform ${
-              isModalVisible 
-                ? 'opacity-100 scale-100 translate-y-0' 
+            className={`bg-white dark:bg-darkblack-600 rounded-lg p-6 w-full max-w-md mx-4 transition-all duration-300 ease-out transform ${isModalVisible
+                ? 'opacity-100 scale-100 translate-y-0'
                 : 'opacity-0 scale-95 translate-y-4'
-            }`}
+              }`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -356,7 +360,7 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
                     }, 500);
                   } catch (error) {
                     console.error('Error uploading payment:', error);
-                    
+
                     // Check if it's an auth error
                     if (error.message.includes('401') || error.message.includes('Unauthorized')) {
                       showToast(t('common.sessionExpired'), "error");
@@ -365,7 +369,7 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
                     } else {
                       showToast(`${t('payments.paymentError')}: ${error.message}`, "error");
                     }
-                    
+
                     setActionLoading(false);
                   }
                 }}

@@ -16,7 +16,8 @@ import {
   faCoins,
   faCalculator,
   faArrowRight,
-  faEllipsisV
+  faEllipsisV,
+  faPlus
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocale } from '../../contexts/LocaleContext';
 
@@ -164,7 +165,10 @@ const PaymentScheduleTab = ({
               {safeSchedule.map((row, idx) => {
                 const statusConfig = getStatusConfig(row);
                 const amount = row.amount || row.value || row.payment_amount;
+                const paidAmount = row.paid_amount || 0;
                 const interest = row.interest_amount || 0;
+                const totalRequired = Number(amount) + Number(interest);
+                const extraAmount = paidAmount > totalRequired ? paidAmount - totalRequired : 0;
                 const moratoryDays = calculateMoratoryDays(row.due_date);
                 const isReadjustment = row.status?.toLowerCase() === 'readjustment';
                 const isPaid = row.status?.toLowerCase() === 'paid';
@@ -223,6 +227,12 @@ const PaymentScheduleTab = ({
                               <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-900/20">
                                 <FontAwesomeIcon icon={faExclamationTriangle} className="text-rose-500 text-[7px]" />
                                 <span className="text-[9px] font-black text-rose-600 dark:text-rose-400">+{fmt(interest)}</span>
+                              </div>
+                            )}
+                            {extraAmount > 0 && (
+                              <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-900/20">
+                                <FontAwesomeIcon icon={faPlus} className="text-blue-500 text-[7px]" />
+                                <span className="text-[9px] font-black text-blue-600 dark:text-blue-400">+{fmt(extraAmount)} ({t('paymentSchedule.extraAmount')})</span>
                               </div>
                             )}
                           </div>

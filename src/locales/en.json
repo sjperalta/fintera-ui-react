@@ -60,7 +60,12 @@
       "dec": "Dec"
     },
     "justNow": "Just now",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "viewMore": "View More",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "export": "Export",
+    "downloadCsv": "Download .csv"
   },
   "status": {
     "available": "Available",
@@ -193,7 +198,14 @@
     "next": "Next",
     "loadingProjects": "Loading projects...",
     "errorPrefix": "Error:",
-    "importErrorPrefix": "Import error:"
+    "importErrorPrefix": "Import error:",
+    "sorting": {
+      "noSort": "No Sorting",
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "dateDesc": "Newest",
+      "dateAsc": "Oldest"
+    }
   },
   "projects": {
     "squareMeters": "m²",
@@ -269,6 +281,7 @@
     "title": "Payments",
     "amount": "Amount",
     "dueDate": "Due Date",
+    "extraAmount": "Extra Amount",
     "status": "Status",
     "pending": "Pending",
     "paid": "Paid",
@@ -371,7 +384,8 @@
     "overduePaymentsCsv": "Overdue Payments CSV",
     "downloadOverdue": "Download Overdue Payments",
     "selectStartDate": "Select start date",
-    "selectEndDate": "Select end date"
+    "selectEndDate": "Select end date",
+    "dataExport": "Data Export"
   },
   "profile": {
     "myProfile": "My Profile",
@@ -700,7 +714,9 @@
     "growthAnalysis": "Growth Analysis",
     "topProjects": "Top Projects",
     "performanceDetails": "Performance Details",
-    "errorFetchingData": "Error fetching analytics data"
+    "errorFetchingData": "Error fetching analytics data",
+    "previousYear": "Previous Year",
+    "nextYear": "Next Year"
   },
   "filters": {
     "contractSearchPlaceholder": "Search contracts...",
@@ -893,6 +909,7 @@
     "installment": "Installment",
     "interestAmount": "Interest Amount",
     "moratoryInterest": "Moratory Interest",
+    "extraAmount": "Extra Amount",
     "reopenContract": "Reopen Contract",
     "reopening": "Reopening...",
     "contractReopenedSuccess": "Contract reopened successfully",

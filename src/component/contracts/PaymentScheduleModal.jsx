@@ -806,9 +806,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                                 Authorization: `Bearer ${token}`,
                               },
                               body: JSON.stringify({
-                                contract: {
-                                  capital_repayment_amount: paymentAmount
-                                }
+                                capital_repayment_amount: paymentAmount
                               }),
                             }
                           );
@@ -929,7 +927,8 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                               ? {
                                 ...payment,
                                 status: data.payment.status || 'paid',
-                                paid_amount: data.payment.amount,
+                                amount: data.payment.amount,
+                                paid_amount: data.payment.paid_amount,
                                 interest_amount: data.payment.interest_amount,
                                 payment_date: data.payment.payment_date,
                                 approved_at: data.payment.approved_at
