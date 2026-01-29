@@ -395,9 +395,11 @@ function ContractItem({
               </div>
               <div className="flex justify-between mt-2">
                 <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                  {Math.round(((Number(contract.balance) > 0
-                    ? (Number(contract.amount) - Number(contract.balance))
-                    : (Number(contract.amount) + Number(contract.balance))) / Number(contract.amount)) * 100)}% {t("contracts.paid").includes("contracts.paid") ? "Pagado" : (t("contracts.paid") || "Pagado")}
+                  {new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' }).format(
+                    Number(contract.balance) > 0
+                      ? (Number(contract.amount) - Number(contract.balance))
+                      : (Number(contract.amount) + Number(contract.balance))
+                  )} / {new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' }).format(contract.amount)}
                 </p>
               </div>
             </div>

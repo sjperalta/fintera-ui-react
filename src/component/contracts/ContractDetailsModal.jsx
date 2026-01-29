@@ -387,11 +387,21 @@ const ContractDetailsModal = ({
                           <div className="flex-1 h-3 bg-gray-200 dark:bg-darkblack-400 rounded-full overflow-hidden">
                             <motion.div
                               initial={{ width: 0 }}
-                              animate={{ width: `${Math.round(((Number(contract.amount) + Number(contract.balance)) / Number(contract.amount)) * 100)}%` }}
+                              animate={{
+                                width: `${Math.round(((Number(contract.balance) > 0
+                                  ? (Number(contract.amount) - Number(contract.balance))
+                                  : (Number(contract.amount) + Number(contract.balance))) / Number(contract.amount)) * 100)}%`
+                              }}
                               className="h-full bg-blue-600 rounded-full"
                             />
                           </div>
-                          <p className="text-sm font-black text-bgray-900 dark:text-white">{Math.round(((Number(contract.amount) + Number(contract.balance)) / Number(contract.amount)) * 100)}%</p>
+                          <p className="text-sm font-black text-bgray-900 dark:text-white">
+                            {new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' }).format(
+                              Number(contract.balance) > 0
+                                ? (Number(contract.amount) - Number(contract.balance))
+                                : (Number(contract.amount) + Number(contract.balance))
+                            )} / {new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' }).format(contract.amount)}
+                          </p>
                         </div>
                       </div>
                     </div>
