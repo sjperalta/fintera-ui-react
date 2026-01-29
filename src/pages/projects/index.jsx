@@ -129,6 +129,7 @@ function Projects() {
           {/* Search and Filters - Takes up remaining space */}
           <div className="flex-1">
             <GenericFilter
+              id="projects-filter-section"
               searchTerm={searchTerm}
               filterValue={sortParam}
               filterOptions={[
@@ -150,6 +151,7 @@ function Projects() {
           {isAdmin && (
             <div className="flex items-center gap-3">
               <button
+                id="add-project-btn"
                 onClick={handleAddProject}
                 className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-success-300 hover:bg-success-400 text-white px-6 py-3 rounded-2xl font-bold transition-all duration-200 shadow-lg shadow-success-300/20 active:scale-95"
               >
@@ -159,6 +161,7 @@ function Projects() {
 
               <div className="flex-1 lg:flex-none group relative">
                 <button
+                  id="import-projects-btn"
                   onClick={handleImportClick}
                   className="w-full flex items-center justify-center gap-2 bg-white dark:bg-darkblack-600 text-bgray-700 dark:text-white px-6 py-3 rounded-2xl font-bold transition-all duration-200 border border-bgray-200 dark:border-darkblack-400 shadow-sm hover:bg-bgray-50 dark:hover:bg-darkblack-500 active:scale-95"
                 >
@@ -248,6 +251,7 @@ function Projects() {
             {projects.map((project, index) => (
               <div
                 key={project.id}
+                id={index === 0 ? "first-project-card" : undefined}
                 data-aos="zoom-in"
                 data-aos-duration="400"
                 data-aos-delay={index * 50}
@@ -261,6 +265,7 @@ function Projects() {
               </div>
             ))}
           </div>
+
 
           {pagination.pages && pagination.pages > 1 && (
             <div className="flex justify-center items-center mt-12 gap-4" data-aos="fade" data-aos-duration="400">

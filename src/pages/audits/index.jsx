@@ -108,6 +108,7 @@ function Audits() {
 
         {/* Search and Filters */}
         <SearchFilterBar
+          id="audits-filter-section"
           searchTerm={searchTerm}
           filterValue={filterState.model}
           filterOptions={modelFilterOptions}
@@ -139,7 +140,9 @@ function Audits() {
           </div>
         ) : (
           <>
-            <AuditTimeline items={audits} />
+            <div id="audits-timeline">
+              <AuditTimeline items={audits} />
+            </div>
 
             {/* Load More Trigger */}
             {hasMore && (

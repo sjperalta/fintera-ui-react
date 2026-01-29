@@ -244,6 +244,7 @@
     "area": "Area",
     "dimensions": "Dimensions",
     "mixed_use": "Mixed Use",
+    "mixedUse": "Mixed Use",
     "availableLots": "Available Lots",
     "reservedLots": "Reserved Lots",
     "soldLots": "Sold Lots",
@@ -332,7 +333,7 @@
     "approvePayment": "Approve Payment",
     "confirmApproval": "Confirm Payment Approval",
     "interest": "Interest",
-    "total": "Total",
+    "total": "Total Debt",
     "previewReceipt": "Preview Receipt",
     "approveError": "Failed to approve payment",
     "approving": "Approving...",
@@ -351,7 +352,8 @@
     "approve": "Approve",
     "attachedDocument": "Attached Document",
     "previewNotAvailable": "Preview not available",
-    "approveSuccess": "Payment approved successfully!"
+    "approveSuccess": "Payment approved successfully!",
+    "subtitle": "Manage and monitor your clients' payments"
   },
   "reports": {
     "financialReports": "Financial Reports",
@@ -781,7 +783,7 @@
     "downPayment": "Down Payment",
     "financed": "Financed",
     "months": "Months",
-    "totalValue": "Total Value",
+    "totalValue": "Contract Amount",
     "progress": "Progress",
     "statusSummary": "Status Summary",
     "approvedWelcome": "The contract has been approved and is active.",

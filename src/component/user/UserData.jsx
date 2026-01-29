@@ -82,6 +82,7 @@ function UserData({ userInfo, index, token, onClick, isMobileCard = false }) {
 
   return (
     <motion.div
+      id={index === 0 ? "first-user-card" : undefined}
       variants={cardVariants}
       initial="hidden"
       animate="visible"
@@ -125,6 +126,7 @@ function UserData({ userInfo, index, token, onClick, isMobileCard = false }) {
 
           <div className="flex items-center gap-2">
             <button
+              id={index === 0 ? "user-status-toggle" : undefined}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleUserStatus();
@@ -180,6 +182,7 @@ function UserData({ userInfo, index, token, onClick, isMobileCard = false }) {
         <div className="flex gap-2.5">
           <Link
             to={`/settings/user/${id}`}
+            id={index === 0 ? "user-edit-btn" : undefined}
             onClick={(e) => e.stopPropagation()}
             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl transition-all duration-300 font-bold text-xs"
           >
@@ -189,6 +192,7 @@ function UserData({ userInfo, index, token, onClick, isMobileCard = false }) {
             {t('common.edit')}
           </Link>
           <button
+            id={index === 0 ? "user-invite-btn" : undefined}
             onClick={(e) => {
               e.stopPropagation();
               resendConfirmation();

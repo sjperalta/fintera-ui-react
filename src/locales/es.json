@@ -63,7 +63,10 @@
     "saveChanges": "Guardar Cambios",
     "saving": "Guardando...",
     "justNow": "Justo ahora",
-    "viewAll": "Ver Todo"
+    "viewAll": "Ver Todo",
+    "viewMore": "Ver Más",
+    "export": "Exportar",
+    "downloadCsv": "Descargar .csv"
   },
   "status": {
     "available": "Disponible",
@@ -254,6 +257,7 @@
     "area": "Área",
     "dimensions": "Dimensiones",
     "mixed_use": "Uso Mixto",
+    "mixedUse": "Uso Mixto",
     "availableLots": "Lotes Disponibles",
     "reservedLots": "Lotes Reservados",
     "soldLots": "Lotes Vendidos",
@@ -342,7 +346,7 @@
     "approvePayment": "Aprobar Pago",
     "confirmApproval": "Confirmar Aprobación de Pago",
     "interest": "Interés",
-    "total": "Total",
+    "total": "Total Deuda",
     "previewReceipt": "Vista Previa Comprobante",
     "approveError": "Error al aprobar pago",
     "approving": "Aprobando...",
@@ -361,7 +365,8 @@
     "approve": "Aprobar",
     "attachedDocument": "Documento Adjunto",
     "previewNotAvailable": "Vista previa no disponible",
-    "approveSuccess": "¡Pago aprobado exitosamente!"
+    "approveSuccess": "¡Pago aprobado exitosamente!",
+    "subtitle": "Administra y supervisa los pagos de tus clientes"
   },
   "reports": {
     "financialReports": "Reportes Financieros",
@@ -379,7 +384,8 @@
     "overduePaymentsCsv": "Pagos Vencidos CSV",
     "downloadOverdue": "Descargar Pagos Vencidos",
     "selectStartDate": "Seleccionar fecha de inicio",
-    "selectEndDate": "Seleccionar fecha de fin"
+    "selectEndDate": "Seleccionar fecha de fin",
+    "dataExport": "Exportación de Datos"
   },
   "profile": {
     "myProfile": "Mi Perfil",
@@ -445,7 +451,9 @@
     "weak": "Débil",
     "medium": "Media",
     "strong": "Fuerte",
-    "errorCreatingUser": "Error creando usuario"
+    "errorCreatingUser": "Error creando usuario",
+    "statusUpdatedTo_active": "Estado de usuario actualizado a activo",
+    "statusUpdatedTo_inactive": "Estado de usuario actualizado a inactivo"
   },
   "settings": {
     "personal": "Personal",
@@ -721,6 +729,7 @@
   },
   "contracts": {
     "balance": "Saldo",
+    "totalBalance": "Saldo Total",
     "noContracts": "Sin Contratos",
     "contactInformation": "Información de Contacto",
     "note": "Nota",
@@ -788,12 +797,16 @@
     "reject": "Rechazar",
     "cancel": "Cancelar",
     "viewDetails": "Ver Detalles",
+    "customerRecord": "Ficha de Cliente",
+    "downloadCustomerRecord": "Descargar Ficha",
+    "errorDownloadingRecord": "Error al descargar ficha de cliente",
+    "availableDocuments": "Documentos Disponibles",
     "price": "Precio",
     "reserve": "Reserva",
     "downPayment": "Prima",
     "financed": "Financiado",
     "months": "Meses",
-    "totalValue": "Valor Total",
+    "totalValue": "Monto del Contrato",
     "progress": "Progreso",
     "statusSummary": "Resumen de Estado",
     "approvedWelcome": "El contrato ha sido aprobado y está activo.",
@@ -803,7 +816,7 @@
     "financial": "Financiero",
     "applicant": "Solicitante",
     "notes": "Notas",
-    "total": "Total",
+    "total": "Total Deuda",
     "internalNotes": "Notas internas y comentarios",
     "clientDetails": "Detalles del Cliente",
     "paymentSummary": "Resumen de pago",
@@ -930,7 +943,7 @@
     "phone": "Teléfono",
     "creditScore": "Puntuación Crediticia",
     "financialInfo": "Información Financiera",
-    "totalPrice": "Precio Total",
+    "totalPrice": "Total Deuda",
     "financingType": "Tipo de Financiamiento",
     "paymentTerm": "Plazo de Pago",
     "reserveAmount": "Monto de Reserva",
@@ -1107,5 +1120,146 @@
     "project": "Proyecto",
     "receiptAttached": "Comprobante adjunto a este pago",
     "fetchError": "Error al cargar historial de pagos"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "¡Bienvenido a Fintera!",
+      "desc": "Este es tu panel principal donde puedes ver un resumen de todas tus actividades y métricas clave."
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "desc": "Accede directamente a las tareas más comunes como registrar pagos o crear contratos desde aquí."
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "desc": "Mantente al tanto de todos los eventos del sistema y auditorías en tiempo real."
+    },
+    "projects": {
+      "title": "Gestión de Proyectos",
+      "desc": "Administra tus proyectos inmobiliarios, inventario de lotes y visualiza su estado aquí."
+    },
+    "payments": {
+      "title": "Pagos y Financiamiento",
+      "desc": "Monitorea y registra los pagos de tus clientes de manera eficiente."
+    },
+    "profile": {
+      "title": "Tu Perfil",
+      "desc": "Accede a tu configuración, cambia el idioma o reinicia este recorrido en cualquier momento desde aquí."
+    },
+    "projectsTour": {
+      "addProject": {
+        "title": "Añadir Proyecto",
+        "desc": "Crea nuevos proyectos inmobiliarios desde cero."
+      },
+      "import": {
+        "title": "Importar Proyectos",
+        "desc": "Carga múltiples proyectos masivamente usando archivos CSV."
+      },
+      "filter": {
+        "title": "Filtrar y Buscar",
+        "desc": "Encuentra proyectos específicos utilizando filtros avanzados y búsqueda."
+      },
+      "projectCard": {
+        "title": "Tarjeta de Proyecto",
+        "desc": "Cada tarjeta de proyecto muestra información clave y acciones disponibles."
+      },
+      "viewLots": {
+        "title": "Ver Lotes",
+        "desc": "Haz clic aquí para gestionar y ver todos los lotes dentro de este proyecto."
+      },
+      "editProject": {
+        "title": "Editar Proyecto",
+        "desc": "Modifica los detalles y configuración del proyecto."
+      },
+      "deleteProject": {
+        "title": "Eliminar Proyecto",
+        "desc": "Elimina este proyecto permanentemente (requiere confirmación)."
+      }
+    },
+    "contractsTour": {
+      "stats": {
+        "title": "Estadísticas de Contratos",
+        "desc": "Visualiza métricas clave sobre el estado de tus contratos."
+      },
+      "viewMode": {
+        "title": "Modo de Vista",
+        "desc": "Alterna entre vista de cuadrícula y lista según tu preferencia."
+      },
+      "filter": {
+        "title": "Gestión de Contratos",
+        "desc": "Filtra, busca y gestiona todos tus contratos desde aquí."
+      },
+      "schedule": {
+        "title": "Cronograma de Pagos",
+        "desc": "Visualiza y gestiona el cronograma completo de pagos de este contrato."
+      },
+      "viewDetails": {
+        "title": "Ver Detalles del Contrato",
+        "desc": "Haz clic aquí para acceder a la información completa del contrato, cronogramas de pago y documentos."
+      }
+    },
+    "usersTour": {
+      "search": {
+        "title": "Buscar Usuarios",
+        "desc": "Busca y filtra usuarios por nombre o rol."
+      },
+      "addUser": {
+        "title": "Añadir Nuevo Usuario",
+        "desc": "Crea nuevas cuentas de usuario con roles y permisos específicos."
+      },
+      "userCard": {
+        "title": "Tarjeta de Usuario",
+        "desc": "Cada tarjeta muestra información del usuario y acciones disponibles."
+      },
+      "statusToggle": {
+        "title": "Activar/Desactivar Usuario",
+        "desc": "Usa este interruptor para activar o desactivar el acceso del usuario al sistema."
+      },
+      "editUser": {
+        "title": "Editar Usuario",
+        "desc": "Modifica la información y permisos del usuario."
+      },
+      "inviteUser": {
+        "title": "Reenviar Invitación",
+        "desc": "Envía nuevamente el correo de confirmación al usuario."
+      }
+    },
+    "auditsTour": {
+      "filter": {
+        "title": "Registros de Auditoría",
+        "desc": "Busca eventos específicos del sistema."
+      },
+      "model": {
+        "title": "Filtrar por Modelo",
+        "desc": "Filtra auditorías por tipo de recurso (Contrato, Lote, Usuario, etc.)."
+      },
+      "timeline": {
+        "title": "Línea de Tiempo",
+        "desc": "Visualiza la actividad del sistema de manera cronológica."
+      }
+    },
+    "analyticsTour": {
+      "header": {
+        "title": "Panel de Analíticas",
+        "desc": "Visualiza métricas clave y tendencias de tu negocio inmobiliario."
+      },
+      "filters": {
+        "title": "Filtros de Datos",
+        "desc": "Filtra las analíticas por proyecto y rango de fechas para obtener información específica."
+      },
+      "export": {
+        "title": "Exportar Reportes",
+        "desc": "Descarga reportes en diferentes formatos (CSV, Excel, PDF) para análisis externo."
+      },
+      "stats": {
+        "title": "Métricas Clave",
+        "desc": "Visualiza rápidamente ingresos totales, contratos activos, pago promedio y tasa de ocupación."
+      },
+      "revenueChart": {
+        "title": "Tendencia de Ingresos",
+        "desc": "Gráfico principal que muestra ingresos reales vs proyectados. Usa los controles para cambiar el año."
+      }
+    },
+    "restartTour": "Guía de Bienvenida"
   }
 }

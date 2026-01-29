@@ -36,6 +36,7 @@ function SearchFilterBar({
   showFilter = true,
   actions = [],
   customClass = "",
+  id = "",
 }) {
   const [term, setTerm] = useState(searchTerm);
   const [selectedFilter, setSelectedFilter] = useState(filterValue);
@@ -92,7 +93,7 @@ function SearchFilterBar({
   }, [filterValue, filterOptions]);
 
   return (
-    <div className={customClass || "bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex"}>
+    <div id={id} className={customClass || "bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex"}>
       {/* Search Input */}
       <div className="flex items-center flex-1 pl-4">
         <span>

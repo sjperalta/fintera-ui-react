@@ -173,6 +173,7 @@ function Project({ project, user, onDeleted }) {
               <>
                 <Link
                   to={`/projects/${id}/edit`}
+                  id="project-edit-btn"
                   className="w-8 h-8 flex items-center justify-center rounded-lg bg-bgray-100 dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 hover:bg-success-300 hover:text-white transition-all duration-200"
                   title={t('projects.editLink')}
                 >
@@ -180,6 +181,7 @@ function Project({ project, user, onDeleted }) {
                 </Link>
                 <button
                   type="button"
+                  id="project-delete-btn"
                   onClick={handleDelete}
                   className="w-8 h-8 flex items-center justify-center rounded-lg bg-bgray-100 dark:bg-darkblack-500 text-bgray-600 dark:text-bgray-300 hover:bg-error-300 hover:text-white transition-all duration-200"
                   title={t('projects.delete')}
@@ -192,12 +194,14 @@ function Project({ project, user, onDeleted }) {
 
           <Link
             to={`/projects/${id}/lots`}
+            id="project-view-lots-btn"
             className="flex items-center space-x-2 bg-success-300 hover:bg-success-400 text-white text-sm font-bold px-4 py-2 rounded-xl transition-all duration-200 shadow-lg shadow-success-300/20"
           >
             <span>{t('projects.lots')}</span>
             <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
           </Link>
         </div>
+
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLocale } from "../../contexts/LocaleContext";
 
-function DocumentSelect({ contract_id, financing_type, status, customButtonClass = "", iconOnly = false }) {
+function DocumentSelect({ contract_id, financing_type, status, customButtonClass = "", iconOnly = false, user_id }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -27,6 +27,9 @@ function DocumentSelect({ contract_id, financing_type, status, customButtonClass
       let endpoint = `${API_URL}/api/v1/reports/${document_name}?contract_id=${contract_id}`;
       if (financing_type && document_name === 'user_promise_contract_pdf') {
         endpoint += `&financing_type=${financing_type}`;
+      }
+      if (user_id) {
+        endpoint += `&user_id=${user_id}`;
       }
       const response = await fetch(endpoint,
         {
@@ -85,9 +88,9 @@ function DocumentSelect({ contract_id, financing_type, status, customButtonClass
       },
       {
         key: "user_information_pdf",
-        label: "Ficha de Cliente",
-        icon: "👤",
-        description: "Información del cliente",
+        label: "Estado de Cuenta",
+        icon: "📄",
+        description: "Detalle de movimientos y saldo",
         disabled: false
       },
     ];
@@ -198,6 +201,7 @@ DocumentSelect.propTypes = {
   status: PropTypes.string.isRequired,
   customButtonClass: PropTypes.string,
   iconOnly: PropTypes.bool,
+  user_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default DocumentSelect;

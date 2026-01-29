@@ -1,7 +1,7 @@
 import BarChart from "../chart/BarChart";
 import DateFilter from "../forms/DateFilter";
 import { useContext, useRef, useState, useEffect } from "react";
-import { ThemeContext } from "../layout";
+import { ThemeContext } from "../../context/ThemeContext";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../auth";
 import { formatLargeNumber } from "../../utils/formatters";
@@ -12,7 +12,7 @@ function RevenueFlow({ selectedYear = new Date().getFullYear(), currentMonth }) 
   const warnedRef = useRef(false);
   const token = getToken();
   const { t, locale } = useLocale();
-  
+
   if (ctx == null && !warnedRef.current) {
     // Warn once if ThemeContext is unexpectedly missing
     // eslint-disable-next-line no-console
@@ -33,7 +33,7 @@ function RevenueFlow({ selectedYear = new Date().getFullYear(), currentMonth }) 
   useEffect(() => {
     const fetchRevenueFlow = async () => {
       if (!token) return;
-      
+
       setLoading(true);
       setError(null);
 
@@ -49,7 +49,7 @@ function RevenueFlow({ selectedYear = new Date().getFullYear(), currentMonth }) 
           throw new Error(`${t('errors.fetchRevenueFlowData')}: ${response.status}`);
         }
 
-  const data = await response.json();
+        const data = await response.json();
         setRevenueFlowData(data);
       } catch (err) {
         console.error('Error fetching revenue flow:', err);
@@ -244,7 +244,7 @@ function RevenueFlow({ selectedYear = new Date().getFullYear(), currentMonth }) 
       },
       tooltip: {
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
             return `${label}: L ${value.toLocaleString(localeString)}`;
@@ -262,7 +262,7 @@ function RevenueFlow({ selectedYear = new Date().getFullYear(), currentMonth }) 
 
   // Use API data if available, otherwise fallback to static data
   const chartLabels = revenueFlowData?.labels || month;
-  const chartDatasets = revenueFlowData 
+  const chartDatasets = revenueFlowData
     ? (theme === "" ? revenueFlowData.datasets_light : revenueFlowData.datasets_dark)
     : (theme === "" ? dataSetsLight : dataSetsDark);
 
@@ -282,9 +282,9 @@ function RevenueFlow({ selectedYear = new Date().getFullYear(), currentMonth }) 
             {selectedYear}
           </span>
         </div>
-      
+
       </div>
-      
+
       <div className="w-full h-[400px]">
         {loading ? (
           <div className="flex items-center justify-center h-full">

@@ -21,54 +21,62 @@ export const usePageTitle = () => {
 
   const { title, subtitle } = useMemo(() => {
     const path = location.pathname;
-    
+
     // Route mapping
     const routes = {
-      '/': { 
+      '/': {
         title: t('header.pageTitle.dashboard'),
         subtitle: getRandomWelcomeMessage(t)
       },
-      '/contracts': { 
+      '/contracts': {
         title: t('header.pageTitle.contracts'),
         subtitle: t('contracts.manageContracts')
       },
-      '/transaction': { 
+      '/transaction': {
         title: t('header.pageTitle.transaction'),
         subtitle: t('payments.managePayments')
       },
-      '/projects': { 
+      '/analytics': {
+        title: t('analytics.title'),
+        subtitle: t('analytics.subtitle')
+      },
+      '/payments': {
+        title: t('payments.title'),
+        subtitle: t('payments.subtitle')
+      },
+      '/projects': {
         title: t('header.pageTitle.projects'),
         subtitle: t('projects.manageProjects')
       },
-      '/projects/create': { 
+      '/projects/create': {
         title: t('header.pageTitle.createProject'),
         subtitle: t('projects.fillProjectInfo')
       },
-      '/projects/lots': { 
+      '/projects/lots': {
         title: t('header.pageTitle.lotsList'),
         subtitle: t('lots.manageLots')
       },
-      '/projects/reserve': { 
+      '/projects/reserve': {
         title: t('header.pageTitle.reserve'),
         subtitle: t('reservations.createReservation')
       },
-      '/users': { 
+      '/users': {
         title: t('header.pageTitle.users'),
         subtitle: t('users.manageSystemUsers')
       },
-      '/users/create': { 
+      '/users/create': {
         title: t('header.pageTitle.createUser'),
         subtitle: t('users.fillUserInfo')
       },
-      '/audits': { 
+      '/audits': {
         title: t('header.pageTitle.audits'),
         subtitle: t('audits.viewSystemActivity')
       },
-      '/balance': { 
+      '/balance': {
         title: t('header.pageTitle.balance'),
         subtitle: t('payments.viewPaymentSummary')
       },
-      '/balance/summary': { 
+      '/balance/summary': {
         title: t('header.pageTitle.summary'),
         subtitle: t('payments.detailedPaymentInfo')
       },
@@ -83,7 +91,7 @@ export const usePageTitle = () => {
     if (path.startsWith('/settings/user/')) {
       const segments = path.split('/');
       const lastSegment = segments[segments.length - 1];
-      
+
       if (lastSegment === 'security') {
         return {
           title: t('header.pageTitle.security'),

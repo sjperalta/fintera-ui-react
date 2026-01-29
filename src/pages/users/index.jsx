@@ -92,6 +92,7 @@ function Users() {
       <div className="flex 2xl:flex-row 2xl:space-x-11 flex-col space-y-10">
         <div className="2xl:flex-1 w-full">
           <SearchFilterBar
+            id="users-search-bar"
             searchTerm={searchTerm}
             filterValue={role}
             filterOptions={roleOptions}
@@ -103,6 +104,7 @@ function Users() {
             showFilter={true}
             actions={[
               {
+                id: "add-user-btn",
                 label: t('userFilter.addUser'),
                 onClick: () => navigate("/users/create"),
                 className: "py-3 px-10 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none"

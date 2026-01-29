@@ -41,7 +41,7 @@ const ContractSummaryCards = ({ summary, currentContract, fmt }) => {
   const isBankOrCash = financingType === 'bank' || financingType === 'cash';
 
   const cards = [
-    { title: t("contracts.price"), value: fmt(summary.price), icon: faTag, color: "bg-gradient-to-br from-blue-500 to-blue-700 shadow-blue-500/20" },
+    { title: t("contracts.total"), value: fmt(summary.price), icon: faTag, color: "bg-gradient-to-br from-blue-500 to-blue-700 shadow-blue-500/20" },
     { title: t("contracts.reserve"), value: fmt(summary.reserve), icon: faPiggyBank, color: "bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-emerald-500/20" },
     ...(!isBankOrCash ? [{ title: t("contracts.downPayment"), value: fmt(summary.downPayment), icon: faWallet, color: "bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-indigo-500/20" }] : []),
     { title: t("contracts.financed"), value: fmt(summary.financed), icon: faHandHoldingUsd, color: "bg-gradient-to-br from-purple-500 to-purple-700 shadow-purple-500/20" },

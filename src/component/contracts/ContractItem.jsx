@@ -20,8 +20,7 @@ import {
   faClock,
   faEye,
   faFileSignature,
-  faReceipt,
-  faFolderOpen
+  faReceipt
 } from "@fortawesome/free-solid-svg-icons";
 
 import { API_URL } from "../../../config";
@@ -29,7 +28,6 @@ import { getToken } from "../../../auth";
 import { formatStatus } from "../../utils/formatStatus";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
-import DocumentSelect from "../forms/ReportSelect";
 import PaymentScheduleModal from "./PaymentScheduleModal";
 import RejectionModal from "./RejectionModal";
 import ContractDetailsModal from "./ContractDetailsModal";
@@ -269,30 +267,22 @@ function ContractItem({
           {["approved", "closed"].includes(contract.status?.toLowerCase()) && (
             <button
               onClick={(e) => { e.stopPropagation(); setShowSchedule(true); }}
+              id="contract-schedule-btn"
               title={t("contracts.paymentSchedule")}
               className="w-10 h-10 flex items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all shadow-sm hover:shadow-lg hover:scale-110 active:scale-95"
             >
               <FontAwesomeIcon icon={faReceipt} className="text-sm" />
             </button>
           )}
-          {(userRole === "admin" || userRole === "seller") && ["approved", "closed", "cancelled", "canceled"].includes(contract.status?.toLowerCase()) && (
-            <div className="document-select-wrapper w-10 h-10 flex items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-600 hover:text-white transition-all shadow-sm hover:shadow-lg hover:scale-110 active:scale-95">
-              <DocumentSelect
-                contract_id={contract.id}
-                financing_type={contract.financing_type}
-                status={contract.status}
-                customButtonClass="w-full h-full flex items-center justify-center !bg-transparent !text-inherit !p-0 !shadow-none !translate-y-0"
-                iconOnly={true}
-              />
-            </div>
-          )}
           <button
             onClick={(e) => { e.stopPropagation(); setShowDetailsModal(true); }}
+            id="contract-view-details-btn"
             title={t("common.view")}
             className="w-10 h-10 flex items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm hover:shadow-lg hover:scale-110 active:scale-95"
           >
             <FontAwesomeIcon icon={faEye} className="text-sm" />
           </button>
+
         </div>
 
         <div className="p-5 flex-1 flex flex-col">
@@ -371,7 +361,7 @@ function ContractItem({
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] uppercase font-bold text-bgray-500 dark:text-bgray-400 tracking-wider mb-1">
-                    {t("contracts.total")?.includes("contracts.total") ? "Total" : (t("contracts.total") || "Total")}
+                    {t("contracts.total") || "Total Deuda"}
                   </p>
                   <p className="text-xs font-bold text-bgray-700 dark:text-bgray-300">
                     {new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' }).format(contract.amount)}
@@ -381,25 +371,19 @@ function ContractItem({
 
               <div className="relative h-2 w-full bg-gray-200 dark:bg-darkblack-300 rounded-full overflow-hidden">
                 <div
-                  className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${((Number(contract.balance) > 0
-                    ? (Number(contract.amount) - Number(contract.balance))
-                    : (Number(contract.amount) + Number(contract.balance))) / Number(contract.amount)) >= 1
+                  className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${((Number(contract.total_paid ?? (Number(contract.amount) - Number(contract.balance)))) / Number(contract.amount || 1)) >= 1
                     ? 'bg-green-500'
                     : 'bg-blue-500'
                     }`}
                   style={{
-                    width: `${Math.max(0, Math.min(100, ((Number(contract.balance) > 0
-                      ? (Number(contract.amount) - Number(contract.balance))
-                      : (Number(contract.amount) + Number(contract.balance))) / Number(contract.amount)) * 100))}%`
+                    width: `${Math.max(0, Math.min(100, ((Number(contract.total_paid ?? (Number(contract.amount) - Number(contract.balance)))) / Number(contract.amount || 1)) * 100))}%`
                   }}
                 />
               </div>
               <div className="flex justify-between mt-2">
                 <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
                   {new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' }).format(
-                    Number(contract.balance) > 0
-                      ? (Number(contract.amount) - Number(contract.balance))
-                      : (Number(contract.amount) + Number(contract.balance))
+                    Number(contract.total_paid ?? (Number(contract.amount) - Number(contract.balance)))
                   )} / {new Intl.NumberFormat('es-HN', { style: 'currency', currency: 'HNL' }).format(contract.amount)}
                 </p>
               </div>
@@ -456,7 +440,14 @@ function ContractItem({
 
   // Table Row View
   return (
-    <>
+    <motion.tr
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      whileHover={{ scale: 1.005, transition: { duration: 0.2 } }}
+      className="group border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors"
+    >
       <td className="px-6 py-4">
         <div onClick={handleNavigateToLot} className="group cursor-pointer flex items-center">
           <div className="w-10 h-10 rounded-xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400 mr-3 group-hover:bg-green-100 dark:group-hover:bg-green-900/40 transition-colors border border-green-100 dark:border-green-900/20 shadow-sm">
@@ -579,7 +570,7 @@ function ContractItem({
       )}
       <RejectionModal isOpen={showRejectionModal} onClose={() => setShowRejectionModal(false)} onSubmit={handleReject} loading={actionLoading} />
       <ContractDetailsModal isOpen={showDetailsModal} onClose={() => setShowDetailsModal(false)} contract={contract} />
-    </>
+    </motion.tr>
   );
 }
 

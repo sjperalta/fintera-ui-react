@@ -226,6 +226,14 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
     return Math.max(0, diffDays);
   };
 
+  // Calculate paid amount and progress for the overview tab
+  const paidAmount = currentContract?.total_paid ?? (
+    Number(currentContract?.balance || 0) > 0
+      ? (Number(summary?.price || 0) - Number(currentContract?.balance || 0))
+      : (Number(summary?.price || 0) + Number(currentContract?.balance || 0))
+  );
+  const progressPercent = Math.min(100, Math.max(0, (paidAmount / (summary?.price || 1)) * 100));
+
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
@@ -326,9 +334,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <div className="space-y-1 text-right">
                         <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">{t('contracts.paid')}</p>
                         <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
-                          {fmt((Number(currentContract?.balance || 0) > 0
-                            ? (Number(summary?.price || 0) - Number(currentContract?.balance || 0))
-                            : (Number(summary?.price || 0) + Number(currentContract?.balance || 0))))}
+                          {fmt(paidAmount)}
                         </p>
                       </div>
                       <div className="w-px h-8 bg-gray-100 dark:bg-darkblack-500" />
@@ -346,9 +352,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{
-                          width: `${Math.min(100, Math.max(0, ((Number(currentContract?.balance || 0) > 0
-                            ? (Number(summary?.price || 0) - Number(currentContract?.balance || 0))
-                            : (Number(summary?.price || 0) + Number(currentContract?.balance || 0))) / Number(summary?.price || 1)) * 100))}%`
+                          width: `${progressPercent}%`
                         }}
                         transition={{ duration: 1.5, ease: "circOut" }}
                         className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full"
@@ -357,9 +361,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
                       <span className="flex items-center gap-2">
                         <FontAwesomeIcon icon={faBolt} className="animate-pulse" />
-                        {Math.round(((Number(currentContract?.balance || 0) > 0
-                          ? (Number(summary?.price || 0) - Number(currentContract?.balance || 0))
-                          : (Number(summary?.price || 0) + Number(currentContract?.balance || 0))) / Number(summary?.price || 1)) * 100)}% {t('contracts.completed')}
+                        {Math.round(progressPercent)}% {t('contracts.completed')}
                       </span>
                       <span className="text-gray-400">{t('contracts.healthIndicator')}</span>
                     </div>

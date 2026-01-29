@@ -1,7 +1,7 @@
 import DateFilter from "../forms/DateFilter";
 import LineChart from "../chart/LineChart";
 import { useContext } from "react";
-import { ThemeContext } from "../layout";
+import { ThemeContext } from "../../context/ThemeContext";
 import { useRef } from "react";
 import { useEffect } from "react";
 

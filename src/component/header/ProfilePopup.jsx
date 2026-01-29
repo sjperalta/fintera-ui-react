@@ -7,19 +7,18 @@ import AuthContext from "../../context/AuthContext";
 function ProfilePopup({ active, user, handleLogout }) {
   const { t } = useLocale();
   const { user: authUser } = useContext(AuthContext);
-  
+
   // Get the user ID from either the passed user prop or auth context
   const userId = user?.id || authUser?.id;
-  
+
   return (
     <div className="profile-wrapper text-left">
       <div
         style={{
           filter: `drop-shadow(12px 12px 40px rgba(0, 0, 0, 0.08))`,
         }}
-        className={`profile-box transition-all origin-top absolute right-0 top-[81px] w-[300px] overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 z-50 ${
-          active ? "block introAnimation" : "hidden"
-        }`}
+        className={`profile-box transition-all origin-top absolute right-0 top-[81px] w-[300px] overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 z-50 ${active ? "block introAnimation" : "hidden"
+          }`}
       >
         <div className="relative w-full px-3 py-2">
           <div>
@@ -98,6 +97,48 @@ function ProfilePopup({ active, user, handleLogout }) {
           <div className="my-[14px] h-[1px] w-full bg-bgray-300"></div>
           <div>
             <ul>
+              <li className="w-full">
+                <button
+                  onClick={() => {
+                    handlePopup("profile");
+                    window.dispatchEvent(new CustomEvent("start-onboarding-tour"));
+                  }}
+                  className="w-full text-left"
+                >
+                  <div className="flex items-center space-x-[18px] rounded-lg p-[14px] text-bgray-600 hover:bg-bgray-100 hover:text-bgray-900 hover:dark:bg-darkblack-500">
+                    <div className="w-[20px]">
+                      <span>
+                        <svg
+                          className="stroke-bgray-900 dark:stroke-bgray-50"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M9 12L11 14L15 10"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm font-semibold text-bgray-900 dark:text-white">
+                        {t('onboarding.restartTour')}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              </li>
               <li className="w-full">
                 <Link to={userId ? `/settings/user/${userId}` : "#"} onClick={(e) => !userId && e.preventDefault()}>
                   <div className="rounded-lg p-[14px] text-bgray-600 hover:bg-bgray-100 hover:text-bgray-900 dark:text-bgray-50 dark:hover:bg-darkblack-500">

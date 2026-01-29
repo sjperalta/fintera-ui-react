@@ -77,7 +77,9 @@ function PersonalInfoForm({ userId }) {
           identity: formatCedula(data.identity),
           rtn: formatRTN(data.rtn),
         });
-        setLocale(data.locale); // Load and set locale from user data
+        if (data.locale) {
+          setLocale(data.locale); // Load and set locale if present in user data
+        }
         setLoading(false);
       } catch (err) {
         setError(err.message);

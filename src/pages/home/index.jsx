@@ -57,7 +57,7 @@ function Home() {
         {/* Left Column: Quick Actions */}
         <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
           <div>
-            <h2 className="text-xl font-bold text-bgray-900 dark:text-white mb-6 flex items-center">
+            <h2 id="quick-actions" className="text-xl font-bold text-bgray-900 dark:text-white mb-6 flex items-center">
               <svg className="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -146,7 +146,7 @@ function Home() {
         </motion.div>
 
         {/* Right Column: Recent Activity */}
-        <motion.div variants={itemVariants} className="lg:col-span-1 h-full min-h-[500px]">
+        <motion.div id="recent-activity" variants={itemVariants} className="lg:col-span-1 h-full min-h-[500px]">
           <RecentActivity />
         </motion.div>
 

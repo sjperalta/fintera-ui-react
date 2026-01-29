@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import Router from "./Router";
 import { LocaleProvider } from "./contexts/LocaleContext";
 import { ToastProvider } from "./contexts/ToastContext";
+import { OnboardingProvider } from "./contexts/OnboardingContext";
+
 import ErrorBoundary from "./component/error/ErrorBoundary";
 
 function App() {
@@ -14,11 +16,14 @@ function App() {
   return (
     <>
       <LocaleProvider>
-        <ToastProvider>
-          <ErrorBoundary fallback={<div>Something went wrong.</div>}>
-            <Router />
-          </ErrorBoundary>
-        </ToastProvider>
+        <OnboardingProvider>
+          <ToastProvider>
+            <ErrorBoundary fallback={<div>Something went wrong.</div>}>
+
+              <Router />
+            </ErrorBoundary>
+          </ToastProvider>
+        </OnboardingProvider>
       </LocaleProvider>
     </>
   );

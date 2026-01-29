@@ -25,11 +25,12 @@ function SidebarV2({ user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/"
+                      id="sidebar-home"
                       className={`${location.includes("home")
+                        ? "nav-active"
+                        : location === "/"
                           ? "nav-active"
-                          : location === "/"
-                            ? "nav-active"
-                            : ""
+                          : ""
                         }`}
                     >
                       <span className="item-ico">
@@ -118,6 +119,7 @@ function SidebarV2({ user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/payments"
+                      id="sidebar-payments"
                       className={`${location === "/payments" ? "nav-active" : ""
                         }`}
                     >
@@ -200,6 +202,7 @@ function SidebarV2({ user, handleLogout }) {
                   <li className="item px-[43px] py-[11px]">
                     <Link
                       to="/projects"
+                      id="sidebar-projects"
                       className={`${location === "/projects" ? "nav-active" : ""
                         }`}
                     >

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import BarChart from "../chart/BarChart";
 import DateFilter from "../forms/DateFilter";
-import { ThemeContext } from "../layout";
+import { ThemeContext } from "../../context/ThemeContext";
 
 function Summary() {
   let { theme } = useContext(ThemeContext);

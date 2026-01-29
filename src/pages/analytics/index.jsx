@@ -19,7 +19,7 @@ import {
 import { Line, Bar, Doughnut } from "react-chartjs-2";
 import { useLocale } from "../../contexts/LocaleContext";
 import GenericFilter from "../../component/forms/GenericFilter";
-import Report from "../../component/report";
+import ExportDropdown from "./components/ExportDropdown";
 
 // Register Chart.js components
 ChartJS.register(
@@ -60,7 +60,6 @@ const Analytics = () => {
     const [performance, setPerformance] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [showReportModal, setShowReportModal] = useState(false);
 
     // Fetch projects for filter
     useEffect(() => {
@@ -384,7 +383,7 @@ const Analytics = () => {
             >
                 {/* Header and Filters */}
                 <section className="space-y-6">
-                    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                    <div id="analytics-header" className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                         <motion.div variants={itemVariants}>
                             <h1 className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
                                 {t("analytics.title")}
@@ -393,34 +392,16 @@ const Analytics = () => {
                                 {t("analytics.subtitle")}
                             </p>
                         </motion.div>
-                        <motion.div variants={itemVariants} className="flex space-x-3">
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => handleExport("csv")}
-                                    className="px-5 py-2.5 bg-white dark:bg-darkblack-600 border border-gray-200 dark:border-darkblack-500 rounded-2xl shadow-sm text-sm font-bold hover:bg-gray-50 dark:hover:bg-darkblack-500 transition-all flex items-center gap-2 text-gray-700 dark:text-gray-200"
-                                >
-                                    CSV
-                                </button>
-                                <button
-                                    onClick={() => handleExport("xlsx")}
-                                    className="px-5 py-2.5 bg-blue-600 text-white border border-blue-600 rounded-2xl shadow-sm text-sm font-bold hover:bg-blue-700 transition-all flex items-center gap-2"
-                                >
-                                    Excel
-                                </button>
-                                <button
-                                    onClick={() => setShowReportModal(true)}
-                                    className="px-5 py-2.5 bg-white dark:bg-darkblack-600 border border-gray-200 dark:border-darkblack-500 rounded-2xl shadow-sm text-sm font-bold hover:bg-gray-50 dark:hover:bg-darkblack-500 transition-all flex items-center gap-2 text-gray-900 dark:text-white"
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M14.1667 11.6667H5.83333M14.1667 8.33333H5.83333M10 15H5.83333M16.6667 2.5V17.5C16.6667 17.9602 16.2936 18.3333 15.8333 18.3333H4.16667C3.70643 18.3333 3.33333 17.9602 3.33333 17.5V2.5C3.33333 2.03976 3.70643 1.66667 4.16667 1.66667H15.8333C16.2936 1.66667 16.6667 2.03976 16.6667 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    {t("dashboard.reports")}
-                                </button>
-                            </div>
+                        <motion.div id="analytics-export-dropdown" variants={itemVariants} className="flex items-end">
+                            <ExportDropdown
+                                startDate={startDate}
+                                endDate={endDate}
+                                onExportBase={handleExport}
+                            />
                         </motion.div>
                     </div>
 
-                    <motion.div variants={itemVariants} className="w-full">
+                    <motion.div id="analytics-filters" variants={itemVariants} className="w-full">
                         <GenericFilter
                             showSearch={false}
                             filterValue={filterValue}
@@ -455,7 +436,7 @@ const Analytics = () => {
 
                     <div className={`space-y-8 transition-all duration-300 ${isFiltering ? "blur-[2px] opacity-60 scale-[0.99]" : ""}`}>
                         {/* Stats Grid */}
-                        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <section id="analytics-stats" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
                                 { label: t("analytics.totalRevenue"), value: formatCurrency(overviewData?.total_revenue), change: overviewData?.revenue_change_percentage ? `${overviewData.revenue_change_percentage > 0 ? "+" : ""}${overviewData.revenue_change_percentage}%` : "0%", color: "text-blue-600 dark:text-blue-400" },
                                 { label: t("analytics.activeContracts"), value: overviewData?.active_contracts || "0", change: overviewData?.contracts_change_percentage ? `${overviewData.contracts_change_percentage > 0 ? "+" : ""}${overviewData.contracts_change_percentage}%` : "0%", color: "text-purple-600 dark:text-purple-400" },
@@ -487,6 +468,7 @@ const Analytics = () => {
                         <section className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                             {/* Main Trend Chart */}
                             <motion.div
+                                id="revenue-chart"
                                 variants={itemVariants}
                                 className="xl:col-span-2 bg-white/80 dark:bg-darkblack-600/80 backdrop-blur p-6 rounded-3xl shadow-2xl border border-gray-100 dark:border-darkblack-500 overflow-hidden text-gray-900 dark:text-white"
                             >
@@ -635,40 +617,6 @@ const Analytics = () => {
                 </div>
             </motion.div>
 
-            <AnimatePresence>
-                {showReportModal && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowReportModal(false)}
-                            className="fixed inset-0 z-[60] bg-gray-900/50 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] w-full max-w-lg"
-                        >
-                            <div className="bg-white dark:bg-darkblack-600 rounded-2xl shadow-2xl p-6 border border-gray-100 dark:border-darkblack-500 mx-4">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t("reports.financialReports")}</h3>
-                                    <button
-                                        onClick={() => setShowReportModal(false)}
-                                        className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                                    >
-                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <Report startDate={startDate} endDate={endDate} />
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
         </main>
     );
 };

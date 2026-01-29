@@ -158,7 +158,7 @@ function Contract() {
           className="flex flex-col md:flex-row md:items-center justify-end mb-4 gap-4"
         >
           <div className="flex items-center space-x-3">
-            <div className="flex bg-white dark:bg-darkblack-600 rounded-xl p-1 shadow-sm border border-gray-100 dark:border-darkblack-500">
+            <div id="view-mode-toggles" className="flex bg-white dark:bg-darkblack-600 rounded-xl p-1 shadow-sm border border-gray-100 dark:border-darkblack-500">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-lg transition-all ${viewMode === "grid" ? "bg-blue-500 text-white shadow-md" : "text-bgray-400 hover:text-bgray-600 dark:hover:text-bgray-200"}`}
@@ -183,12 +183,14 @@ function Contract() {
         </motion.div>
 
         {/* Stats Section */}
-        <ContractStats stats={stats} />
+        <div id="contract-stats">
+          <ContractStats stats={stats} />
+        </div>
 
         {/* Filters and List Section */}
         <div className="bg-white dark:bg-darkblack-600 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-darkblack-500">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 relative z-40">
-            <div className="flex-1">
+            <div className="flex-1" id="contracts-filter-section">
               <GenericFilter
                 searchTerm={searchTerm}
                 filterValue={statusFilter}
