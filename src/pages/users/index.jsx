@@ -122,7 +122,7 @@ function Users() {
             emptyMessage={t('users.noUsersFound')}
             loadingMessage={t('users.loadingUsers')}
             entityName="users"
-            isGrid={true}
+            showDesktopTable={false}
           />
         </div>
 

@@ -38,6 +38,7 @@ function GenericList({
   customParams,
   refreshTrigger = 0,
   onSortChange,
+  gridClassName,
 }) {
   const { t } = useLocale();
   const [items, setItems] = useState([]);
@@ -271,7 +272,7 @@ function GenericList({
     <div className="w-full">
       {/* Mobile & Tablet & Desktop Grid: Card View */}
       {showMobileCards && (
-        <div className={!showDesktopTable ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-3 block lg:hidden"}>
+        <div className={!showDesktopTable ? (gridClassName || "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6") : "space-y-3 block lg:hidden"}>
           {items.map((item, index) => (
             <div
               key={item.id}
@@ -482,6 +483,7 @@ GenericList.propTypes = {
   customParams: PropTypes.object,
   refreshTrigger: PropTypes.number,
   onSortChange: PropTypes.func,
+  gridClassName: PropTypes.string,
 };
 
 export default GenericList;
