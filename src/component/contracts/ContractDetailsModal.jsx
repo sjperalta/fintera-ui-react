@@ -387,11 +387,11 @@ const ContractDetailsModal = ({
                           <div className="flex-1 h-3 bg-gray-200 dark:bg-darkblack-400 rounded-full overflow-hidden">
                             <motion.div
                               initial={{ width: 0 }}
-                              animate={{ width: `${Math.round(((contract.amount - contract.balance) / contract.amount) * 100)}%` }}
+                              animate={{ width: `${Math.round(((Number(contract.amount) + Number(contract.balance)) / Number(contract.amount)) * 100)}%` }}
                               className="h-full bg-blue-600 rounded-full"
                             />
                           </div>
-                          <p className="text-sm font-black text-bgray-900 dark:text-white">{Math.round(((contract.amount - contract.balance) / contract.amount) * 100)}%</p>
+                          <p className="text-sm font-black text-bgray-900 dark:text-white">{Math.round(((Number(contract.amount) + Number(contract.balance)) / Number(contract.amount)) * 100)}%</p>
                         </div>
                       </div>
                     </div>
@@ -649,7 +649,7 @@ const ContractDetailsModal = ({
                                 animate={{ strokeDasharray: `${(contract.applicant_credit_score / 100) * 283} 283` }}
                                 transition={{ duration: 1.5, ease: "easeOut" }}
                                 className={`${contract.applicant_credit_score >= 80 ? "text-emerald-500" :
-                                    contract.applicant_credit_score >= 60 ? "text-amber-500" : "text-red-500"
+                                  contract.applicant_credit_score >= 60 ? "text-amber-500" : "text-red-500"
                                   }`}
                               />
                             </svg>
@@ -660,7 +660,7 @@ const ContractDetailsModal = ({
                           </div>
 
                           <div className={`px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest ${contract.applicant_credit_score >= 80 ? "bg-emerald-50 text-emerald-600" :
-                              contract.applicant_credit_score >= 60 ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-600"
+                            contract.applicant_credit_score >= 60 ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-600"
                             }`}>
                             {contract.applicant_credit_score >= 80 ? t("creditScore.excellent") :
                               contract.applicant_credit_score >= 60 ? t("creditScore.good") : t("creditScore.needsImprovement")}

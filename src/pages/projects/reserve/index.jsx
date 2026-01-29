@@ -260,8 +260,7 @@ function Reserve() {
     }
 
     if (errors.length) {
-      setError(err.message || t("reservations.errorCreatingContract"));
-      setError(errors.join(" "));
+      setError(errors.join(". "));
       setFormSubmitting(false);
       return;
     }
@@ -309,7 +308,6 @@ function Reserve() {
       navigate(`/projects/${id}/lots`);
     } catch (err) {
       setError(err.message || t("reservations.errorCreatingContract"));
-      setError(err.errors.join(" "));
     } finally {
       setFormSubmitting(false);
     }
@@ -457,35 +455,42 @@ function Reserve() {
                     transition={{ delay: 0.1 }}
                     className="flex flex-col gap-2"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="bg-success-50 dark:bg-success-900/30 text-success-600 dark:text-success-400 px-3 py-1 rounded-full text-sm font-bold border border-success-100 dark:border-success-800">
-                        {projectName || "—"}
-                      </span>
-                      {projectType && (
-                        <span className="text-bgray-400 dark:text-bgray-500 text-xs font-bold uppercase tracking-wider">
-                          {projectType}
-                        </span>
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        {projectType && (
+                          <span className="text-success-600 dark:text-success-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1 block">
+                            {projectType}
+                          </span>
+                        )}
+                        <h3 className="text-2xl font-black text-bgray-900 dark:text-white leading-tight">
+                          {projectName || "—"}
+                        </h3>
+                      </div>
+
+                      {/* Project Address Display */}
+                      {(projectAddress || lotAddress) && (
+                        <div className="flex items-start gap-3 p-3 rounded-2xl bg-bgray-50 dark:bg-darkblack-500 border border-bgray-100 dark:border-darkblack-400 group transition-all duration-300 hover:border-success-300/50">
+                          <div className="w-10 h-10 rounded-xl bg-white dark:bg-darkblack-400 flex items-center justify-center shadow-sm text-bgray-400 group-hover:text-success-500 transition-colors">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-bgray-400 uppercase tracking-wider">{t("reservations.address")}</span>
+                            <p className="text-sm font-semibold text-bgray-700 dark:text-bgray-300 leading-snug">
+                              {lotAddress && (
+                                <>
+                                  <span className="text-bgray-900 dark:text-white">{lotAddress}</span>
+                                  {projectAddress && <span className="mx-2 opacity-30">•</span>}
+                                </>
+                              )}
+                              {projectAddress}
+                            </p>
+                          </div>
+                        </div>
                       )}
                     </div>
-
-                    {/* Project Address Display */}
-                    {(projectAddress || lotAddress) && (
-                      <p className="text-lg text-bgray-600 dark:text-bgray-300 flex items-start gap-2 max-w-xl">
-                        <svg className="w-5 h-5 mt-0.5 text-bgray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span>
-                          {lotAddress ? (
-                            <>
-                              <span className="font-semibold text-bgray-800 dark:text-white">{lotAddress}</span>
-                              {projectAddress && <span className="text-bgray-400 mx-2">•</span>}
-                            </>
-                          ) : null}
-                          {projectAddress}
-                        </span>
-                      </p>
-                    )}
                   </motion.div>
                 </div>
               )}
@@ -533,11 +538,6 @@ function Reserve() {
                   label: t("reservations.deliveryDate"),
                   value: projectDeliveryDate || "TBD",
                   icon: "📅"
-                },
-                {
-                  label: t("reservations.available"),
-                  value: projectAvailableLots !== null ? projectAvailableLots : "—",
-                  icon: "✅"
                 },
                 {
                   label: t("reservations.interest"),

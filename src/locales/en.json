@@ -504,6 +504,7 @@
     "area": "Area",
     "baseUnitPrice": "Base Unit Price",
     "status": "Status",
+    "deliveryDate": "Delivery Date",
     "interest": "Interest",
     "commission": "Commission",
     "financingDescription": "Select the financing method for this reservation",

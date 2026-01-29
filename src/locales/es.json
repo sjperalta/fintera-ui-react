@@ -504,6 +504,7 @@
     "area": "Área",
     "baseUnitPrice": "Precio Base por Unidad",
     "status": "Estado",
+    "deliveryDate": "Fecha de Entrega",
     "interest": "Interés",
     "commission": "Comisión",
     "financingDescription": "Selecciona el método de financiamiento para esta reserva",
@@ -752,7 +753,9 @@
     "healthIndicator": "Indicador de Salud",
     "terms": "Términos",
     "paid": "Pagado",
-    "rate": "Tasa de Int."
+    "rate": "Tasa de Int.",
+    "completed": "Completado",
+    "healthIndicator": "Indicador de Salud"
   },
   "contractNotes": {
     "generalNotes": "Notas Generales",

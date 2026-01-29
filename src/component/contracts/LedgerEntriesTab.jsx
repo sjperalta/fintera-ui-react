@@ -20,12 +20,12 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
   const totals = (Array.isArray(ledgerEntries) ? ledgerEntries : []).reduce(
     (acc, entry) => {
       const amount = Number(entry.amount || 0);
-      if (amount > 0) acc.debits += amount;
-      if (amount < 0) acc.credits += Math.abs(amount);
+      if (amount < 0) acc.charges += Math.abs(amount); // Debt/Charges are negative
+      if (amount > 0) acc.payments += amount;          // Payments are positive
       acc.balance += amount;
       return acc;
     },
-    { debits: 0, credits: 0, balance: 0 }
+    { charges: 0, payments: 0, balance: 0 }
   );
 
   const containerVariants = {
@@ -93,7 +93,7 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
             </div>
           </div>
           <div className="text-xl font-bold text-bgray-900 dark:text-white">
-            {totals.debits.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' })}
+            {totals.charges.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' })}
           </div>
         </motion.div>
 
@@ -110,7 +110,7 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
             </div>
           </div>
           <div className="text-xl font-bold text-bgray-900 dark:text-white">
-            {totals.credits.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' })}
+            {totals.payments.toLocaleString('es-HN', { style: 'currency', currency: 'HNL' })}
           </div>
         </motion.div>
 
@@ -163,7 +163,7 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
               {ledgerEntries.map((entry, idx) => {
                 const amount = Number(entry.amount || 0);
                 runningBalance += amount;
-                const isCredit = amount < 0;
+                const isCharge = amount < 0; // Debt/Charges are negative, Payments are positive
 
                 return (
                   <motion.tr
@@ -188,7 +188,7 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2">
-                          <span className={`w-1.5 h-1.5 rounded-full ${isCredit ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isCharge ? 'bg-red-500' : 'bg-green-500'}`}></span>
                           <span className="text-sm font-medium text-bgray-900 dark:text-white">
                             {entry.description || "Movimiento contable"}
                           </span>
@@ -207,8 +207,8 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className={`text-sm font-bold ${isCredit ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {isCredit ? '-' : '+'}{Math.abs(amount).toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} HNL
+                      <div className={`text-sm font-bold ${isCharge ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                        {isCharge ? '' : '+'}{amount.toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} HNL
                       </div>
                     </td>
 

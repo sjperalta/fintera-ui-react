@@ -380,16 +380,24 @@ function ContractItem({
 
               <div className="relative h-2 w-full bg-gray-200 dark:bg-darkblack-300 rounded-full overflow-hidden">
                 <div
-                  className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${((contract.amount - contract.balance) / contract.amount) >= 1
+                  className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${((Number(contract.balance) > 0
+                    ? (Number(contract.amount) - Number(contract.balance))
+                    : (Number(contract.amount) + Number(contract.balance))) / Number(contract.amount)) >= 1
                     ? 'bg-green-500'
                     : 'bg-blue-500'
                     }`}
-                  style={{ width: `${Math.max(0, Math.min(100, ((contract.amount - contract.balance) / contract.amount) * 100))}%` }}
+                  style={{
+                    width: `${Math.max(0, Math.min(100, ((Number(contract.balance) > 0
+                      ? (Number(contract.amount) - Number(contract.balance))
+                      : (Number(contract.amount) + Number(contract.balance))) / Number(contract.amount)) * 100))}%`
+                  }}
                 />
               </div>
               <div className="flex justify-between mt-2">
                 <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                  {Math.round(((contract.amount - contract.balance) / contract.amount) * 100)}% {t("contracts.paid").includes("contracts.paid") ? "Pagado" : (t("contracts.paid") || "Pagado")}
+                  {Math.round(((Number(contract.balance) > 0
+                    ? (Number(contract.amount) - Number(contract.balance))
+                    : (Number(contract.amount) + Number(contract.balance))) / Number(contract.amount)) * 100)}% {t("contracts.paid").includes("contracts.paid") ? "Pagado" : (t("contracts.paid") || "Pagado")}
                 </p>
               </div>
             </div>
