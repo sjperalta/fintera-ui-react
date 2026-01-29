@@ -265,7 +265,15 @@ function GenericFilter({
 GenericFilter.propTypes = {
   searchTerm: PropTypes.string,
   filterValue: PropTypes.string,
-  filterOptions: PropTypes.arrayOf(PropTypes.string),
+  filterOptions: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        label: PropTypes.string
+      })
+    ])
+  ),
   onSearchChange: PropTypes.func,
   onFilterChange: PropTypes.func,
   searchPlaceholder: PropTypes.string,
