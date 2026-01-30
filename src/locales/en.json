@@ -62,6 +62,7 @@
     "justNow": "Just now",
     "viewAll": "View All",
     "viewMore": "View More",
+    "view": "View",
     "saveChanges": "Save Changes",
     "saving": "Saving...",
     "export": "Export",
@@ -105,7 +106,33 @@
     "somethingWentWrong": "Something went wrong.",
     "reportFeedback": "Report Feedback",
     "themeContextMissing": "ThemeContext missing unexpectedly",
-    "fetchRevenueFlowData": "Error loading revenue flow data"
+    "fetchRevenueFlowData": "Error loading revenue flow data",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "invalidCredentials": "Invalid credentials. Please try again.",
+    "accountLocked": "Your account has been locked due to too many failed login attempts. Please try again later or reset your password.",
+    "emailAlreadyExists": "An account with this email already exists.",
+    "emailNotFound": "No account found with that email address.",
+    "invalidVerificationCode": "Invalid verification code. Please try again.",
+    "verificationCodeExpired": "Verification code has expired. Please request a new one.",
+    "sessionExpired": "Your session has expired. Please sign in again."
+  },
+  "security": {
+    "passwordChangedSuccessfully": "Password changed successfully.",
+    "passwordResetEmailSent": "Password reset email sent. Please check your inbox.",
+    "accountCreatedSuccessfully": "Account created successfully. Please verify your email.",
+    "emailVerifiedSuccessfully": "Email verified successfully. You can now sign in.",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password"
+  },
+  "success": {
+    "operationSuccessful": "Operation completed successfully.",
+    "dataSaved": "Data saved successfully.",
+    "itemAdded": "Item added successfully.",
+    "itemUpdated": "Item updated successfully.",
+    "itemDeleted": "Item deleted successfully.",
+    "passwordUpdated": "Password updated successfully."
   },
   "auth": {
     "signIn": "Sign In",
@@ -177,9 +204,7 @@
     "noActivity": "No recent activity found",
     "overview": "General Overview"
   },
-  "sidebar": {
-    "paymentHistory": "Payment History"
-  },
+  "sidebar": {},
   "projectsPage": {
     "title": "Projects",
     "subtitle": "Manage and visualize your real estate projects",
@@ -300,7 +325,7 @@
     "noContracts": "You don't have any active financing contracts.",
     "connectionError": "Connection Error",
     "uploadReceipt": "Upload Payment Receipt",
-    "showLess": "Show Less",
+    "showLess": "Show less",
     "showAll": "Show All",
     "loadingPayments": "Loading payments...",
     "balanceDashboard": "Balance Dashboard",
@@ -368,7 +393,10 @@
     "previewNotAvailable": "Preview not available",
     "approveSuccess": "Payment approved successfully!",
     "subtitle": "Manage and monitor your clients' payments",
-    "totalApplied": "Total Received"
+    "totalApplied": "Total Received",
+    "paymentHistory": "Payment History",
+    "upcoming": "Upcoming",
+    "completed": "Completed"
   },
   "reports": {
     "financialReports": "Financial Reports",
@@ -728,6 +756,7 @@
     "all": "All"
   },
   "contracts": {
+    "amount": "Amount",
     "balance": "Balance",
     "noContracts": "No Contracts",
     "contactInformation": "Contact Information",
@@ -798,6 +827,7 @@
     "cancel": "Cancel",
     "viewDetails": "View Details",
     "price": "Price",
+    "total": "Total",
     "reserve": "Reserve",
     "downPayment": "Down Payment",
     "financed": "Financed",

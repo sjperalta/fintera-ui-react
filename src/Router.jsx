@@ -28,7 +28,6 @@ import Upload from "./pages/financing/upload";
 import Summary from "./pages/financing/summary";
 import AdminOrOwnerRoute from "./component/protectedRoute/AdminOrOwnerRoute";
 import Audits from "./pages/audits";
-import PaymentHistory from "./pages/paymentHistory";
 import Analytics from "./pages/analytics";
 
 const router = createBrowserRouter(
@@ -175,14 +174,6 @@ const router = createBrowserRouter(
           element: (
             <ProtectedRoute>
               <CreateUser />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: "/payment-history",
-          element: (
-            <ProtectedRoute>
-              <PaymentHistory />
             </ProtectedRoute>
           ),
         },

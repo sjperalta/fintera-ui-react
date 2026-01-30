@@ -106,7 +106,9 @@
     "somethingWentWrong": "Algo salió mal.",
     "reportFeedback": "Reportar comentarios",
     "themeContextMissing": "ThemeContext falta inesperadamente",
-    "fetchRevenueFlowData": "Error al cargar datos de flujo de ingresos"
+    "fetchRevenueFlowData": "Error al cargar datos de flujo de ingresos",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres."
   },
   "auth": {
     "signIn": "Iniciar Sesión",
@@ -178,8 +180,23 @@
     "noActivity": "No se encontró actividad reciente",
     "overview": "Resumen General"
   },
-  "sidebar": {
-    "paymentHistory": "Historial de Pagos"
+  "sidebar": {},
+  "security": {
+    "passwordChangedSuccessfully": "Contraseña cambiada exitosamente.",
+    "passwordResetEmailSent": "Correo de restablecimiento de contraseña enviado. Por favor revisa tu bandeja de entrada.",
+    "accountCreatedSuccessfully": "Cuenta creada exitosamente. Por favor verifica tu correo electrónico.",
+    "emailVerifiedSuccessfully": "Correo electrónico verificado exitosamente. Ya puedes iniciar sesión.",
+    "currentPassword": "Contraseña Actual",
+    "newPassword": "Nueva Contraseña",
+    "confirmPassword": "Confirmar Nueva Contraseña"
+  },
+  "success": {
+    "operationSuccessful": "Operación completada exitosamente.",
+    "dataSaved": "Datos guardados exitosamente.",
+    "itemAdded": "Elemento agregado exitosamente.",
+    "itemUpdated": "Elemento actualizado exitosamente.",
+    "itemDeleted": "Elemento eliminado exitosamente.",
+    "passwordUpdated": "Contraseña actualizada exitosamente."
   },
   "projectsPage": {
     "title": "Proyectos",
@@ -301,7 +318,7 @@
     "noContracts": "No tienes ningún contrato de financiamiento activo.",
     "connectionError": "Error de conexión",
     "uploadReceipt": "Subir Comprobante de Pago",
-    "showLess": "Mostrar Menos",
+    "showLess": "Mostrar menos",
     "showAll": "Mostrar Todo",
     "loadingPayments": "Cargando pagos...",
     "balanceDashboard": "Balance Dashboard",
@@ -369,7 +386,15 @@
     "previewNotAvailable": "Vista previa no disponible",
     "approveSuccess": "¡Pago aprobado exitosamente!",
     "subtitle": "Administra y supervisa los pagos de tus clientes",
-    "totalApplied": "Total Recibido"
+    "totalApplied": "Total Recibido",
+    "upcoming": "Próximos",
+    "clickToBrowse": "Haga clic para buscar",
+    "confirm": "Confirmar",
+    "paymentProgress": "Progreso de Pagos",
+    "totalPaid": "Total Pagado",
+    "nextPayment": "Próximo Pago",
+    "noUpcomingPayments": "No hay pagos próximos",
+    "paymentHistory": "Historial de Pagos"
   },
   "reports": {
     "financialReports": "Reportes Financieros",
@@ -731,6 +756,7 @@
     "all": "Todos"
   },
   "contracts": {
+    "amount": "Monto",
     "balance": "Saldo",
     "totalBalance": "Saldo Total",
     "noContracts": "Sin Contratos",
@@ -1265,6 +1291,6 @@
         "desc": "Gráfico principal que muestra ingresos reales vs proyectados. Usa los controles para cambiar el año."
       }
     },
-    "restartTour": "Guía de Bienvenida"
+    "restartTour": "Tour de Bienvenida"
   }
 }
