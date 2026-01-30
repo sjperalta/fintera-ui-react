@@ -175,7 +175,8 @@
     "viewLogs": "Ver Registros del Sistema",
     "recentActivity": "Actividad Reciente",
     "recentActivityDesc": "Últimos eventos y actualizaciones del sistema",
-    "noActivity": "No se encontró actividad reciente"
+    "noActivity": "No se encontró actividad reciente",
+    "overview": "Resumen General"
   },
   "sidebar": {
     "paymentHistory": "Historial de Pagos"
@@ -367,7 +368,8 @@
     "attachedDocument": "Documento Adjunto",
     "previewNotAvailable": "Vista previa no disponible",
     "approveSuccess": "¡Pago aprobado exitosamente!",
-    "subtitle": "Administra y supervisa los pagos de tus clientes"
+    "subtitle": "Administra y supervisa los pagos de tus clientes",
+    "totalApplied": "Total Recibido"
   },
   "reports": {
     "financialReports": "Reportes Financieros",

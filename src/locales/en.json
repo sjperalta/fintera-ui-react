@@ -174,7 +174,8 @@
     "viewLogs": "View System Logs",
     "recentActivity": "Recent Activity",
     "recentActivityDesc": "Latest system events and updates",
-    "noActivity": "No recent activity found"
+    "noActivity": "No recent activity found",
+    "overview": "General Overview"
   },
   "sidebar": {
     "paymentHistory": "Payment History"
@@ -366,7 +367,8 @@
     "attachedDocument": "Attached Document",
     "previewNotAvailable": "Preview not available",
     "approveSuccess": "Payment approved successfully!",
-    "subtitle": "Manage and monitor your clients' payments"
+    "subtitle": "Manage and monitor your clients' payments",
+    "totalApplied": "Total Received"
   },
   "reports": {
     "financialReports": "Financial Reports",

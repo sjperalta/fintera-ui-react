@@ -236,6 +236,20 @@ const PaymentScheduleTab = ({
                               </div>
                             )}
                           </div>
+                          {isPaid && paidAmount > totalRequired && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-1 flex items-center gap-2"
+                            >
+                              <div className="px-1.5 py-0.5 bg-blue-500/10 rounded-md flex items-center gap-1.5 group/applied">
+                                <FontAwesomeIcon icon={faReceipt} className="text-[8px] text-blue-500 opacity-60 group-hover/applied:scale-110 transition-transform" />
+                                <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter opacity-70">
+                                  {t('payments.totalApplied') || 'Total Recibido'}: {fmt(paidAmount)}
+                                </span>
+                              </div>
+                            </motion.div>
+                          )}
                         </div>
                       </div>
 
