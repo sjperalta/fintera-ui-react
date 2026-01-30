@@ -383,15 +383,7 @@ const Analytics = () => {
             >
                 {/* Header and Filters */}
                 <section className="space-y-6">
-                    <div id="analytics-header" className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-                        <motion.div variants={itemVariants}>
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
-                                {t("analytics.title")}
-                            </h1>
-                            <p className="mt-2 text-lg text-gray-500 dark:text-gray-400">
-                                {t("analytics.subtitle")}
-                            </p>
-                        </motion.div>
+                    <div id="analytics-header" className="flex flex-col md:flex-row md:items-end md:justify-end gap-4">
                         <motion.div id="analytics-export-dropdown" variants={itemVariants} className="flex items-end">
                             <ExportDropdown
                                 startDate={startDate}

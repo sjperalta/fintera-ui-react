@@ -156,7 +156,19 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   // Calculate totals
   const totals = useMemo(() => {
     const safeSchedule = Array.isArray(schedule) ? schedule : [];
-    const subtotal = safeSchedule.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+    const subtotal = safeSchedule.reduce((sum, payment) => {
+      const amt = Number(payment.amount || 0);
+      const paid = Number(payment.paid_amount || 0);
+      const interest = Number(payment.interest_amount || 0);
+
+      // Summarize paid amount (minus interest to get capital portion) if it differs from scheduled amount
+      // This ensures overpayments and actual payments are reflected in the capital total
+      if (paid > 0 && paid !== amt) {
+        return sum + (paid - interest);
+      }
+      return sum + amt;
+    }, 0);
+
     const totalInterest = safeSchedule.reduce((sum, payment) => sum + Number(payment.interest_amount || 0), 0);
     const total = subtotal + totalInterest;
 
@@ -806,9 +818,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                                 Authorization: `Bearer ${token}`,
                               },
                               body: JSON.stringify({
-                                contract: {
-                                  capital_repayment_amount: paymentAmount
-                                }
+                                capital_repayment_amount: paymentAmount
                               }),
                             }
                           );
@@ -929,7 +939,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                               ? {
                                 ...payment,
                                 status: data.payment.status || 'paid',
-                                paid_amount: data.payment.amount,
+                                paid_amount: data.payment.paid_amount,
                                 interest_amount: data.payment.interest_amount,
                                 payment_date: data.payment.payment_date,
                                 approved_at: data.payment.approved_at

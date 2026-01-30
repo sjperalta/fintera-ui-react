@@ -1,29 +1,68 @@
 import { useContext } from "react"
 import { useParams } from "react-router-dom";
-import resetPass from "../../../assets/images/illustration/reset-password.svg";
+import { motion } from "framer-motion";
 import PasswordChange from "../../../component/forms/PasswordChange";
 import AuthContext from "../../../context/AuthContext";
 
 function Security() {
-  const { token } = useContext(AuthContext); // Ensure AuthContext provides the token
+  const { token } = useContext(AuthContext);
   const { userId } = useParams()
 
   return (
-    <div id="tab6" className="tab-pane active">
-      <div className="flex flex-col gap-10 xl:flex-row xl:items-center">
-        <div className="grow max-w-[614px]">
-          <h3 className="text-2xl font-bold text-bgray-900 dark:text-white mb-3">
-            Password
-          </h3>
-          <p className="text-sm fotn-medium text-bgray-500 dark:text-bgray-50">
-            Change or view your password.
+    <div id="tab6" className="tab-pane active w-full">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-4xl"
+      >
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-bgray-900 dark:text-white mb-2">
+            Account Security
+          </h2>
+          <p className="text-bgray-500 dark:text-bgray-400 font-medium">
+            Manage your password and security settings to keep your account safe.
           </p>
-          { token ? <PasswordChange token={token} userId={userId} /> : "Loading ..." }
         </div>
-        <div className="mx-auto pt-10 hidden xl:block">
-          <img src={resetPass} alt="" />
+
+        <div className="grid grid-cols-1 gap-8">
+          {/* Password Change Section */}
+          <div className="w-full">
+            {token ? (
+              <PasswordChange token={token} userId={userId} />
+            ) : (
+              <div className="bg-white dark:bg-darkblack-600 rounded-2xl p-8 shadow-sm flex flex-col items-center justify-center min-h-[300px]">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+                <p className="text-bgray-500 dark:text-bgray-400">Loading security settings...</p>
+              </div>
+            )}
+          </div>
+
+          {/* Additional Security Info/Cards can be added here in the future */}
+          <div className="bg-white dark:bg-darkblack-600 rounded-2xl p-6 md:p-8 shadow-sm border border-bgray-100 dark:border-darkblack-400">
+            <h4 className="text-lg font-bold text-bgray-900 dark:text-white mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              Security Recommendations
+            </h4>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0"></div>
+                <p className="text-sm text-bgray-600 dark:text-bgray-400">Use a password that you don't use anywhere else.</p>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0"></div>
+                <p className="text-sm text-bgray-600 dark:text-bgray-400">Make sure your new password is at least 6 characters long.</p>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0"></div>
+                <p className="text-sm text-bgray-600 dark:text-bgray-400">Avoid using common patterns or personal information.</p>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

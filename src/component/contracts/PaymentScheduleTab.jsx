@@ -16,7 +16,8 @@ import {
   faCoins,
   faCalculator,
   faArrowRight,
-  faEllipsisV
+  faEllipsisV,
+  faPlus
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocale } from '../../contexts/LocaleContext';
 
@@ -164,7 +165,10 @@ const PaymentScheduleTab = ({
               {safeSchedule.map((row, idx) => {
                 const statusConfig = getStatusConfig(row);
                 const amount = row.amount || row.value || row.payment_amount;
+                const paidAmount = row.paid_amount || 0;
                 const interest = row.interest_amount || 0;
+                const totalRequired = Number(amount) + Number(interest);
+                const extraAmount = paidAmount > totalRequired ? paidAmount - totalRequired : 0;
                 const moratoryDays = calculateMoratoryDays(row.due_date);
                 const isReadjustment = row.status?.toLowerCase() === 'readjustment';
                 const isPaid = row.status?.toLowerCase() === 'paid';
@@ -225,7 +229,27 @@ const PaymentScheduleTab = ({
                                 <span className="text-[9px] font-black text-rose-600 dark:text-rose-400">+{fmt(interest)}</span>
                               </div>
                             )}
+                            {extraAmount > 0 && (
+                              <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-900/20">
+                                <FontAwesomeIcon icon={faPlus} className="text-blue-500 text-[7px]" />
+                                <span className="text-[9px] font-black text-blue-600 dark:text-blue-400">+{fmt(extraAmount)} ({t('paymentSchedule.extraAmount')})</span>
+                              </div>
+                            )}
                           </div>
+                          {isPaid && paidAmount > totalRequired && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-1 flex items-center gap-2"
+                            >
+                              <div className="px-1.5 py-0.5 bg-blue-500/10 rounded-md flex items-center gap-1.5 group/applied">
+                                <FontAwesomeIcon icon={faReceipt} className="text-[8px] text-blue-500 opacity-60 group-hover/applied:scale-110 transition-transform" />
+                                <span className="text-[9px] font-black text-blue-500 uppercase tracking-tighter opacity-70">
+                                  {t('payments.totalApplied') || 'Total Recibido'}: {fmt(paidAmount)}
+                                </span>
+                              </div>
+                            </motion.div>
+                          )}
                         </div>
                       </div>
 
