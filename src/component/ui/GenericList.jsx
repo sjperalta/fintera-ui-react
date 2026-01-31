@@ -210,8 +210,8 @@ function GenericList({
 
   // Redundant effect removed
 
-  // Loading state
-  if (loading) {
+  // Loading state - only block if we have no items (first load or when filters clear list)
+  if (loading && items.length === 0) {
     return (
       <div className="flex justify-center items-center py-10">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>

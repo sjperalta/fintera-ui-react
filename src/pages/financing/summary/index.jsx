@@ -83,8 +83,8 @@ function Summary() {
   const totalPaid = payments.reduce((acc, curr) => acc + (parseFloat(curr.paid_amount) || 0), 0);
   const totalAmount = payments.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0) + (parseFloat(curr.interest_amount) || 0), 0);
 
-  // Render Loading State
-  if (isLoading) {
+  // Render Loading State - only if we don't have summary data (first load)
+  if (isLoading && !summaryData) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] w-full">
         <div className="text-center">
