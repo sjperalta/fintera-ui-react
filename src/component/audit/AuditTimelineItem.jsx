@@ -76,8 +76,17 @@ function AuditTimelineItem({ audit, isLast }) {
         parsed_changes: parsed
     } = audit;
 
-    const date = new Date(dateStr);
-    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStrUtc = dateStr?.includes('Z') || dateStr?.includes('+') || dateStr?.includes('-')
+        ? dateStr
+        : `${dateStr}Z`;
+    const date = new Date(dateStrUtc);
+
+    // Format time using the application's locale
+    const timeString = date.toLocaleTimeString(t('common.locale_code') || (useLocale().locale === 'es' ? 'es-ES' : 'en-US'), {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
     const eventInfo = formatEvent(event, t);
     const userName = userObj ? (userObj.full_name || userObj.email || "System") : "System";
 

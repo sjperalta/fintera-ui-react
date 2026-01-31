@@ -14,7 +14,11 @@ function AuditTimeline({ items }) {
     const groupedItems = useMemo(() => {
         const groups = {};
         items.forEach((item) => {
-            const date = new Date(item.created_at);
+            // Ensure date is treated as UTC if it doesn't have a timezone suffix
+            const dateStr = item.created_at?.includes('Z') || item.created_at?.includes('+') || item.created_at?.includes('-')
+                ? item.created_at
+                : `${item.created_at}Z`;
+            const date = new Date(dateStr);
             const dateKey = format(date, "yyyy-MM-dd");
             if (!groups[dateKey]) {
                 groups[dateKey] = [];

@@ -96,20 +96,29 @@ function GenericFilter({
 
   // If parent modifies props externally, sync them in
   useEffect(() => {
-    setTerm(searchTerm);
-  }, [searchTerm]);
+    if (searchTerm !== term) {
+      setTerm(searchTerm);
+    }
+  }, [searchTerm, term]);
 
   useEffect(() => {
-    setSelectedFilter(filterValue);
+    if (filterValue !== selectedFilter) {
+      setSelectedFilter(filterValue);
+    }
 
     // Find the label if filterOptions uses objects
     if (filterOptions.length > 0 && typeof filterOptions[0] === 'object') {
       const found = filterOptions.find(o => o.value === filterValue);
-      setActiveFilterLabel(found ? found.label : filterValue || "");
+      const newLabel = found ? found.label : filterValue || "";
+      if (activeFilterLabel !== newLabel) {
+        setActiveFilterLabel(newLabel);
+      }
     } else {
-      setActiveFilterLabel(filterValue || "");
+      if (activeFilterLabel !== (filterValue || "")) {
+        setActiveFilterLabel(filterValue || "");
+      }
     }
-  }, [filterValue, filterOptions]);
+  }, [filterValue, filterOptions, selectedFilter, activeFilterLabel]);
 
   return (
     <div className="relative w-full z-10">

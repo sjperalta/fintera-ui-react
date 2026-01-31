@@ -1,6 +1,7 @@
 {
   "common": {
     "loading": "Loading...",
+    "locale_code": "en-US",
     "error": "Error",
     "success": "Success",
     "startDate": "Start Date",
@@ -67,6 +68,7 @@
     "view": "View",
     "saveChanges": "Save Changes",
     "saving": "Saving...",
+    "creating": "Creating...",
     "export": "Export",
     "downloadCsv": "Download .csv"
   },
@@ -212,9 +214,9 @@
     "manageUsersDesc": "Add or update system users.",
     "viewAnalytics": "View Analytics",
     "viewAnalyticsDesc": "Deep dive into financial reports.",
-    "systemHealth": "System Status",
-    "systemHealthDesc": "All systems are operational. Check the audits log for detailed activity tracking.",
-    "viewLogs": "View System Logs",
+    "systemHealth": "Explore Projects",
+    "systemHealthDesc": "Discover and manage your real estate projects efficiently.",
+    "viewLogs": "View Projects",
     "recentActivity": "Recent Activity",
     "recentActivityDesc": "Latest system events and updates",
     "noActivity": "No recent activity found",
@@ -323,6 +325,7 @@
     "title": "Payments",
     "amount": "Amount",
     "dueDate": "Due Date",
+    "paymentDate": "Payment Date",
     "extraAmount": "Extra Amount",
     "status": "Status",
     "pending": "Pending",
@@ -358,6 +361,10 @@
     "description": "Description",
     "applicant": "Applicant",
     "totalAmount": "Total Amount",
+    "approvedAt": "Approved At",
+    "authorizedBy": "Authorized By",
+    "noReceipt": "No receipt available",
+    "paymentDetail": "Payment Details",
     "actions": "Actions",
     "statusOptions": {
       "submitted": "Submitted",
@@ -404,6 +411,11 @@
     "lotAddress": "Lot Address",
     "paymentId": "Payment ID",
     "lateInterest": "Late Interest",
+    "paymentVerification": "Payment Verification",
+    "authorizeTransaction": "Authorize Transaction",
+    "totalReceivableValue": "Total Receivable Value",
+    "clickToUploadReceipt": "Click to upload receipt",
+    "acceptedFormats": "PDF, JPG, PNG",
     "approve": "Approve",
     "attachedDocument": "Attached Document",
     "previewNotAvailable": "Preview not available",
@@ -1112,7 +1124,9 @@
     "priceOverrideWarning": "Changing this will ignore the estimated price from area.",
     "limitWith": "Limit with...",
     "notes": "Notes",
-    "additionalNotes": "Additional notes..."
+    "additionalNotes": "Additional notes...",
+    "measurementUnit": "Measurement Unit",
+    "newLot": "New Lot"
   },
   "audits": {
     "viewSystemActivity": "View system activity history",

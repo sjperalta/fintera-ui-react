@@ -230,32 +230,34 @@ function RightSidebar({ user, onClose }) {
         )}
 
         {/* Documents */}
-        <motion.div variants={itemVariants} className="space-y-4">
-          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-bgray-400 dark:text-bgray-500 ml-1">
-            {t('contracts.documents')}
-          </h4>
-          <button
-            onClick={downloadUserBalancePDF}
-            className="w-full p-4 rounded-2xl bg-white dark:bg-darkblack-500 border border-bgray-100 dark:border-transparent hover:border-indigo-500 transition-all flex items-center justify-between group"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        {user?.role === "user" && (
+          <motion.div variants={itemVariants} className="space-y-4">
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-bgray-400 dark:text-bgray-500 ml-1">
+              {t('contracts.documents')}
+            </h4>
+            <button
+              onClick={downloadUserBalancePDF}
+              className="w-full p-4 rounded-2xl bg-white dark:bg-darkblack-500 border border-bgray-100 dark:border-transparent hover:border-indigo-500 transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-bgray-900 dark:text-white truncate max-w-[150px]">Balance_{user.id}.pdf</p>
+                  <p className="text-[10px] font-bold text-bgray-400 dark:text-bgray-500 uppercase">{t('contracts.accountStatement')}</p>
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
               </div>
-              <div className="text-left">
-                <p className="text-sm font-bold text-bgray-900 dark:text-white truncate max-w-[150px]">Balance_{user.id}.pdf</p>
-                <p className="text-[10px] font-bold text-bgray-400 dark:text-bgray-500 uppercase">{t('contracts.accountStatement')}</p>
-              </div>
-            </div>
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-            </div>
-          </button>
-        </motion.div>
+            </button>
+          </motion.div>
+        )}
 
         {/* Note if exists */}
         {user?.note && (
