@@ -84,13 +84,26 @@ function EditLot() {
         if (data.price != null) setServerPrice(data.price);
         if (data.area != null) setServerArea(data.area);
 
-        if (data.override_price != null) {
+        // Initialize overrides
+        if (data.override_price != null && data.override_price > 0) {
           setOverridePriceValue(String(data.override_price));
           setOverridePrice(true);
+        } else if (data.effective_price != null && data.price != null && Math.abs(data.effective_price - data.price) > 0.1) {
+          // Fallback: if effective_price differs significantly from base price
+          setOverridePriceValue(String(data.effective_price));
+          setOverridePrice(true);
         }
-        if (data.override_area != null) {
+
+        if (data.override_area != null && data.override_area > 0) {
           setOverrideAreaValue(String(data.override_area));
           setOverrideArea(true);
+        } else if (data.area != null && data.length != null && data.width != null) {
+          // Fallback: Check if area doesn't match length * width
+          const calcArea = data.length * data.width;
+          if (Math.abs(calcArea - data.area) > 0.1) {
+            setOverrideAreaValue(String(data.area));
+            setOverrideArea(true);
+          }
         }
 
         const pres = await fetch(`${API_URL}/api/v1/projects/${project_id}`, {
@@ -125,10 +138,9 @@ function EditLot() {
 
   const displayedArea = useMemo(() => {
     if (overrideArea && Number(overrideAreaValue) > 0) return Number(overrideAreaValue);
-    if (serverArea != null) return serverArea;
     const factor = AREA_CONVERSION_FROM_M2[measurementUnit] || 1;
     return +(areaM2 * factor).toFixed(2);
-  }, [areaM2, measurementUnit, overrideArea, overrideAreaValue, serverArea]);
+  }, [areaM2, measurementUnit, overrideArea, overrideAreaValue]);
 
   const calculatedPrice = useMemo(() => {
     return +(displayedArea * Number(projectPricePerUnit || 0)).toFixed(2);
@@ -376,29 +388,39 @@ function EditLot() {
                 <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 bg-bgray-50 dark:bg-darkblack-500 p-8 rounded-[2rem] border-2 border-bgray-100 dark:border-darkblack-400 relative overflow-hidden ring-1 ring-success-300">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-success-300/10 rounded-full -mr-16 -mt-16 blur-2xl" />
 
-                  <div className="space-y-1">
+                  <div className={`space-y-1 transition-all duration-300 ${overrideArea ? 'opacity-100' : 'opacity-80'}`}>
                     <p className="text-[10px] font-black text-success-500 uppercase tracking-[0.2em] mb-2">{t("lots.calculatedArea")}</p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-black text-bgray-900 dark:text-white">{fmtNum(displayedArea)}</span>
                       <span className="text-sm font-bold text-bgray-400">{measurementUnit}</span>
                     </div>
                     {overrideArea && (
-                      <span className="inline-block px-2 py-0.5 bg-success-500 text-[10px] text-white font-black rounded uppercase tracking-widest mt-2 animate-pulse">
+                      <motion.span
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 text-[10px] text-white font-black rounded uppercase tracking-widest mt-2 shadow-lg shadow-blue-600/20"
+                      >
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
                         Manual Mode
-                      </span>
+                      </motion.span>
                     )}
                   </div>
 
-                  <div className="space-y-1">
+                  <div className={`space-y-1 transition-all duration-300 ${overridePrice ? 'opacity-100' : 'opacity-80'}`}>
                     <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2">{t("lots.estimatedPrice")}</p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-black text-bgray-900 dark:text-white">{fmtNum(effectivePricePreview)}</span>
                       <span className="text-sm font-bold text-bgray-400">HNL</span>
                     </div>
                     {overridePrice && (
-                      <span className="inline-block px-2 py-0.5 bg-blue-500 text-[10px] text-white font-black rounded uppercase tracking-widest mt-2 animate-pulse">
+                      <motion.span
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 text-[10px] text-white font-black rounded uppercase tracking-widest mt-2 shadow-lg shadow-blue-600/20"
+                      >
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
                         Manual Mode
-                      </span>
+                      </motion.span>
                     )}
                   </div>
                 </div>

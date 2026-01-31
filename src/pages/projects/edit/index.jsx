@@ -423,7 +423,7 @@ function EditProject() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-bgray-700 dark:text-bgray-300 mb-2">
-                    {t('projects.commissionRate')} (%)
+                    {t('projects.commissionRate')}
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-bgray-400">

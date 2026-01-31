@@ -39,6 +39,25 @@ const LocaleContext = createContext();
 export const useLocale = () => {
   const context = useContext(LocaleContext);
   if (!context) {
+    if (process.env.NODE_ENV === 'development') {
+      // During hot reload, the context may be temporarily missing.
+      // Return a fallback context to prevent crashes.
+      console.warn('useLocale called outside LocaleProvider (may be due to hot reload). Returning fallback.');
+      return {
+        locale: DEFAULT_LOCALE,
+        setLocale: () => {},
+        t: (key, params = {}) => {
+          // Simple fallback translation: return key, optionally replace params
+          if (Object.keys(params).length > 0) {
+            return Object.entries(params).reduce((str, [key, value]) =>
+              str.replace(new RegExp(`{${key}}`, 'g'), String(value)), key);
+          }
+          return key;
+        },
+        getSupportedLocales: () => ['en', 'es'],
+        getCurrentLocaleName: () => 'English'
+      };
+    }
     throw new Error('useLocale must be used within a LocaleProvider');
   }
   return context;

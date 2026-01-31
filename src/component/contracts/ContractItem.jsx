@@ -428,7 +428,12 @@ function ContractItem({
         {/* Modals */}
         {
           showSchedule && createPortal(
-            <PaymentScheduleModal contract={contract} open={showSchedule} onClose={() => setShowSchedule(false)} />,
+            <PaymentScheduleModal
+              contract={contract}
+              open={showSchedule}
+              onClose={() => setShowSchedule(false)}
+              onPaymentSuccess={refreshContracts}
+            />,
             document.body
           )
         }
@@ -565,7 +570,12 @@ function ContractItem({
 
       {/* Modals are handled inside GenericList but for now keeping them here if needed */}
       {showSchedule && createPortal(
-        <PaymentScheduleModal contract={contract} open={showSchedule} onClose={() => setShowSchedule(false)} />,
+        <PaymentScheduleModal
+          contract={contract}
+          open={showSchedule}
+          onClose={() => setShowSchedule(false)}
+          onPaymentSuccess={refreshContracts}
+        />,
         document.body
       )}
       <RejectionModal isOpen={showRejectionModal} onClose={() => setShowRejectionModal(false)} onSubmit={handleReject} loading={actionLoading} />

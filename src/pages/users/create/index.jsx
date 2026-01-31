@@ -114,10 +114,17 @@ function CreateUser() {
 
     try {
       const safeRole = creator?.role === 'admin' ? formData.role : 'user';
+      // Map to PascalCase for the backend validator
       const payload = {
-        ...formData,
-        role: safeRole,
-        created_by: creator?.id,
+        FullName: formData.full_name,
+        Email: formData.email,
+        Password: formData.password,
+        Phone: formData.phone,
+        Identity: formData.identity.replace(/\D/g, ""),
+        RTN: formData.rtn.replace(/\D/g, ""),
+        Address: formData.address,
+        Role: safeRole,
+        CreatedBy: creator?.id,
       };
 
       const response = await fetch(`${API_URL}/api/v1/users`, {
@@ -126,7 +133,7 @@ function CreateUser() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ user: payload }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -389,10 +396,10 @@ function CreateUser() {
                           {t('users.passwordStrength', { label: '' })}
                         </span>
                         <span className={`text-xs font-extrabold uppercase tracking-wider ${pwFeedback.label === t('users.strong')
-                            ? 'text-emerald-600 dark:text-emerald-400'
-                            : pwFeedback.label === t('users.medium')
-                              ? 'text-amber-600 dark:text-amber-400'
-                              : 'text-rose-600 dark:text-rose-400'
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : pwFeedback.label === t('users.medium')
+                            ? 'text-amber-600 dark:text-amber-400'
+                            : 'text-rose-600 dark:text-rose-400'
                           }`}>
                           {pwFeedback.label || '—'}
                         </span>
@@ -407,12 +414,12 @@ function CreateUser() {
                             animate={{ scaleX: segment <= pwFeedback.score ? 1 : 0 }}
                             transition={{ duration: 0.3, delay: segment * 0.05 }}
                             className={`h-2 flex-1 rounded-full ${segment <= pwFeedback.score
-                                ? pwFeedback.score >= 5
-                                  ? 'bg-emerald-500'
-                                  : pwFeedback.score >= 3
-                                    ? 'bg-amber-500'
-                                    : 'bg-rose-500'
-                                : 'bg-bgray-200 dark:bg-darkblack-400'
+                              ? pwFeedback.score >= 5
+                                ? 'bg-emerald-500'
+                                : pwFeedback.score >= 3
+                                  ? 'bg-amber-500'
+                                  : 'bg-rose-500'
+                              : 'bg-bgray-200 dark:bg-darkblack-400'
                               }`}
                             style={{ transformOrigin: 'left' }}
                           />

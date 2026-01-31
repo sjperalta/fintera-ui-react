@@ -48,11 +48,14 @@ function LotItem({ lot, userRole, index = 0, isMobileCard = false, isHighlighted
   // Price calculations
   // Use effective_price from API if present, otherwise fall back to overrides or price
   const finalPrice = effective_price !== undefined ? effective_price : (override_price && override_price > 0 ? override_price : price);
-  // Check if there is a discount/difference
-  const hasPriceOverride = price && finalPrice < price; // Highlight if final price is LOWER than base price
-  const savings = hasPriceOverride ? Number(price - finalPrice) : 0;
 
-  const hasAreaOverride = override_area && override_area > 0;
+  // Check if price has been overridden (support both lower and higher prices)
+  const hasPriceOverride = price > 0 && Math.abs(finalPrice - price) > 0.01;
+  const savings = (price && finalPrice < price) ? Number(price - finalPrice) : 0;
+
+  // Check if area has been overridden or doesn't match dimensions
+  const calculatedArea = (length && width) ? Number((length * width).toFixed(2)) : 0;
+  const hasAreaOverride = (override_area && override_area > 0) || (calculatedArea > 0 && Math.abs(calculatedArea - area) > 0.1);
 
   // Construct dimensions string
   const dimensionsDisplay = (length && width) ? `${width} x ${length}` : (lot.dimensions || "—");
@@ -147,7 +150,15 @@ function LotItem({ lot, userRole, index = 0, isMobileCard = false, isHighlighted
           </p>
           <div className="flex items-center justify-end gap-1.5">
             {hasAreaOverride && (
-              <span className="flex h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
+              <span
+                className="flex items-center gap-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter border border-yellow-200 dark:border-yellow-800"
+                title={t("lots.overridden")}
+              >
+                <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                </svg>
+                {t("lots.overridden")}
+              </span>
             )}
             <span className={`text-sm font-bold ${hasAreaOverride ? 'text-yellow-600 dark:text-yellow-400' : 'text-bgray-900 dark:text-white'}`}>
               {area || "—"}

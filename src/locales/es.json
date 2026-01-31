@@ -108,7 +108,14 @@
     "themeContextMissing": "ThemeContext falta inesperadamente",
     "fetchRevenueFlowData": "Error al cargar datos de flujo de ingresos",
     "passwordsDoNotMatch": "Las contraseñas no coinciden",
-    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres."
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
+    "accountLocked": "Su cuenta ha sido bloqueada debido a demasiados intentos fallidos de inicio de sesión. Por favor, intente de nuevo más tarde o restablezca su contraseña.",
+    "emailAlreadyExists": "Ya existe una cuenta con este correo electrónico.",
+    "emailNotFound": "No se encontró ninguna cuenta con esa dirección de correo electrónico.",
+    "invalidCredentials": "Credenciales inválidas. Por favor, intente de nuevo.",
+    "invalidVerificationCode": "Código de verificación inválido. Por favor, intente de nuevo.",
+    "sessionExpired": "Su sesión ha expirado. Por favor, inicie sesión nuevamente.",
+    "verificationCodeExpired": "El código de verificación ha expirado. Por favor, solicite uno nuevo."
   },
   "auth": {
     "signIn": "Iniciar Sesión",
@@ -394,7 +401,7 @@
     "totalPaid": "Total Pagado",
     "nextPayment": "Próximo Pago",
     "noUpcomingPayments": "No hay pagos próximos",
-    "paymentHistory": "Historial de Pagos"
+    "paymentHistory": "Historial de Pagos​"
   },
   "reports": {
     "financialReports": "Reportes Financieros",
@@ -756,7 +763,7 @@
     "all": "Todos"
   },
   "contracts": {
-    "amount": "Monto",
+    "amount": "Monto​",
     "balance": "Saldo",
     "totalBalance": "Saldo Total",
     "noContracts": "Sin Contratos",
@@ -788,6 +795,10 @@
     "capitalPaymentAmount": "Monto del Pago de Capital",
     "enterCapitalPaymentAmount": "Ingrese el monto del pago de capital",
     "interestMoratory": "Interés/Moratorio",
+    "editMoratory": "Editar Penalización",
+    "updateMoratoryInfo": "Ajuste el monto de interés moratorio para este pago.",
+    "moratoryEditWarning": "Cambiar este valor afectará el monto total adeudado.",
+    "moratoryUpdated": "Moratorio actualizado exitosamente.",
     "totalPaymentAmount": "Monto Total del Pago",
     "amountInterestWarning": "El monto del pago no puede ser mayor que el saldo pendiente",
     "applyingPayment": "Aplicando pago...",
@@ -795,6 +806,7 @@
     "payment": "Pago",
     "appliedSuccessfully": "aplicado exitosamente",
     "errorApplying": "Error al aplicar",
+    "errorUpdatingMoratory": "Error actualizando moratorio",
     "paymentsReadjusted": "pago(s) han sido reajustados",
     "capitalPaymentAmountRequired": "El monto del pago de capital es requerido",
     "totalAmountRequired": "El monto total es requerido",
@@ -838,6 +850,7 @@
     "months": "Meses",
     "totalValue": "Monto del Contrato",
     "progress": "Progreso",
+    "completed": "Completado",
     "statusSummary": "Resumen de Estado",
     "approvedWelcome": "El contrato ha sido aprobado y está activo.",
     "rejectedNotice": "Este contrato ha sido rechazado.",

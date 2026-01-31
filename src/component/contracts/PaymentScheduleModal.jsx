@@ -225,6 +225,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
       case "reservation": return t('payments.statusOptions.reservation');
       case "down_payment": return t('payments.statusOptions.down_payment');
       case "installment": return t('payments.statusOptions.installment');
+      case "capital_repayment": return t('contracts.capitalPayment') || "Abono a Capital";
       default: return type || t('payments.statusOptions.installment');
     }
   };
@@ -830,41 +831,14 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
 
                           const data = await response.json();
 
-                          // Update contract with new balance from backend
+                          // Update contract and schedule with fresh data from backend response
                           if (data.contract) {
-                            setCurrentContract(prev => ({
-                              ...(prev || {}),
-                              ...data.contract,
-                              balance: data.contract.balance
-                            }));
-                          }
-
-                          // Update schedule with readjusted payments from backend
-                          if (data.reajusted_payments && Array.isArray(data.reajusted_payments) && data.reajusted_payments.length > 0) {
-                            const safeSchedule = Array.isArray(schedule) ? schedule : [];
-
-                            // Replace existing payments with readjusted ones from backend
-                            const updatedSchedule = safeSchedule.map(payment => {
-                              // Find if this payment was readjusted
-                              const reajustedPayment = data.reajusted_payments.find(rp => rp.id === payment.id);
-                              if (reajustedPayment) {
-                                // Use the complete payment data from backend
-                                return {
-                                  ...reajustedPayment,
-                                  status: 'readjustment',
-                                  readjusted_at: new Date().toISOString()
-                                };
-                              }
-                              return payment;
-                            });
-                            setSchedule(updatedSchedule);
-
-                            // IMPORTANT: Update the contract's payment_schedule to persist readjustment status
-                            // This ensures that when modal reopens, the readjustment status is maintained
-                            setCurrentContract(prev => ({
-                              ...(prev || {}),
-                              payment_schedule: updatedSchedule
-                            }));
+                            setCurrentContract(data.contract);
+                            setSchedule(Array.isArray(data.contract.payment_schedule) ? data.contract.payment_schedule : []);
+                            setLedgerEntries(Array.isArray(data.contract.ledger_entries) ? data.contract.ledger_entries : []);
+                          } else {
+                            // Fallback to re-fetching if contract is not in response
+                            loadContractData();
                           }
 
                           // Call the original callback if provided

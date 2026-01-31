@@ -195,9 +195,11 @@ const PaymentScheduleTab = ({
 
                       {/* Installment Badge */}
                       <div className="flex-shrink-0">
-                        <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center ${isUpcoming ? 'bg-blue-600 text-white' : 'bg-gray-50 dark:bg-darkblack-500 text-gray-400'}`}>
-                          <p className="text-[8px] font-black uppercase mb-0.5 opacity-60">Cuota</p>
-                          <p className="text-lg font-black">{row.number || idx + 1}</p>
+                        <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center ${isUpcoming ? 'bg-blue-600 text-white' : (row.payment_type === 'capital_repayment' ? 'bg-emerald-500 text-white' : 'bg-gray-50 dark:bg-darkblack-500 text-gray-400')}`}>
+                          <p className="text-[8px] font-black uppercase mb-0.5 opacity-60">
+                            {row.payment_type === 'capital_repayment' ? 'Abono' : 'Cuota'}
+                          </p>
+                          <p className="text-lg font-black">{row.payment_type === 'capital_repayment' ? <FontAwesomeIcon icon={faCoins} className="text-sm" /> : (row.number || idx + 1)}</p>
                         </div>
                       </div>
 
