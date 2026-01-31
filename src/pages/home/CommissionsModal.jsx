@@ -39,7 +39,7 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
 
             const res = await fetch(`${API_URL}/api/v1/reports/commissions?start_date=${startDate}&end_date=${endDate}`, {
                 headers: {
-                    "Authorization": `Bearer ${getToken()}`,
+                    "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 }
             });
@@ -70,7 +70,7 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
         const endDate = `${year}-${monthStr}-${lastDay}`;
 
         // Trigger download
-        window.open(`${API_URL}/api/v1/reports/commissions_csv?start_date=${startDate}&end_date=${endDate}&token=${getToken()}`, "_blank");
+        window.open(`${API_URL}/api/v1/reports/commissions_csv?start_date=${startDate}&end_date=${endDate}&token=${token}`, "_blank");
     };
 
     const changeMonth = (offset) => {

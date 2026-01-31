@@ -51,7 +51,7 @@ const SellerDashboard = ({ user }) => {
             try {
                 const month = currentDate.getMonth() + 1;
                 const year = currentDate.getFullYear();
-                const response = await fetch(`${API_URL}/dashboard/seller?month=${month}&year=${year}`, {
+                const response = await fetch(`${API_URL}/api/v1/dashboard/seller?month=${month}&year=${year}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

@@ -40,6 +40,8 @@
     "inactive": "Inactivo",
     "active": "Activo",
     "noItemsFound": "No se encontraron elementos",
+    "noData": "No hay datos",
+    "noDataFound": "No se encontraron datos",
     "tryAdjustingFilters": "Intenta ajustar tus filtros",
     "all": "Todos",
     "overview": "Resumen",
