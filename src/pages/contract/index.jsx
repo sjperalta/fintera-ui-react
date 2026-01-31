@@ -11,7 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { useLocale } from "../../contexts/LocaleContext";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import GenericList from "../../component/ui/GenericList";
 import GenericFilter from "../../component/forms/GenericFilter";
 import ContractItem from "../../component/contracts/ContractItem";

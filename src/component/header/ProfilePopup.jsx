@@ -2,7 +2,7 @@ import ProtoTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useContext } from "react";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 
 function ProfilePopup({ active, user, handleLogout }) {
   const { t } = useLocale();

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "./../../../../config";
 import { getToken } from "./../../../../auth";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "./../../../context/AuthContext";
+import AuthContext from "../../../contexts/AuthContext";
 import { useLocale } from "./../../../contexts/LocaleContext";
 
 function formatCedula(raw) {

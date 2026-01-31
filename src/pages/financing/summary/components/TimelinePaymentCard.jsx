@@ -4,7 +4,7 @@ import { format, isBefore, parseISO, startOfDay } from "date-fns";
 import { es, enUS } from 'date-fns/locale';
 import { useLocale } from '../../../../contexts/LocaleContext';
 import { useToast } from '../../../../contexts/ToastContext';
-import AuthContext from '../../../../context/AuthContext';
+import AuthContext from '../../../../contexts/AuthContext';
 import { API_URL } from '../../../../../config';
 
 function TimelinePaymentCard({ payment, onPaymentSuccess }) {
@@ -79,8 +79,8 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
                                 {format(dueDate, 'dd MMM yyyy', { locale: dateLocale })}
                             </span>
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight ${status === 'paid' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                                    isOverdue ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' :
-                                        'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                                isOverdue ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' :
+                                    'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
                                 }`}>
                                 {status === 'paid' ? t('payments.paid') : isOverdue ? t('payments.overdue') : t('payments.pending')}
                             </span>
@@ -155,8 +155,8 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
                                 <label
                                     htmlFor="receipt-upload"
                                     className={`flex flex-col items-center justify-center p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${selectedFile
-                                            ? 'border-emerald-500 bg-emerald-50/30 dark:bg-emerald-500/5'
-                                            : 'border-bgray-200 dark:border-bgray-700 hover:border-bgray-400 dark:hover:border-bgray-500 bg-bgray-50/50 dark:bg-bgray-800/20'
+                                        ? 'border-emerald-500 bg-emerald-50/30 dark:bg-emerald-500/5'
+                                        : 'border-bgray-200 dark:border-bgray-700 hover:border-bgray-400 dark:hover:border-bgray-500 bg-bgray-50/50 dark:bg-bgray-800/20'
                                         }`}
                                 >
                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${selectedFile ? 'bg-emerald-100 text-emerald-600' : 'bg-bgray-100 text-bgray-400 dark:bg-bgray-800'}`}>

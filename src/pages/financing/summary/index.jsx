@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { API_URL } from "../../../../config";
-import AuthContext from "../../../context/AuthContext";
+import AuthContext from "../../../contexts/AuthContext";
 import { useLocale } from "../../../contexts/LocaleContext";
 
 // New Components

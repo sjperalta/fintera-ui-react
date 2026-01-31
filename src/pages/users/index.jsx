@@ -5,13 +5,14 @@ import SearchFilterBar from "../../component/ui/SearchFilterBar";
 import GenericList from "../../component/ui/GenericList";
 import UserData from "../../component/user/UserData";
 import RightSidebar from "../../component/user/RightSidebar";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
 import { getToken } from "../../../auth";
 
 function Users() {
   const [searchTerm, setSearchTerm] = useState("");
   const [role, setRole] = useState("");
+  const [filterStatus, setFilterStatus] = useState("active");
   const [selectedUser, setSelectedUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -104,10 +105,30 @@ function Users() {
             showFilter={true}
             actions={[
               {
+                id: "toggle-status-btn",
+                label: roleOptions.length > 0 && role === "admin" ? (t('users.showTotal') || "Show All") : (filterStatus === "all" ? (t('users.showActiveOnly') || "Active Only") : (t('users.showAll') || "Show All")),
+                onClick: () => setFilterStatus(prev => prev === "active" ? "all" : "active"),
+                className: `py-3 px-6 mr-4 font-semibold rounded-xl transition-all border flex items-center gap-2 ${filterStatus === "all"
+                  ? "bg-bgray-900 text-white border-bgray-900 dark:bg-white dark:text-bgray-900 dark:border-white shadow-lg shadow-bgray-200 dark:shadow-none"
+                  : "bg-white dark:bg-darkblack-600 text-bgray-600 dark:text-bgray-300 border-bgray-200 dark:border-darkblack-400 hover:border-bgray-300 dark:hover:border-darkblack-300 hover:bg-bgray-50 dark:hover:bg-darkblack-500"}`,
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7 12H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M10 18H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )
+              },
+              {
                 id: "add-user-btn",
                 label: t('userFilter.addUser'),
                 onClick: () => navigate("/users/create"),
-                className: "py-3 px-10 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
+                className: "py-3 px-10 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none",
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )
               }
             ]}
           />
@@ -115,7 +136,7 @@ function Users() {
           <GenericList
             endpoint="/api/v1/users"
             renderItem={renderUserItem}
-            filters={{ search_term: searchTerm, role: role }}
+            filters={{ search_term: searchTerm, role: role, status: filterStatus === "all" ? "all" : undefined }}
             onItemSelect={setSelectedUser}
             columns={[]} // No columns needed for grid view
             gridClassName="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"

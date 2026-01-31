@@ -37,7 +37,7 @@ import { formatStatus } from "../../utils/formatStatus";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
 import { API_URL } from "../../../config";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 
 const formatCurrency = (v) => {
   if (v === null || v === undefined || v === "") return "—";
@@ -295,7 +295,7 @@ const ContractDetailsModal = ({
     try {
       showToast(t("common.processing"), "info");
       const response = await fetch(
-        `${API_URL}/reports/customer_record_pdf?contract_id=${contract.id}`,
+        `${API_URL}/api/v1/reports/customer_record_pdf?contract_id=${contract.id}`,
         {
           method: "GET",
           headers: {

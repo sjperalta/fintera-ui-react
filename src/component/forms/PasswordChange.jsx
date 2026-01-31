@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { API_URL } from "./../../../config";
 import { useToast } from "../../contexts/ToastContext";
 import { useLocale } from "../../contexts/LocaleContext";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 
 const PasswordInputField = ({ label, value, onChange, show, onToggle, id, placeholder, required = true }) => (
   <div className="flex flex-col gap-2">

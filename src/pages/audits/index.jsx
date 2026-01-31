@@ -3,7 +3,7 @@ import SearchFilterBar from "../../component/ui/SearchFilterBar";
 import AuditTimeline from "../../component/audit/AuditTimeline";
 import { useLocale } from "../../contexts/LocaleContext";
 import { API_URL } from "../../../config";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 
 /**
  * Audits page component that displays audit logs using a Timeline layout

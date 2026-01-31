@@ -4,7 +4,7 @@ import { getToken } from "./../../../auth"; // Update the path as needed
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 import { useLocale } from "../../contexts/LocaleContext";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 
 // helper formatters (minimal, preserve digits and insert dashes)

@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import PasswordResetModal from "../modal/PasswordResetModal";
 import LeftSide from "./LeftSide";
 import { useLocale } from "../../contexts/LocaleContext";
@@ -20,7 +20,7 @@ function SignIn() {
   const [email, setEmail] = useState(() => (isDevOrStaging ? "admin@example.com" : ""));
   const [password, setPassword] = useState(() => (isDevOrStaging ? "superPassword@123" : ""));
   const [errors, setErrors] = useState({ email: "", password: "" });
-  
+
   const navigate = useNavigate();
   const { login, loading, error: apiError } = useContext(AuthContext);
 
@@ -47,10 +47,8 @@ function SignIn() {
     const result = await login(email, password);
     if (result?.success) {
       var user = result.user;
-      if(user.role === 'admin')
+      if (user.role === 'admin' || user.role === 'seller')
         navigate("/");
-      else if(user.role === 'seller')
-        navigate("/contracts");
       else {
         navigate(`/financing/user/${user.id}`);
       }

@@ -10,8 +10,7 @@ import "swiper/css/effect-fade";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "quill/dist/quill.snow.css";
-import { AuthProvider } from './context/AuthContext.jsx';
-
+import { AuthProvider } from './contexts/AuthContext.jsx';
 import { registerSW } from "virtual:pwa-register";
 
 if (import.meta.env.MODE === "production") {
@@ -36,8 +35,8 @@ if (_sentryDsn) {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>
 );

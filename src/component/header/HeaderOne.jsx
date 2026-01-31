@@ -3,7 +3,7 @@
 import PropTypes from "prop-types";
 import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import Author from "./Author";
 import NotificationPopup from "./NotificationPopup";
 import ProfilePopup from "./ProfilePopup";

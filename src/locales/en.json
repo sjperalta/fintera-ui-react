@@ -40,6 +40,8 @@
     "inactive": "Inactive",
     "active": "Active",
     "noItemsFound": "No items found",
+    "noData": "No data",
+    "noDataFound": "No data found",
     "tryAdjustingFilters": "Try adjusting your filters",
     "all": "All",
     "overview": "Overview",
@@ -67,6 +69,20 @@
     "saving": "Saving...",
     "export": "Export",
     "downloadCsv": "Download .csv"
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
   },
   "status": {
     "available": "Available",
@@ -395,8 +411,7 @@
     "subtitle": "Manage and monitor your clients' payments",
     "totalApplied": "Total Received",
     "paymentHistory": "Payment History",
-    "upcoming": "Upcoming",
-    "completed": "Completed"
+    "upcoming": "Upcoming"
   },
   "reports": {
     "financialReports": "Financial Reports",
@@ -481,7 +496,10 @@
     "weak": "Weak",
     "medium": "Medium",
     "strong": "Strong",
-    "errorCreatingUser": "Error creating user"
+    "errorCreatingUser": "Error creating user",
+    "showTotal": "Show Total",
+    "showActiveOnly": "Active Only",
+    "showAll": "Show All"
   },
   "settings": {
     "personal": "Personal",
@@ -747,6 +765,41 @@
     "errorFetchingData": "Error fetching analytics data",
     "previousYear": "Previous Year",
     "nextYear": "Next Year"
+  },
+  "sellerDashboard": {
+    "welcomeBack": "Welcome back",
+    "heroSubtitle": "Here is what's happening with your sales today.",
+    "activeLeads": "Active Leads",
+    "totalSalesValue": "Sales Volume",
+    "pendingCommission": "Estimated Commission",
+    "conversionRate": "Conversion Rate",
+    "newSale": "New Sale",
+    "addLead": "Add Lead",
+    "viewCommissions": "View Commissions",
+    "salesPipeline": "Sales Pipeline",
+    "performanceTrend": "Performance Trend",
+    "recentCustomers": "Recent Customers",
+    "noCustomers": "No recent customers found",
+    "viewAllCustomers": "View All Customers",
+    "stats": {
+      "sales": "Total Sales",
+      "leads": "New Leads",
+      "growth": "Growth",
+      "thisMonth": "This Month"
+    }
+  },
+  "commissions": {
+    "title": "Commissions Report",
+    "subtitle": "Track your earnings and sales performance",
+    "periodTotal": "Period Total",
+    "projectsActive": "Active Projects",
+    "date": "Date",
+    "customer": "Customer",
+    "project": "Project",
+    "saleValue": "Sale Value",
+    "amount": "Commission",
+    "noData": "No commissions found for this period",
+    "downloadCSV": "Download CSV"
   },
   "filters": {
     "contractSearchPlaceholder": "Search contracts...",

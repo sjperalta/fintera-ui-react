@@ -7,14 +7,14 @@ import ResProfilePopup from "./ResProfilePopup";
 import { useLocale } from "../../contexts/LocaleContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 
 function HeaderTwo({ handleSidebar }) {
   const [activePopup, handleActivePopup] = useState(false);
   const { t } = useLocale();
   const { title, subtitle } = usePageTitle();
   const { user } = useContext(AuthContext);
-  
+
   // Get user display information
   const displayName = user?.full_name || user?.email || t('header.user');
   const displayRole = user?.role === 'admin' ? t('header.admin') : t('header.user');
@@ -51,7 +51,7 @@ function HeaderTwo({ handleSidebar }) {
                 </svg>
               </span>
             </button>
-            
+
             {/* Dynamic Title for Mobile */}
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-bold text-bgray-900 dark:text-white truncate">
@@ -62,7 +62,7 @@ function HeaderTwo({ handleSidebar }) {
               </p>
             </div>
           </div>
-          
+
           {/* Profile Button */}
           <div className="mr-2">
             <button

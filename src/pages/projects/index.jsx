@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../../config";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { useRef } from "react";
 import ActionBtn from "../../component/header/ActionBtn";

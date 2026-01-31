@@ -2,11 +2,12 @@ import { useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_URL } from "../../../../config";
 import MessageEditor from "../../../component/editor/MessageEditor";
-import AuthContext from "../../../context/AuthContext";
+import AuthContext from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import debounce from "lodash.debounce";
 import { useLocale } from "../../../contexts/LocaleContext";
 import { motion, AnimatePresence } from "framer-motion";
+import CreditScoreCard from "../../../component/contracts/CreditScoreCard";
 
 function Reserve() {
   const { t } = useLocale();
@@ -914,6 +915,11 @@ function Reserve() {
                                 <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Teléfono</p>
                                 <p className="text-sm font-bold text-bgray-700 dark:text-bgray-200">{selectedUser.phone || "—"}</p>
                               </div>
+                            </div>
+
+                            {/* Credit Score Card Integration */}
+                            <div className="mt-6">
+                              <CreditScoreCard creditScore={selectedUser.credit_score} />
                             </div>
                           </div>
                         </motion.div>

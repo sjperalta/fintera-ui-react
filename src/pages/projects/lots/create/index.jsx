@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AuthContext from "../../../../context/AuthContext";
+import AuthContext from "../../../../contexts/AuthContext";
 import { API_URL } from "../../../../../config";
 import { getToken } from "../../../../../auth";
 import { useLocale } from "../../../../contexts/LocaleContext";
@@ -71,7 +71,7 @@ function CreateLot() {
     if (overrideArea && Number(overrideAreaValue) > 0) {
       return Number(overrideAreaValue);
     }
-    
+
     // Otherwise calculate from dimensions
     switch ((measurementUnit || "").toLowerCase()) {
       case "ft2":

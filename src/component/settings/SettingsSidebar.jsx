@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useContext } from "react";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import Progressbar from "../chart/Progressbar";
 import TabBtn from "../button/TabBtn";
 import { useLocale } from "../../contexts/LocaleContext";
