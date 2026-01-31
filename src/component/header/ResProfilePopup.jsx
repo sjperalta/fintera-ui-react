@@ -1,7 +1,7 @@
 import ProtoTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
 
 function ResProfilePopup({ isActive }) {
@@ -15,9 +15,8 @@ function ResProfilePopup({ isActive }) {
         filter: `drop-shadow(12px 12px 40px rgba(0, 0, 0, 0.08))`,
         zIndex: 999,
       }}
-      className={`profile-box absolute right-0 top-[81px] w-[300px] overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 z-50 ${
-        isActive ? "block" : "hidden"
-      }`}
+      className={`profile-box absolute right-0 top-[81px] w-[300px] overflow-hidden rounded-lg bg-white dark:bg-darkblack-600 z-50 ${isActive ? "block" : "hidden"
+        }`}
     >
       <div className="relative w-full px-3 py-2">
         <div>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GenericFilter from "../../component/forms/GenericFilter";
 import GenericList from "../../component/ui/GenericList";
 import PaymentItem from "../../component/balance/PaymentItem";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
 import { API_URL } from "../../../config";
 import { getToken } from "../../../auth";

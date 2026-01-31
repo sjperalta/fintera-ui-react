@@ -557,13 +557,23 @@ function ContractItem({
             </button>
           )}
 
+          {["approved", "closed"].includes(contract.status?.toLowerCase()) && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowSchedule(true); }}
+              title={t("contracts.paymentSchedule")}
+              className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center border border-indigo-200 dark:border-indigo-800/30"
+            >
+              <FontAwesomeIcon icon={faReceipt} />
+            </button>
+          )}
+
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); setShowDetailsModal(true); }}
-            title={t("contracts.viewDetails")}
-            className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center border border-indigo-200 dark:border-indigo-800/30"
+            title={t("common.view")}
+            className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center border border-blue-200 dark:border-blue-800/30"
           >
-            <FontAwesomeIcon icon={faClipboardList} />
+            <FontAwesomeIcon icon={faEye} />
           </button>
         </div>
       </td>

@@ -2,7 +2,7 @@ import { useContext } from "react"
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import PasswordChange from "../../../component/forms/PasswordChange";
-import AuthContext from "../../../context/AuthContext";
+import AuthContext from "../../../contexts/AuthContext";
 
 function Security() {
   const { token } = useContext(AuthContext);

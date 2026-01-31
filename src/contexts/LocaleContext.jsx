@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import enTranslations from '../locales/en.json';
 import esTranslations from '../locales/es.json';
-import AuthContext from '../context/AuthContext';
+import AuthContext from './AuthContext';
 
 // Constants
 const STORAGE_KEY = 'userLocale';
@@ -45,7 +45,7 @@ export const useLocale = () => {
       console.warn('useLocale called outside LocaleProvider (may be due to hot reload). Returning fallback.');
       return {
         locale: DEFAULT_LOCALE,
-        setLocale: () => {},
+        setLocale: () => { },
         t: (key, params = {}) => {
           // Simple fallback translation: return key, optionally replace params
           if (Object.keys(params).length > 0) {

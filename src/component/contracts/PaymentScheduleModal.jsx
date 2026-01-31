@@ -396,34 +396,9 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                   <div className="flex flex-col gap-3">
                     <div className="flex justify-between items-start mb-1">
                       <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">{t('contracts.clientRecord')}</p>
-                      <span className="text-[10px] font-black text-gray-400">
-                        {currentContract?.applicant_credit_score || 0}%
-                      </span>
                     </div>
 
-                    {/* Horizontal Credit Score Bar */}
-                    <div className="relative w-full h-2 bg-gray-100 dark:bg-darkblack-500 rounded-full overflow-hidden">
-                      <div
-                        className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out"
-                        style={{
-                          width: `${currentContract?.applicant_credit_score || 0}%`,
-                          background: (() => {
-                            const score = currentContract?.applicant_credit_score || 0;
-                            if (score >= 80) return 'linear-gradient(90deg, #10b981 0%, #059669 100%)'; // Green (Excellent)
-                            if (score >= 60) return 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)'; // Amber (Good)
-                            if (score >= 40) return 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)'; // Orange (Fair)
-                            return 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)'; // Red (Poor)
-                          })(),
-                          boxShadow: (() => {
-                            const score = currentContract?.applicant_credit_score || 0;
-                            if (score >= 80) return '0 0 15px rgba(16, 185, 129, 0.5)';
-                            if (score >= 60) return '0 0 15px rgba(245, 158, 11, 0.5)';
-                            if (score >= 40) return '0 0 15px rgba(249, 115, 22, 0.5)';
-                            return '0 0 15px rgba(239, 68, 68, 0.5)';
-                          })()
-                        }}
-                      />
-                    </div>
+                    <CreditScoreCard creditScore={currentContract?.applicant_credit_score} />
 
                     <div>
                       <h5 className="text-sm font-black text-gray-900 dark:text-white mb-1 truncate">{currentContract?.applicant_name || t('contractInfo.client')}</h5>

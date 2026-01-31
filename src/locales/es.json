@@ -68,6 +68,20 @@
     "export": "Exportar",
     "downloadCsv": "Descargar .csv"
   },
+  "months": {
+    "january": "Enero",
+    "february": "Febrero",
+    "march": "Marzo",
+    "april": "Abril",
+    "may": "Mayo",
+    "june": "Junio",
+    "july": "Julio",
+    "august": "Agosto",
+    "september": "Septiembre",
+    "october": "Octubre",
+    "november": "Noviembre",
+    "december": "Diciembre"
+  },
   "status": {
     "available": "Disponible",
     "reserved": "Reservado",
@@ -488,7 +502,10 @@
     "strong": "Fuerte",
     "errorCreatingUser": "Error creando usuario",
     "statusUpdatedTo_active": "Estado de usuario actualizado a activo",
-    "statusUpdatedTo_inactive": "Estado de usuario actualizado a inactivo"
+    "statusUpdatedTo_inactive": "Estado de usuario actualizado a inactivo",
+    "showTotal": "Mostrar Total",
+    "showActiveOnly": "Solo Activos",
+    "showAll": "Mostrar Todos"
   },
   "settings": {
     "personal": "Personal",
@@ -755,6 +772,41 @@
     "previousYear": "Año Anterior",
     "nextYear": "Año Siguiente"
   },
+  "sellerDashboard": {
+    "welcomeBack": "Bienvenido de nuevo",
+    "heroSubtitle": "Esto es lo que está pasando con tus ventas hoy.",
+    "activeLeads": "Prospectos Activos",
+    "totalSalesValue": "Volumen de Ventas",
+    "pendingCommission": "Comisión Estimada",
+    "conversionRate": "Tasa de Conversión",
+    "newSale": "Nueva Venta",
+    "addLead": "Agregar Prospecto",
+    "viewCommissions": "Ver Comisiones",
+    "salesPipeline": "Pipeline de Ventas",
+    "performanceTrend": "Tendencia de Rendimiento",
+    "recentCustomers": "Clientes Recientes",
+    "noCustomers": "No se encontraron clientes recientes",
+    "viewAllCustomers": "Ver Todos los Clientes",
+    "stats": {
+      "sales": "Ventas Totales",
+      "leads": "Nuevos Prospectos",
+      "growth": "Crecimiento",
+      "thisMonth": "Este Mes"
+    }
+  },
+  "commissions": {
+    "title": "Reporte de Comisiones",
+    "subtitle": "Rastrea tus ganancias y rendimiento de ventas",
+    "periodTotal": "Total del Periodo",
+    "projectsActive": "Proyectos Activos",
+    "date": "Fecha",
+    "customer": "Cliente",
+    "project": "Proyecto",
+    "saleValue": "Valor Venta",
+    "amount": "Comisión",
+    "noData": "No se encontraron comisiones para este periodo",
+    "downloadCSV": "Descargar CSV"
+  },
   "filters": {
     "contractSearchPlaceholder": "Buscar contratos...",
     "contractStatusPlaceholder": "Filtrar por estado",
@@ -850,7 +902,6 @@
     "months": "Meses",
     "totalValue": "Monto del Contrato",
     "progress": "Progreso",
-    "completed": "Completado",
     "statusSummary": "Resumen de Estado",
     "approvedWelcome": "El contrato ha sido aprobado y está activo.",
     "rejectedNotice": "Este contrato ha sido rechazado.",

@@ -76,8 +76,8 @@ function Sidebar({ handleActive, user, handleLogout }) {
               {t("dashboard.menu")}
             </h4>
             <ul className="mt-2 sm:mt-2.5">
-              {/* Dashboard: Only Admin */}
-              {isAdmin && (
+              {/* Dashboard: Admin or Seller */}
+              {(isAdmin || isSeller) && (
                 <li
                   className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/" ? "nav-active" : ""
                     }`}

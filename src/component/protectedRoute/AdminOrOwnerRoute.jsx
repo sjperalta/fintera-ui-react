@@ -1,6 +1,6 @@
 import { Navigate, useLocation, useParams } from "react-router-dom";
 import { useContext } from "react";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 
 const AdminOrOwnerRoute = ({ children }) => {
   const { token, user: currentUser, loading } = useContext(AuthContext);

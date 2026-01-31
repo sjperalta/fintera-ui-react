@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "../../../config";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import {
     Chart as ChartJS,

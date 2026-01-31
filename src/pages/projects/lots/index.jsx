@@ -1,7 +1,7 @@
 import { useState, useContext, useMemo, useCallback, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useLocale } from "../../../contexts/LocaleContext";
-import AuthContext from "../../../context/AuthContext";
+import AuthContext from "../../../contexts/AuthContext";
 import GenericList from "../../../component/ui/GenericList";
 import SearchFilterBar from "../../../component/ui/SearchFilterBar";
 import LotItem from "../../../component/lots/LotItem";

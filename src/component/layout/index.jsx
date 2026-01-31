@@ -8,9 +8,9 @@ import HeaderTwo from "../header/HeaderTwo";
 import { useContext, useState } from "react";
 
 import { Outlet, useNavigate } from "react-router-dom";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 
-import { ThemeContext } from "../../context/ThemeContext";
+import { ThemeContext } from "../../contexts/ThemeContext";
 
 function Layout({ bg, overlay, children }) {
   const navigate = useNavigate();

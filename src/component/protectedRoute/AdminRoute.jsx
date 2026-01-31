@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 
 const AdminRoute = ({ children }) => {
   const { token, user, loading } = useContext(AuthContext);

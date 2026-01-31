@@ -1,21 +1,15 @@
 import React, { useContext } from "react";
-import AuthContext from "../../context/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
 import QuickActionCard from "../../component/dashboard/QuickActionCard";
 import RecentActivity from "../../component/dashboard/RecentActivity";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import SellerDashboard from "./SellerDashboard";
 
-function Home() {
-  const { user } = useContext(AuthContext);
+const AdminDashboard = () => {
   const { t } = useLocale();
-
-  // Greeting based on time of day
-  const getGreeting = () => {
-    const hours = new Date().getHours();
-    if (hours < 12) return t("home.goodMorning") || "Good morning";
-    if (hours < 18) return t("home.goodAfternoon") || "Good afternoon";
-    return t("home.goodEvening") || "Good evening";
-  };
+  const navigate = useNavigate();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -42,15 +36,12 @@ function Home() {
   };
 
   return (
-    <main className="w-full xl:px-[48px] px-6 pb-6 xl:pb-[48px] sm:pt-[156px] pt-[100px] dark:bg-darkblack-700 min-h-screen">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        className="max-w-7xl mx-auto space-y-8"
-      >
-      </motion.div>
-
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="space-y-8"
+    >
       {/* Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
@@ -111,7 +102,7 @@ function Home() {
             </div>
           </div>
 
-          {/* Status Overview Banner (Optional, keeping it simple for now) */}
+          {/* Status Overview Banner */}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-8 shadow-xl">
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="text-center md:text-left text-white">
@@ -150,6 +141,22 @@ function Home() {
           <RecentActivity />
         </motion.div>
 
+      </div>
+    </motion.div>
+  );
+};
+
+function Home() {
+  const { user } = useContext(AuthContext);
+
+  return (
+    <main className="w-full xl:px-[48px] px-6 pb-6 xl:pb-[48px] sm:pt-[156px] pt-[100px] dark:bg-darkblack-700 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        {user?.role === "seller" ? (
+          <SellerDashboard user={user} />
+        ) : (
+          <AdminDashboard />
+        )}
       </div>
     </main>
   );

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocale } from "../../../contexts/LocaleContext";
 import { useToast } from "../../../contexts/ToastContext";
-import AuthContext from "../../../context/AuthContext";
+import AuthContext from "../../../contexts/AuthContext";
 import { API_URL } from "../../../../config";
 import { getToken } from "../../../../auth";
 
