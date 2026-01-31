@@ -2,7 +2,7 @@ import { useState, useContext, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GenericFilter from "../../component/forms/GenericFilter";
 import GenericList from "../../component/ui/GenericList";
-import PaymentItem from "../../component/balance/PaymentItem";
+import PaymentItem, { PaymentDetailModal } from "../../component/balance/PaymentItem";
 import AuthContext from "../../contexts/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
 import { API_URL } from "../../../config";
@@ -27,6 +27,10 @@ const itemVariants = {
 function Payments() {
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [stats, setStats] = useState({ pending: 0, paidThisMonth: 0, overdue: 0 });
   const [loadingStats, setLoadingStats] = useState(true);
@@ -80,8 +84,10 @@ function Payments() {
 
   const filters = useMemo(() => ({
     search_term: searchTerm,
-    status: status || "[paid|submitted]"
-  }), [searchTerm, status]);
+    status: status || "[paid|submitted]",
+    start_date: startDate,
+    end_date: endDate
+  }), [searchTerm, status, startDate, endDate]);
 
   const handleRefresh = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
@@ -94,7 +100,10 @@ function Payments() {
         index={index}
         userRole={user?.role}
         refreshPayments={handleRefresh}
-        onClick={() => handleClick(payment)}
+        onClick={() => {
+          setSelectedPayment(payment);
+          setShowDetailModal(true);
+        }}
         isMobileCard={isMobileCard}
       />
     );
@@ -171,13 +180,17 @@ function Payments() {
             ))}
           </div>
 
-          <motion.div variants={itemVariants} className="mb-8">
+          <motion.div variants={itemVariants} className="mb-8 relative z-20">
             <GenericFilter
               searchTerm={searchTerm}
               filterValue={status}
               filterOptions={statusOptions}
               onSearchChange={setSearchTerm}
               onFilterChange={setStatus}
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
               searchPlaceholder={t('filters.searchPlaceholder')}
               filterPlaceholder={t('filters.statusPlaceholder')}
               minSearchLength={2}
@@ -199,6 +212,19 @@ function Payments() {
               refreshTrigger={refreshTrigger}
             />
           </motion.div>
+
+          {/* Payment Detail Modal */}
+          <AnimatePresence>
+            {showDetailModal && selectedPayment && (
+              <PaymentDetailModal
+                payment={selectedPayment}
+                onClose={() => {
+                  setShowDetailModal(false);
+                  setSelectedPayment(null);
+                }}
+              />
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </main>

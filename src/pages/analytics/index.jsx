@@ -536,10 +536,10 @@ const Analytics = () => {
                                 </div>
                                 <div className="mt-8 space-y-3">
                                     {[
-                                        { label: t("analytics.financed") || "Financed", value: `${distribution?.financed_percentage || 0}%`, color: "bg-indigo-500" },
-                                        { label: t("analytics.reserved"), value: `${distribution?.reserved_percentage || 0}%`, color: "bg-orange-500" },
-                                        { label: t("analytics.available"), value: `${distribution?.available_percentage || 0}%`, color: "bg-green-500/40" },
-                                        { label: t("analytics.fully_paid") || "Fully Paid", value: `${distribution?.fully_paid_percentage || 0}%`, color: "bg-blue-500" },
+                                        { label: t("analytics.financed") || "Financed", value: formatPercent(distribution?.financed_percentage), color: "bg-indigo-500" },
+                                        { label: t("analytics.reserved"), value: formatPercent(distribution?.reserved_percentage), color: "bg-orange-500" },
+                                        { label: t("analytics.available"), value: formatPercent(distribution?.available_percentage), color: "bg-green-500/40" },
+                                        { label: t("analytics.fully_paid") || "Fully Paid", value: formatPercent(distribution?.fully_paid_percentage), color: "bg-blue-500" },
                                     ].map((item, idx) => (
                                         <div key={idx} className="flex items-center justify-between text-sm">
                                             <div className="flex items-center space-x-2">

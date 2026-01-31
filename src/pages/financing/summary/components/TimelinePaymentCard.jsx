@@ -44,14 +44,17 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
                 body: formData
             });
 
-            if (!res.ok) throw new Error('Upload failed');
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Upload failed');
+            }
 
             showToast(t('payments.paymentSuccessful'), "success");
             setIsModalOpen(false);
             onPaymentSuccess?.();
             setSelectedFile(null);
         } catch (err) {
-            showToast(t('payments.paymentError'), "error");
+            showToast(err.message === 'Upload failed' ? t('payments.paymentError') : err.message, "error");
         } finally {
             setIsUploading(false);
         }

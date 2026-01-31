@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, Fragment } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, Fragment } from "react";
 import PropTypes from "prop-types";
 import { useLocale } from "../../contexts/LocaleContext";
 import { API_URL } from "../../../config";
@@ -109,14 +109,33 @@ function GenericList({
     [sortField, sortDirection, onSortChange]
   );
 
-  // Reset to page 1 if filters change (use signature to ensure stable detection)
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filtersSignature]);
+  // Ref to track previous filters to detect changes
+  const prevFiltersSignature = useRef(filtersSignature);
+
+  // Reset to page 1 if filters change (handling it inside the main effect to avoid double fetch)
+  // We remove the separate useEffect for setCurrentPage(1) to avoid the race condition/double render cycle.
 
   // Fetch items whenever dependencies change
   useEffect(() => {
+    // Check if filters changed since last run
+    const filtersChanged = filtersSignature !== prevFiltersSignature.current;
+
+    // If filters changed and we are not on page 1, we must reset to page 1.
+    // We update the ref, set the page, and RETURN early.
+    // The state update will trigger a re-render, bringing us back here with currentPage=1 and filtersChanged=false
+    if (filtersChanged) {
+      prevFiltersSignature.current = filtersSignature;
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+        return;
+      }
+    }
+
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
     const fetchItems = async () => {
+      console.log("GenericList: fetchItems called", { currentPage, filtersSignature, signalAborted: signal.aborted });
       setLoading(true);
       setError(null);
 
@@ -155,6 +174,7 @@ function GenericList({
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
+            signal,
           }
         );
 
@@ -166,33 +186,51 @@ function GenericList({
 
         // Handle different response structures
         const itemsArray = data[entityName] || data.items || data.data || data;
-        setItems(Array.isArray(itemsArray) ? itemsArray : []);
 
-        // Handle pagination metadata
-        if (data.pagination) {
-          const apiPage = parseInt(data.pagination.page || 1, 10);
-          let apiPages = parseInt(data.pagination.pages || data.pagination.total_pages || 0, 10);
-          const apiCount = parseInt(data.pagination.count || data.pagination.total_items || 0, 10);
+        // Only update state if not aborted
+        if (!signal.aborted) {
+          setItems(Array.isArray(itemsArray) ? itemsArray : []);
 
-          // Fallback if pages is missing but count is present
-          if (apiPages === 0 && apiCount > 0) {
-            apiPages = Math.ceil(apiCount / itemsPerPage);
+          // Handle pagination metadata
+          if (data.pagination) {
+            const apiPage = parseInt(data.pagination.page || 1, 10);
+            let apiPages = parseInt(data.pagination.pages || data.pagination.total_pages || 0, 10);
+            const apiCount = parseInt(data.pagination.count || data.pagination.total_items || 0, 10);
+
+            // Fallback if pages is missing but count is present
+            if (apiPages === 0 && apiCount > 0) {
+              apiPages = Math.ceil(apiCount / itemsPerPage);
+            }
+
+            // Only update pagination state if it differs, to avoid loops (though usually safe here)
+            if (currentPage !== apiPage) setCurrentPage(apiPage);
+            setTotalPages(apiPages > 0 ? apiPages : 1);
+          } else {
+            setTotalPages(1);
           }
-
-          setCurrentPage(apiPage);
-          setTotalPages(apiPages > 0 ? apiPages : 1);
-        } else {
-          setTotalPages(1);
         }
       } catch (err) {
+        if (err.name === 'AbortError') {
+          // Request was aborted, do nothing
+          return;
+        }
         console.error(`Error fetching ${entityName}:`, err);
-        setError(err.message);
+        if (!signal.aborted) {
+          setError(err.message);
+        }
       } finally {
-        setLoading(false);
+        if (!signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchItems();
+
+    // Cleanup function to abort fetch on unmount or re-run
+    return () => {
+      abortController.abort();
+    };
   }, [token, filtersSignature, sortParam, currentPage, itemsPerPage, endpoint, entityName, stableCustomParams, refreshTrigger]);
 
   // Handle going to next or previous pages
