@@ -14,10 +14,10 @@ import PersonalInfoForm from "../../../component/forms/PersonalInfoForm";
 
 function PersonalInfo() {
   const { userId } = useParams();
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   const { showToast } = useToast();
   const token = getToken();
-  const { setUser: setAuthUser } = useContext(AuthContext);
+  useContext(AuthContext);
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -8,14 +8,7 @@ function TotalWidget({ statistics }) {
   // Map locale to locale string for number formatting
   const localeString = locale === 'es' ? 'es-HN' : 'en-US';
 
-  // Helper function to format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat(localeString, {
-      style: 'currency',
-      currency: 'HNL',
-      minimumFractionDigits: 2,
-    }).format(amount || 0);
-  };
+
 
   // Helper function to format numbers
   const formatNumber = (number) => {
@@ -48,7 +41,7 @@ function TotalWidget({ statistics }) {
             cardType="onTimePayments"
           />
         </div>
-        
+
         <div className="transform hover:scale-105 transition-all duration-300 ease-in-out hover:shadow-lg">
           <TotalWidgetCard
             title={t('widgets.newCustomers')}
@@ -71,7 +64,7 @@ function TotalWidget({ statistics }) {
           />
         </div>
       </div>
-      
+
       {/* Additional summary cards for payment breakdown */}
       <div className="grid grid-cols-1 gap-[12px] sm:gap-[16px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-5 mt-4 sm:mt-6">
         <div className="bg-white dark:bg-darkblack-600 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-darkblack-500 hover:shadow-md transition-all duration-200">
@@ -87,7 +80,7 @@ function TotalWidget({ statistics }) {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-darkblack-600 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-darkblack-500 hover:shadow-md transition-all duration-200">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
@@ -101,7 +94,7 @@ function TotalWidget({ statistics }) {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-darkblack-600 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-darkblack-500 hover:shadow-md transition-all duration-200">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">

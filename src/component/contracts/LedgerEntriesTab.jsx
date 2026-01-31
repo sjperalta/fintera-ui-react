@@ -74,7 +74,13 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
     );
   }
 
-  let runningBalance = 0;
+  // Compute cumulative balances
+  const cumulativeBalances = ledgerEntries.reduce((acc, entry, idx) => {
+    const amount = Number(entry.amount || 0);
+    const previous = idx === 0 ? 0 : acc[idx - 1];
+    acc.push(previous + amount);
+    return acc;
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -162,7 +168,7 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
             >
               {ledgerEntries.map((entry, idx) => {
                 const amount = Number(entry.amount || 0);
-                runningBalance += amount;
+                const runningBalance = cumulativeBalances[idx];
                 const isCharge = amount < 0; // Debt/Charges are negative, Payments are positive
 
                 return (

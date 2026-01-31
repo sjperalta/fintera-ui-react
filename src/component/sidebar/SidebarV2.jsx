@@ -4,8 +4,7 @@ import logoW from "../../assets/images/logo/logo-short-white.svg";
 
 function SidebarV2({ user, handleLogout }) {
   const { pathname: location } = useLocation();
-  const isAdmin = user.role === "admin";
-  const isSeller = user.role === "seller";
+
   const isUser = user.role === "user";
 
   return (

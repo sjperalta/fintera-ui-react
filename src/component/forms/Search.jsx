@@ -15,6 +15,7 @@ function Search({ onSearch, initialValue }) {
 
   // Synchronize local term state with initialValue prop
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTerm(initialValue || "");
   }, [initialValue]);
 

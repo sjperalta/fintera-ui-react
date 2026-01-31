@@ -187,6 +187,8 @@ function EditLot() {
             name,
             length: Number(length),
             width: Number(width),
+            price: calculatedPrice,
+            area: displayedArea,
             ...(overridePrice && overridePriceValue ? { override_price: Number(overridePriceValue) } : { override_price: null }),
             ...(overrideArea && overrideAreaValue ? { override_area: Number(overrideAreaValue) } : { override_area: null }),
             address: address || "",

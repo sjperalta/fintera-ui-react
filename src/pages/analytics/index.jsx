@@ -40,18 +40,17 @@ const Analytics = () => {
     const { token } = useContext(AuthContext);
     const { showToast } = useToast();
 
-    // Calculate first and last day of the current month
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+    // Calculate first and last day of the current month for initial state
+    const [currentDate, setCurrentDate] = useState(new Date());
 
     // Filter state
     const [filterValue, setFilterValue] = useState("All");
-    const [startDate, setStartDate] = useState(firstDay);
-    const [endDate, setEndDate] = useState(lastDay);
     const [isFiltering, setIsFiltering] = useState(false);
-    const [revenueTimeframe, setRevenueTimeframe] = useState("12M");
-    const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [trendProjectId, setTrendProjectId] = useState("All");
+    const [trendData, setTrendData] = useState(null);
+    const [isFilteringTrend, setIsFilteringTrend] = useState(false);
 
     // Real data state
     const [projects, setProjects] = useState([]);
@@ -92,22 +91,22 @@ const Analytics = () => {
         return [...baseOptions, ...projectList];
     }, [projects, t]);
 
-    // Fetch all analytics data
-    const fetchAnalyticsData = async () => {
+    // Fetch main analytics (Overview totals, Distribution, Performance)
+    const fetchMainAnalytics = async () => {
         if (!token) return;
 
         setIsFiltering(true);
-        setError(null);
-
         try {
             const queryParams = new URLSearchParams();
             if (filterValue !== "All") queryParams.append("project_id", filterValue);
-            if (startDate) queryParams.append("start_date", startDate);
-            if (endDate) queryParams.append("end_date", endDate);
-            if (revenueTimeframe) queryParams.append("timeframe", revenueTimeframe);
-            if (selectedYear) queryParams.append("year", selectedYear);
 
-            // Fetch concurrently
+            // Calculate start and end date based on selected currentDate
+            const startStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
+            const endStr = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0];
+
+            queryParams.append("start_date", startStr);
+            queryParams.append("end_date", endStr);
+
             const [overviewRes, distributionRes, performanceRes] = await Promise.all([
                 fetch(`${API_URL}/api/v1/analytics/overview?${queryParams.toString()}`, {
                     headers: { Authorization: `Bearer ${token}` }
@@ -121,7 +120,7 @@ const Analytics = () => {
             ]);
 
             if (!overviewRes.ok || !distributionRes.ok || !performanceRes.ok) {
-                throw new Error("Failed to fetch some analytics data");
+                throw new Error("Failed to fetch main analytics data");
             }
 
             const [ovData, distData, perfData] = await Promise.all([
@@ -134,8 +133,7 @@ const Analytics = () => {
             setDistribution(distData);
             setPerformance(perfData);
         } catch (err) {
-            console.error("Analytics fetch error:", err);
-            setError(err.message);
+            console.error("Main analytics fetch error:", err);
             showToast(t("analytics.errorFetchingData"), "error");
         } finally {
             setIsFiltering(false);
@@ -143,9 +141,38 @@ const Analytics = () => {
         }
     };
 
+    // Fetch trend data separately (ignoring global date range)
+    const fetchTrendData = async () => {
+        if (!token) return;
+
+        setIsFilteringTrend(true);
+        try {
+            const queryParams = new URLSearchParams();
+            if (trendProjectId !== "All") queryParams.append("project_id", trendProjectId);
+            if (selectedYear) queryParams.append("year", selectedYear);
+
+            const response = await fetch(`${API_URL}/api/v1/analytics/overview?${queryParams.toString()}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!response.ok) throw new Error("Failed to fetch trend data");
+
+            const data = await response.json();
+            setTrendData(data.revenue_trend || []);
+        } catch (err) {
+            console.error("Trend data fetch error:", err);
+        } finally {
+            setIsFilteringTrend(false);
+        }
+    };
+
     useEffect(() => {
-        fetchAnalyticsData();
-    }, [token, filterValue, startDate, endDate, revenueTimeframe, selectedYear]);
+        fetchMainAnalytics();
+    }, [token, filterValue, currentDate]);
+
+    useEffect(() => {
+        fetchTrendData();
+    }, [token, trendProjectId, selectedYear]);
 
     const handleFilterChange = (val) => {
         setFilterValue(val);
@@ -170,8 +197,12 @@ const Analytics = () => {
         try {
             const queryParams = new URLSearchParams();
             if (filterValue !== "All") queryParams.append("project_id", filterValue);
-            if (startDate) queryParams.append("start_date", startDate);
-            if (endDate) queryParams.append("end_date", endDate);
+
+            const startStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
+            const endStr = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0];
+
+            queryParams.append("start_date", startStr);
+            queryParams.append("end_date", endStr);
             queryParams.append("format", format);
 
             const response = await fetch(`${API_URL}/api/v1/analytics/export?${queryParams.toString()}`, {
@@ -197,13 +228,23 @@ const Analytics = () => {
 
     // Prepare chart data based on API response
     const revenueData = useMemo(() => {
-        if (!overviewData?.revenue_trend || overviewData.revenue_trend.length === 0) {
+        if (!trendData || trendData.length === 0) {
             return { labels: [], datasets: [] };
         }
 
-        const labels = overviewData.revenue_trend.map(point => point.label);
-        const realData = overviewData.revenue_trend.map(point => point.real);
-        const projectedData = overviewData.revenue_trend.map(point => point.projected);
+        // Sort data chronologically
+        const monthOrder = {
+            "Jan": 0, "Feb": 1, "Mar": 2, "Apr": 3, "May": 4, "Jun": 5,
+            "Jul": 6, "Aug": 7, "Sep": 8, "Oct": 9, "Nov": 10, "Dec": 11
+        };
+
+        const sortedData = [...trendData].sort((a, b) => {
+            return (monthOrder[a.label] ?? 99) - (monthOrder[b.label] ?? 99);
+        });
+
+        const labels = sortedData.map(point => point.label);
+        const realData = sortedData.map(point => point.real);
+        const projectedData = sortedData.map(point => point.projected);
 
         return {
             labels: labels,
@@ -229,7 +270,7 @@ const Analytics = () => {
                 },
             ],
         };
-    }, [overviewData, t]);
+    }, [trendData, t]);
 
     const distributionData = useMemo(() => {
         if (!distribution) return { labels: [], datasets: [] };
@@ -386,25 +427,67 @@ const Analytics = () => {
                     <div id="analytics-header" className="flex flex-col md:flex-row md:items-end md:justify-end gap-4">
                         <motion.div id="analytics-export-dropdown" variants={itemVariants} className="flex items-end">
                             <ExportDropdown
-                                startDate={startDate}
-                                endDate={endDate}
+                                startDate={new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0]}
+                                endDate={new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0]}
                                 onExportBase={handleExport}
                             />
                         </motion.div>
                     </div>
 
-                    <motion.div id="analytics-filters" variants={itemVariants} className="w-full">
-                        <GenericFilter
-                            showSearch={false}
-                            filterValue={filterValue}
-                            onFilterChange={handleFilterChange}
-                            filterOptions={projectOptions}
-                            startDate={startDate}
-                            onStartDateChange={setStartDate}
-                            endDate={endDate}
-                            onEndDateChange={setEndDate}
-                            filterPlaceholder={t("projects.projectType")}
-                        />
+                    <motion.div id="analytics-filters" variants={itemVariants} className="flex flex-col md:flex-row items-center gap-4 w-full">
+                        <div className="flex-1 w-full">
+                            <GenericFilter
+                                showSearch={false}
+                                filterValue={filterValue}
+                                onFilterChange={handleFilterChange}
+                                filterOptions={projectOptions}
+                                filterPlaceholder={t("projects.projectType")}
+                            />
+                        </div>
+
+                        {/* Month/Year Selection */}
+                        <div className="flex items-center bg-white/40 dark:bg-darkblack-600/40 backdrop-blur-xl rounded-[2rem] p-2 border border-white/50 dark:border-darkblack-400/50 shadow-2xl shadow-blue-500/5 ring-1 ring-black/5 dark:ring-white/5">
+                            <button
+                                onClick={() => {
+                                    const next = new Date(currentDate);
+                                    next.setMonth(next.getMonth() - 1);
+                                    setCurrentDate(next);
+                                }}
+                                className="p-3 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"
+                                title={t("common.previous")}
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            <div className="px-6 flex flex-col items-center min-w-[140px]">
+                                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                    {currentDate.getFullYear()}
+                                </span>
+                                <span className="text-lg font-black text-gray-900 dark:text-white leading-tight">
+                                    {[
+                                        t("months.january"), t("months.february"), t("months.march"), t("months.april"),
+                                        t("months.may"), t("months.june"), t("months.july"), t("months.august"),
+                                        t("months.september"), t("months.october"), t("months.november"), t("months.december")
+                                    ][currentDate.getMonth()]}
+                                </span>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    const next = new Date(currentDate);
+                                    next.setMonth(next.getMonth() + 1);
+                                    setCurrentDate(next);
+                                }}
+                                className="p-3 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"
+                                title={t("common.next")}
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
                     </motion.div>
                 </section>
 
@@ -469,42 +552,75 @@ const Analytics = () => {
                                         <span className="w-2 h-6 bg-blue-600 rounded-full"></span>
                                         <span>{t("analytics.revenueTrend")}</span>
                                     </h3>
-                                    <div className="flex items-center gap-4 bg-slate-900/5 dark:bg-slate-900/40 px-3 py-1.5 rounded-xl backdrop-blur-sm border border-black/5 dark:border-white/5">
-                                        <button
-                                            onClick={() => setSelectedYear(y => y - 1)}
-                                            className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 p-1 rounded-lg transition-all"
-                                            title={t("analytics.previousYear")}
-                                        >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                            </svg>
-                                        </button>
-
-                                        <AnimatePresence mode="wait">
-                                            <motion.span
-                                                key={selectedYear}
-                                                initial={{ opacity: 0, scale: 0.9, y: 5 }}
-                                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                exit={{ opacity: 0, scale: 0.9, y: -5 }}
-                                                transition={{ duration: 0.2 }}
-                                                className="text-sm font-bold text-gray-900 dark:text-white min-w-[3.5rem] text-center"
+                                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                                        <div className="relative group/select">
+                                            <select
+                                                value={trendProjectId}
+                                                onChange={(e) => setTrendProjectId(e.target.value)}
+                                                className="appearance-none bg-slate-900/5 dark:bg-slate-900/40 px-4 py-2 pr-10 rounded-xl backdrop-blur-sm border border-black/5 dark:border-white/5 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer hover:bg-black/10 dark:hover:bg-white/10"
                                             >
-                                                {selectedYear}
-                                            </motion.span>
-                                        </AnimatePresence>
+                                                {projectOptions.map(opt => (
+                                                    <option key={opt.value} value={opt.value} className="bg-white dark:bg-darkblack-600">
+                                                        {opt.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover/select:text-slate-600 dark:group-hover/select:text-slate-200 transition-colors">
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
 
-                                        <button
-                                            onClick={() => setSelectedYear(y => y + 1)}
-                                            className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 p-1 rounded-lg transition-all"
-                                            title={t("analytics.nextYear")}
-                                        >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        </button>
+                                        <div className="flex items-center gap-4 bg-slate-900/5 dark:bg-slate-900/40 px-3 py-2 rounded-xl backdrop-blur-sm border border-black/5 dark:border-white/5">
+                                            <button
+                                                onClick={() => setSelectedYear(y => y - 1)}
+                                                className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 p-1 rounded-lg transition-all"
+                                                title={t("analytics.previousYear")}
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+
+                                            <AnimatePresence mode="wait">
+                                                <motion.span
+                                                    key={selectedYear}
+                                                    initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                    exit={{ opacity: 0, scale: 0.9, y: -5 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    className="text-sm font-bold text-gray-900 dark:text-white min-w-[3.5rem] text-center"
+                                                >
+                                                    {selectedYear}
+                                                </motion.span>
+                                            </AnimatePresence>
+
+                                            <button
+                                                onClick={() => setSelectedYear(y => y + 1)}
+                                                className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 p-1 rounded-lg transition-all"
+                                                title={t("analytics.nextYear")}
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="h-[400px]">
+                                <div className="h-[400px] relative">
+                                    <AnimatePresence>
+                                        {isFilteringTrend && (
+                                            <motion.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                className="absolute inset-0 z-10 bg-white/20 dark:bg-darkblack-600/20 backdrop-blur-[1px] flex items-center justify-center rounded-2xl"
+                                            >
+                                                <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                     <Line data={revenueData} options={chartOptions} />
                                 </div>
                             </motion.div>

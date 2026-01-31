@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from "react";
+import { useState, useEffect, useCallback, useContext, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import debounce from 'lodash.debounce';
@@ -12,8 +12,8 @@ import AuthContext from "../../context/AuthContext";
 function LotFilter({ searchTerm, status, onSearchChange, onStatusChange }) {
   const [activeFilter, setActiveFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
-  const [term, setTerm] = useState(searchTerm);
-  const [selectedStatus, setSelectedStatus] = useState(status);
+  const [term, _setTerm] = useState(searchTerm);
+  const [selectedStatus, _setSelectedStatus] = useState(status);
 
   const { user } = useContext(AuthContext);
 
@@ -34,25 +34,27 @@ function LotFilter({ searchTerm, status, onSearchChange, onStatusChange }) {
   };
 
   const handleTermChange = (e) => {
-    setTerm(e.target.value);
+    _setTerm(e.target.value);
     debouncedSearch(e.target.value);
   };
 
   const handleStatusSelect = (statusOption) => {
-    setSelectedStatus(statusOption.key);
+    _setSelectedStatus(statusOption.key);
     setActiveFilter(statusOption.label);
     onStatusChange(statusOption.key === "all" ? "" : statusOption.key); // Update parent with selected status key
   };
 
   // Create a debounced version of onSearchChange
-  const debouncedSearch = useCallback(
-    debounce((value) => {
-      if (value.length >= 2) {
-        onSearchChange(value);
-      } else {
-        onSearchChange(""); // Reset search if term is less than 2 characters
-      }
-    }, 500), // 500ms delay
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        if (value.length >= 2) {
+          onSearchChange(value);
+        } else {
+          onSearchChange(""); // Reset search if term is less than 2 characters
+        }
+      }, 500), // 500ms delay
     [onSearchChange]
   );
 

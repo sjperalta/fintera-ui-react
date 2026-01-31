@@ -1,5 +1,5 @@
 import BarChart from "../chart/BarChart";
-import DateFilter from "../forms/DateFilter";
+
 import { useContext, useRef, useState, useEffect } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
 import { API_URL } from "../../../config";
@@ -15,7 +15,7 @@ function RevenueFlow({ selectedYear = new Date().getFullYear(), currentMonth }) 
 
   if (ctx == null && !warnedRef.current) {
     // Warn once if ThemeContext is unexpectedly missing
-    // eslint-disable-next-line no-console
+
     console.warn(t('errors.themeContextMissing'));
     warnedRef.current = true;
   }

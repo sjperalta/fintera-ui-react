@@ -1,36 +1,36 @@
 import { motion } from "framer-motion";
 import { useLocale } from "../../contexts/LocaleContext";
 
+const InfoItem = ({ label, value, icon, copyable }) => (
+    <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-bgray-50 dark:hover:bg-white/5 transition-colors group cursor-default">
+        <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center flex-shrink-0 text-indigo-500 dark:text-indigo-400">
+            {icon}
+        </div>
+        <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-bgray-500 dark:text-bgray-400 mb-1">{label}</p>
+            <p className="text-base font-semibold text-bgray-900 dark:text-white truncate flex items-center gap-2">
+                {value || "—"}
+                {copyable && value && (
+                    <button
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded"
+                        onClick={() => {
+                            navigator.clipboard.writeText(value);
+                            // Could add toast here
+                        }}
+                        title="Copy"
+                    >
+                        <svg className="w-3.5 h-3.5 text-bgray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                    </button>
+                )}
+            </p>
+        </div>
+    </div>
+);
+
 function PersonalInfoCard({ user, delay = 0 }) {
     const { t } = useLocale();
-
-    const InfoItem = ({ label, value, icon, copyable }) => (
-        <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-bgray-50 dark:hover:bg-white/5 transition-colors group cursor-default">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center flex-shrink-0 text-indigo-500 dark:text-indigo-400">
-                {icon}
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-bgray-500 dark:text-bgray-400 mb-1">{label}</p>
-                <p className="text-base font-semibold text-bgray-900 dark:text-white truncate flex items-center gap-2">
-                    {value || "—"}
-                    {copyable && value && (
-                        <button
-                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded"
-                            onClick={() => {
-                                navigator.clipboard.writeText(value);
-                                // Could add toast here
-                            }}
-                            title="Copy"
-                        >
-                            <svg className="w-3.5 h-3.5 text-bgray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                        </button>
-                    )}
-                </p>
-            </div>
-        </div>
-    );
 
     return (
         <motion.div
@@ -91,7 +91,7 @@ function PersonalInfoCard({ user, delay = 0 }) {
                     value={user?.address}
                     icon={
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 012.827 0l4.244 4.243a8 8 0 11-11.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     }

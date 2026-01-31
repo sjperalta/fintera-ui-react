@@ -231,6 +231,7 @@ function GenericList({
     return () => {
       abortController.abort();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, filtersSignature, sortParam, currentPage, itemsPerPage, endpoint, entityName, stableCustomParams, refreshTrigger]);
 
   // Handle going to next or previous pages

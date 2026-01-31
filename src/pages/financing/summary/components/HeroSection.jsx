@@ -4,10 +4,7 @@ import { useLocale } from '../../../../contexts/LocaleContext';
 function HeroSection({ balance, currency, userName }) {
     const { t } = useLocale();
 
-    const formatCurrency = (value) => {
-        if (typeof value !== 'number') return '—';
-        return value.toLocaleString('en-US', { style: 'currency', currency: currency || 'USD' });
-    };
+
 
     return (
         <div className="relative w-full overflow-hidden rounded-[2rem] bg-bgray-50 dark:bg-bgray-950 p-6 sm:p-10 transition-all duration-700 border border-bgray-100 dark:border-bgray-900 group">

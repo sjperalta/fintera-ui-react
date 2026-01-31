@@ -16,6 +16,7 @@ function TermsAndCondition() {
       month: 'long',
       day: 'numeric'
     });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentDate(formattedDate);
   }, []);
 

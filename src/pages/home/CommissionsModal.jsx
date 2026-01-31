@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocale } from "../../contexts/LocaleContext";
 import AuthContext from "../../contexts/AuthContext";
@@ -22,14 +22,14 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
         if (isActive) {
             fetchCommissions();
         }
-    }, [isActive, selectedDate]);
+    }, [isActive, selectedDate, fetchCommissions]);
 
-    const fetchCommissions = async () => {
+    const fetchCommissions = useCallback(async () => {
         setLoading(true);
         try {
             // Get first and last day of selected month
             const year = selectedDate.getFullYear();
-            constMB = selectedDate.getMonth() + 1;
+            const constMB = selectedDate.getMonth() + 1;
             const monthStr = constMB < 10 ? `0${constMB}` : constMB;
 
             const startDate = `${year}-${monthStr}-01`;
@@ -59,7 +59,7 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [selectedDate, token]);
 
     const handleDownloadCSV = () => {
         const year = selectedDate.getFullYear();

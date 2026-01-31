@@ -96,14 +96,6 @@ const getStatusTheme = (status) => {
         color: "#3B82F6",
         shadow: "shadow-[0_0_15px_rgba(59,130,246,0.1)]"
       };
-      return {
-        bg: "bg-gray-100 dark:bg-gray-800",
-        text: "text-gray-500 dark:text-gray-400",
-        border: "border-gray-300 dark:border-gray-600",
-        icon: faBan,
-        color: "#9CA3AF",
-        shadow: "shadow-none"
-      };
     default:
       return {
         bg: "bg-gray-50 dark:bg-gray-900/10",

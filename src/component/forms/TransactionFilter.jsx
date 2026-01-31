@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import debounce from 'lodash.debounce';
@@ -8,8 +8,8 @@ import { useLocale } from "../../contexts/LocaleContext";
 function TransactionFilter({ searchTerm, status, onSearchChange, onStatusChange }) {
   const [activeFilter, setActiveFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
-  const [term, setTerm] = useState(searchTerm);
-  const [selectedStatus, setSelectedStatus] = useState(status);
+  const [term, _setTerm] = useState(searchTerm);
+  const [selectedStatus, _setSelectedStatus] = useState(status);
   const { t } = useLocale();
   // Payment status options (value for API). Labels come from formatStatus for consistency.
   const statuses = [
@@ -25,24 +25,26 @@ function TransactionFilter({ searchTerm, status, onSearchChange, onStatusChange 
   };
 
   const handleTermChange = (e) => {
-    setTerm(e.target.value);
+    _setTerm(e.target.value);
     debouncedSearch(e.target.value);
   };
 
   const handleStatusSelect = (statusValue) => {
-    setSelectedStatus(statusValue);
+    _setSelectedStatus(statusValue);
     onStatusChange(statusValue); // Update parent with selected status (empty string means all)
   };
 
   // Create a debounced version of onSearchChange
-  const debouncedSearch = useCallback(
-    debounce((value) => {
-      if (value.length >= 2) {
-        onSearchChange(value);
-      } else {
-        onSearchChange(""); // Reset search if term is less than 2 characters
-      }
-    }, 500), // 500ms delay
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        if (value.length >= 2) {
+          onSearchChange(value);
+        } else {
+          onSearchChange(""); // Reset search if term is less than 2 characters
+        }
+      }, 500), // 500ms delay
     [onSearchChange]
   );
 
@@ -55,7 +57,9 @@ function TransactionFilter({ searchTerm, status, onSearchChange, onStatusChange 
 
   // Initialize visible label from incoming prop `status`
   useEffect(() => {
-    setSelectedStatus(status);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    _setSelectedStatus(status);
+     
     setActiveFilter(status ? formatStatus(status, t) : t('filters.all'));
   }, [status]);
 

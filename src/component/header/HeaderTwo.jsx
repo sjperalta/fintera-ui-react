@@ -20,7 +20,7 @@ function HeaderTwo({ handleSidebar }) {
   const displayRole = user?.role === 'admin' ? t('header.admin') : t('header.user');
   return (
     <div>
-      <header className="mobile-wrapper fixed z-20 block w-full md:hidden">
+      <header className="mobile-wrapper fixed z-50 block w-full md:hidden">
         <div className="flex h-[80px] w-full items-center justify-between bg-white dark:bg-darkblack-600 px-4">
           <div className="flex h-full w-full items-center space-x-3">
             <button

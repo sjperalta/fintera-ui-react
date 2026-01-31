@@ -5,7 +5,7 @@ import { useToast } from "../../../contexts/ToastContext";
 import { API_URL } from "../../../../config";
 import { getToken } from "../../../../auth";
 
-const ExportDropdown = ({ startDate, endDate, projectFilter, onExportBase }) => {
+const ExportDropdown = ({ startDate, endDate, onExportBase }) => {
     const { t } = useLocale();
     const { showToast } = useToast();
     const [isOpen, setIsOpen] = useState(false);
@@ -127,7 +127,7 @@ const ExportDropdown = ({ startDate, endDate, projectFilter, onExportBase }) => 
             document.body.removeChild(link);
             showToast(t("common.downloadSuccess"), "success");
             setIsOpen(false);
-        } catch (err) {
+        } catch {
             showToast(t('reports.downloadError'), "error");
         }
     };

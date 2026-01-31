@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { API_URL } from "../../../../config";
 import AuthContext from "../../../contexts/AuthContext";
@@ -21,7 +21,7 @@ function Summary() {
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     // If we’re missing user info or token, don’t attempt to fetch
     if (!user?.id || !token) {
       setIsLoading(false);
@@ -66,11 +66,11 @@ function Summary() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, token, userId]);
 
   useEffect(() => {
     fetchAllData();
-  }, [userId, user, token]);
+  }, [fetchAllData]);
 
   const scrollToUpcoming = () => {
     const upcoming = document.querySelector('.payment-upcoming');
