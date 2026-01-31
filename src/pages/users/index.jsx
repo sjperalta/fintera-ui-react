@@ -66,6 +66,7 @@ function Users() {
       };
 
       if (location.state.selectedUserName) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSearchTerm(location.state.selectedUserName);
       }
 

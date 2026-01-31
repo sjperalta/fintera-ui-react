@@ -93,7 +93,7 @@ function Payments() {
     setRefreshTrigger(prev => prev + 1);
   }, []);
 
-  const renderPaymentItem = useCallback((payment, index, isMobileCard, handleClick) => {
+  const renderPaymentItem = useCallback((payment, index, isMobileCard) => {
     return (
       <PaymentItem
         paymentInfo={payment}

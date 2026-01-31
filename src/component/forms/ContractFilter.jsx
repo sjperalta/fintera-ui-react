@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import debounce from 'lodash.debounce';
@@ -40,14 +40,16 @@ function ContractFilter({ searchTerm, status, onSearchChange, onStatusChange }) 
   };
 
   // Create a debounced version of onSearchChange
-  const debouncedSearch = useCallback(
-    debounce((value) => {
-      if (value.length >= 2) {
-        onSearchChange(value);
-      } else {
-        onSearchChange(""); // Reset search if term is less than 2 characters
-      }
-    }, 500), // 500ms delay
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        if (value.length >= 2) {
+          onSearchChange(value);
+        } else {
+          onSearchChange(""); // Reset search if term is less than 2 characters
+        }
+      }, 500), // 500ms delay
     [onSearchChange]
   );
 
@@ -60,7 +62,9 @@ function ContractFilter({ searchTerm, status, onSearchChange, onStatusChange }) 
 
   // Initialize visible label from incoming prop `status`
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedStatus(status);
+     
     setActiveFilter(status ? formatStatus(status, t) : t('filters.all'));
   }, [status]);
 

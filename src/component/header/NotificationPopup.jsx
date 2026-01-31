@@ -18,9 +18,8 @@ function NotificationPopup({
         style={{
           filter: `drop-shadow(12px 12px 40px rgba(0, 0, 0, 0.08))`,
         }}
-        className={`absolute right-[0px] top-[81px] w-[400px] transition-all origin-top rounded-lg bg-white dark:bg-darkblack-600 z-20 ${
-          active ? "block introAnimation" : "hidden"
-        }`}
+        className={`absolute right-[0px] top-[81px] w-[400px] transition-all origin-top rounded-lg bg-white dark:bg-darkblack-600 z-50 ${active ? "block introAnimation" : "hidden"
+          }`}
       >
         <div className="relative w-full">
           {/* Header - Fixed at top */}

@@ -1,42 +1,34 @@
 import { useEffect, useState } from "react";
 
 function DateCountDown() {
-  const targetTime = Date.now() + 118600000;
-  const calculateRemainingTime = () => {
-    const currentTime = new Date().getTime();
-    const targetTimeInMilliseconds = new Date(targetTime).getTime();
-    const timeDifference = targetTimeInMilliseconds - currentTime;
-
-    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-    const minutes = Math.floor(
-      (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
-    );
-    const hours = Math.floor(
-      (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-
-    return {
-      days,
-      hours,
-      minutes,
-      seconds,
-    };
-  };
-  const [remainingTime, setRemainingTime] = useState(calculateRemainingTime());
+  const [targetTime] = useState(() => Date.now() + 118600000);
+  const [remainingTime, setRemainingTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
+    const calculateRemainingTime = () => {
+      const currentTime = Date.now();
+      const timeDifference = targetTime - currentTime;
+      const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+      const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+      const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+      return { days, hours, minutes, seconds, total: timeDifference };
+    };
+
     const interval = setInterval(() => {
       const newRemainingTime = calculateRemainingTime();
       setRemainingTime(newRemainingTime);
-
       if (newRemainingTime.total <= 0) {
         clearInterval(interval);
       }
     }, 1000);
 
+    // Set initial remaining time immediately
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRemainingTime(calculateRemainingTime());
+
     return () => clearInterval(interval);
-  }, []);
+  }, [targetTime]);
   return (
     <ul id="countdown-wrapper" className="flex sm:gap-5 gap-2 lg:gap-10">
       <li className="sm:w-28 sm:h-28 w-24 h-24 flex flex-col justify-center items-center border-2 border-success-100 dark:border-white  rounded-lg">

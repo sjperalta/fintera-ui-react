@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import debounce from 'lodash.debounce';
@@ -9,17 +9,17 @@ function UserFilter({ searchTerm, role, onSearchChange, onRoleChange }) {
   const [activeFilter, setActiveFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [term, setTerm] = useState(searchTerm);
-  const [selectedRole, setSelectedRole] = useState(role);
+  const [_selectedRole, setSelectedRole] = useState(role);
   const { user } = useContext(AuthContext);
-  const { t } = useLocale();
+  const { t: _t } = useLocale();
 
   // Filter roles based on current user's role
   const getAvailableRoles = () => {
     const allRoles = [
-      { value: "All", label: t('userFilter.all') },
-      { value: "User", label: t('userFilter.user') },
-      { value: "Seller", label: t('userFilter.seller') },
-      { value: "Admin", label: t('userFilter.admin') }
+      { value: "All", label: _t('userFilter.all') },
+      { value: "User", label: _t('userFilter.user') },
+      { value: "Seller", label: _t('userFilter.seller') },
+      { value: "Admin", label: _t('userFilter.admin') }
     ];
     
     if (user?.role === 'admin') {
@@ -51,8 +51,9 @@ function UserFilter({ searchTerm, role, onSearchChange, onRoleChange }) {
   };
 
   // Create a debounced version of onSearchChange
-  const debouncedSearch = useCallback(
-    debounce((value) => {
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const debouncedSearch = useMemo(
+    () => debounce((value) => {
       if (value.length >= 3) {
         onSearchChange(value);
       } else {
@@ -99,7 +100,7 @@ function UserFilter({ searchTerm, role, onSearchChange, onRoleChange }) {
         <input
           type="text"
           className="border-0 w-full dark:bg-darkblack-600 dark:text-white focus:outline-none focus:ring-0 focus:border-none"
-          placeholder={t('userFilter.searchPlaceholder')}
+          placeholder={_t('userFilter.searchPlaceholder')}
           value={term}
           onChange={handleTermChange}
         />
@@ -138,7 +139,7 @@ function UserFilter({ searchTerm, role, onSearchChange, onRoleChange }) {
           <input
             type="text"
             className="border-0 dark:bg-darkblack-600 focus:outline-none focus:ring-0 focus:border-none"
-            placeholder={t('userFilter.selectType')}
+            placeholder={_t('userFilter.selectType')}
             value={activeFilter ? activeFilter : ""}
             readOnly
           />
@@ -217,7 +218,7 @@ function UserFilter({ searchTerm, role, onSearchChange, onRoleChange }) {
           className="py-3 px-10 bg-success-300 text-white font-bold rounded-lg hover:bg-success-400 transition-all"
           onClick={() => navigate("/users/create")}
         >
-          {t('userFilter.addUser')}
+          {_t('userFilter.addUser')}
         </button>
       </div>
     </div>

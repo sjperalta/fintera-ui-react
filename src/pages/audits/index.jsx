@@ -78,7 +78,7 @@ function Audits() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [searchTerm, filterState.model]);
+  }, [searchTerm, filterState.model, token]);
 
   // Initial fetch and filter changes
   useEffect(() => {

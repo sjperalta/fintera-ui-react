@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from './../../../../config';
 import { getToken } from './../../../../auth';
 import { useLocale } from "../../../contexts/LocaleContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faProjectDiagram,

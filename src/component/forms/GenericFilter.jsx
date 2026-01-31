@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import PropTypes from "prop-types";
 import debounce from "lodash.debounce";
 import { motion, AnimatePresence } from "framer-motion";
@@ -48,14 +48,15 @@ function GenericFilter({
   const { t } = useLocale();
 
   // Debounced callback to notify parent about search changes
-  const debouncedSearch = useCallback(
-    debounce((value) => {
-      if (value.length >= minSearchLength) {
-        onSearchChange(value);
-      } else {
-        onSearchChange("");
-      }
-    }, 500),
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        if (value.length >= minSearchLength) {
+          onSearchChange(value);
+        } else {
+          onSearchChange("");
+        }
+      }, 500),
     [onSearchChange, minSearchLength]
   );
 
@@ -97,12 +98,14 @@ function GenericFilter({
   // If parent modifies props externally, sync them in
   useEffect(() => {
     if (searchTerm !== term) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTerm(searchTerm);
     }
   }, [searchTerm, term]);
 
   useEffect(() => {
     if (filterValue !== selectedFilter) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedFilter(filterValue);
     }
 

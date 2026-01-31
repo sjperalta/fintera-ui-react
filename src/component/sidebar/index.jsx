@@ -1,14 +1,14 @@
 import PropTypes from "prop-types";
-import bg from "../../assets/images/bg/upgrade-bg.png";
+
 import logo from "../../assets/images/logo/logo-color.svg";
 import logoW from "../../assets/images/logo/logo-white.svg";
-import profileImg from "../../assets/images/avatar/profile-xs.png";
+
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useLocale } from "../../contexts/LocaleContext";
 
 function Sidebar({ handleActive, user, handleLogout }) {
-  const [activeDashboard, setActiveDashboard] = useState(false);
+
   const { pathname: location } = useLocation();
   const { t } = useLocale();
 

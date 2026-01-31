@@ -4,7 +4,7 @@ import { useLocale } from "../../contexts/LocaleContext";
 import { useContext } from "react";
 import AuthContext from "../../contexts/AuthContext";
 
-function ProfilePopup({ active, user, handleLogout }) {
+function ProfilePopup({ active, user, handleLogout, handlePopup }) {
   const { t } = useLocale();
   const { user: authUser } = useContext(AuthContext);
 

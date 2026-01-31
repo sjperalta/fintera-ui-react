@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import debounce from "lodash.debounce";
 
@@ -44,8 +44,8 @@ function SearchFilterBar({
   const [activeFilterLabel, setActiveFilterLabel] = useState("");
 
   // Create debounced search callback
-  const debouncedSearch = useCallback(
-    debounce((value) => {
+  const debouncedSearch = useMemo(
+    () => debounce((value) => {
       if (value.length >= minSearchLength) {
         onSearchChange(value);
       } else {

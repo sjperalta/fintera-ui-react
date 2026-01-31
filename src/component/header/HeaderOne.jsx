@@ -102,7 +102,7 @@ function HeaderOne({ handleSidebar }) {
   };
 
   return (
-    <header className="header-wrapper fixed z-40 hidden w-full md:block">
+    <header className="header-wrapper fixed z-50 hidden w-full md:block">
       <div className="relative flex h-[108px] w-full items-center justify-between bg-white px-10 dark:bg-darkblack-600 2xl:px-[76px]">
         {/* Sidebar Toggle Button */}
         <button

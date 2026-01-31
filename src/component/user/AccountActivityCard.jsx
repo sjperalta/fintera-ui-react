@@ -1,6 +1,22 @@
 import { motion } from "framer-motion";
 import { useLocale } from "../../contexts/LocaleContext";
 
+const ActivityItem = ({ label, value, color, icon }) => (
+    <div className="flex items-center justify-between p-4 bg-bgray-50 dark:bg-white/5 rounded-xl border border-transparent hover:border-indigo-100 dark:hover:border-white/10 transition-colors">
+        <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color}`}>
+                {icon}
+            </div>
+            <span className="text-sm font-medium text-bgray-600 dark:text-bgray-300">
+                {label}
+            </span>
+        </div>
+        <span className="text-sm font-bold text-bgray-900 dark:text-white">
+            {value}
+        </span>
+    </div>
+);
+
 function AccountActivityCard({ user, delay = 0.1 }) {
     const { t } = useLocale();
 
@@ -15,22 +31,6 @@ function AccountActivityCard({ user, delay = 0.1 }) {
             minute: "2-digit",
         });
     };
-
-    const ActivityItem = ({ label, value, color, icon }) => (
-        <div className="flex items-center justify-between p-4 bg-bgray-50 dark:bg-white/5 rounded-xl border border-transparent hover:border-indigo-100 dark:hover:border-white/10 transition-colors">
-            <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color}`}>
-                    {icon}
-                </div>
-                <span className="text-sm font-medium text-bgray-600 dark:text-bgray-300">
-                    {label}
-                </span>
-            </div>
-            <span className="text-sm font-bold text-bgray-900 dark:text-white">
-                {value}
-            </span>
-        </div>
-    );
 
     return (
         <motion.div

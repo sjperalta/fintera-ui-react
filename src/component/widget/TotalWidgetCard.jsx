@@ -10,7 +10,7 @@ const createGradient = (ctx) => {
   return gradient;
 };
 
-function TotalWidgetCard({ title, amount, growth, memberImg, totalEarnImg, currency, type, cardType }) {
+function TotalWidgetCard({ title, amount, growth, currency, type, cardType }) {
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -206,7 +206,7 @@ function TotalWidgetCard({ title, amount, growth, memberImg, totalEarnImg, curre
     <div className={`relative rounded-xl bg-white dark:bg-darkblack-600 p-6 shadow-lg ${cardStyles.shadow} border ${cardStyles.borderColor} overflow-hidden transition-all duration-300 hover:shadow-xl`}>
       {/* Background decoration */}
       <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${cardStyles.gradient} opacity-5 rounded-full -mr-16 -mt-16`}></div>
-      
+
       <div className="relative z-10">
         <div className="mb-6 flex items-center space-x-3">
           <div className={`${cardStyles.iconBg} p-3 rounded-lg`}>
@@ -279,8 +279,7 @@ TotalWidgetCard.propTypes = {
   title: PropTypes.string,
   amount: PropTypes.string,
   growth: PropTypes.number,
-  memberImg: PropTypes.string,
-  totalEarnImg: PropTypes.string,
+
 };
 
 export default TotalWidgetCard;

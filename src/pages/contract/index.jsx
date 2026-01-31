@@ -2,11 +2,8 @@ import { useState, useContext, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSearch,
-  faFilter,
   faThLarge,
   faList,
-  faPlus,
   faSync
 } from "@fortawesome/free-solid-svg-icons";
 

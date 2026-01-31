@@ -61,7 +61,7 @@ const renderValue = (v) => {
 };
 
 function AuditTimelineItem({ audit, isLast }) {
-    const { t } = useLocale();
+    const { t, locale } = useLocale();
     const [expanded, setExpanded] = useState(false);
 
     const {
@@ -82,7 +82,8 @@ function AuditTimelineItem({ audit, isLast }) {
     const date = new Date(dateStrUtc);
 
     // Format time using the application's locale
-    const timeString = date.toLocaleTimeString(t('common.locale_code') || (useLocale().locale === 'es' ? 'es-ES' : 'en-US'), {
+    const localeCode = t('common.locale_code') || (locale === 'es' ? 'es-ES' : 'en-US');
+    const timeString = date.toLocaleTimeString(localeCode, {
         hour: '2-digit',
         minute: '2-digit',
         hour12: true

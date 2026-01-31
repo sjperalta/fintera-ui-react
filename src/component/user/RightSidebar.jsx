@@ -34,9 +34,8 @@ function RightSidebar({ user, onClose }) {
     gray: "text-bgray-600 dark:text-bgray-400",
   }[creditInfo.color] || "text-bgray-700";
 
-  if (!user) return null;
-
   useEffect(() => {
+    if (!user) return;
     const userId = user?.id;
     if (!userId || user?.role === "admin" || user?.role === "seller") return;
 
@@ -60,7 +59,9 @@ function RightSidebar({ user, onClose }) {
     };
 
     fetchSummary();
-  }, [user?.id, user?.role, token]);
+  }, [user, user?.id, user?.role, token]);
+
+  if (!user) return null;
 
   const downloadUserBalancePDF = async () => {
     if (!user?.id) return;

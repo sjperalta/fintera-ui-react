@@ -40,10 +40,10 @@ const formatDate = (dateStr) => {
  */
 function AuditInfo({
   audit,
-  index,
+  _index,
   isMobileCard = false,
   onClick,
-  userRole,
+  _userRole,
 }) {
   const { t } = useLocale();
   const [expanded, setExpanded] = useState(false);
@@ -71,7 +71,7 @@ function AuditInfo({
     if (typeof v === "number" || typeof v === "boolean") return String(v);
     try {
       return JSON.stringify(v, null, 2);
-    } catch (e) {
+    } catch (_e) {
       return String(v);
     }
   };
@@ -268,10 +268,10 @@ function AuditInfo({
 
 AuditInfo.propTypes = {
   audit: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
+  _index: PropTypes.number.isRequired,
   isMobileCard: PropTypes.bool,
   onClick: PropTypes.func.isRequired,
-  userRole: PropTypes.string,
+  _userRole: PropTypes.string,
 };
 
 export default AuditInfo;

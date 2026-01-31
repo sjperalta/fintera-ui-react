@@ -37,7 +37,7 @@ const SellerDashboard = ({ user }) => {
     const [showCommissionsModal, setShowCommissionsModal] = useState(false);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [dashboardData, setDashboardData] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+
 
     const changeMonth = (offset) => {
         const newDate = new Date(currentDate);
@@ -47,7 +47,7 @@ const SellerDashboard = ({ user }) => {
 
     useEffect(() => {
         const fetchDashboardData = async () => {
-            setIsLoading(true);
+
             try {
                 const month = currentDate.getMonth() + 1;
                 const year = currentDate.getFullYear();
@@ -63,8 +63,6 @@ const SellerDashboard = ({ user }) => {
                 }
             } catch (error) {
                 console.error("Failed to fetch dashboard stats", error);
-            } finally {
-                setIsLoading(false);
             }
         };
 
