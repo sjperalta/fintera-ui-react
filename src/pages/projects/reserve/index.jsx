@@ -401,6 +401,19 @@ function Reserve() {
     v === null || v === undefined || v === ""
       ? "—"
       : Number(v).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  const formatDate = (v) => {
+    if (!v || v === "TBD") return "TBD";
+    try {
+      return new Date(v).toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } catch (e) {
+      return v;
+    }
+  };
+
   const fmtPerc = (v) =>
     v === null || v === undefined
       ? "—"
@@ -536,7 +549,7 @@ function Reserve() {
                 },
                 {
                   label: t("reservations.deliveryDate"),
-                  value: projectDeliveryDate || "TBD",
+                  value: formatDate(projectDeliveryDate),
                   icon: "📅"
                 },
                 {
