@@ -24,8 +24,11 @@ function PersonalInfo() {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Determine if credit score should be visible: Only for non-"user" roles (admin/seller)
-  const showCreditScore = currentUser?.role !== "user";
+  // Determine if credit score should be visible: Only show if an admin is viewing a different regular user profile
+  const showCreditScore =
+    currentUser?.role === "admin" &&
+    user?.role === "user" &&
+    currentUser?.id !== user?.id;
 
   // Fetch User Data
   const fetchUser = async () => {

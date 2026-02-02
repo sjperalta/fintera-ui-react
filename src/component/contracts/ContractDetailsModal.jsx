@@ -776,8 +776,8 @@ const ContractDetailsModal = ({
                         </div>
                       </div>
 
-                      {/* Credit Score Visualization */}
-                      {contract.applicant_credit_score !== undefined && (
+                      {/* Credit Score Visualization - Only visible for Admin */}
+                      {isAdmin && contract.applicant_credit_score !== undefined && (
                         <div className="bg-white dark:bg-darkblack-500 rounded-3xl border border-gray-100 dark:border-darkblack-400 shadow-sm p-8 flex flex-col items-center justify-center text-center">
                           <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-6">{t("contractDetailsModal.creditScore")}</p>
 
