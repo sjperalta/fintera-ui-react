@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "./../../../../config";
 import { getToken } from "./../../../../auth";
@@ -35,7 +35,7 @@ function CreateUser() {
   const { user: creator } = useContext(AuthContext);
   const { t } = useLocale();
 
-  function evaluatePasswordStrength(pw) {
+  const evaluatePasswordStrength = useCallback((pw) => {
     const criteria = {
       length: pw.length >= 8,
       upper: /[A-Z]/.test(pw),
@@ -51,7 +51,7 @@ function CreateUser() {
     else label = t('users.strong');
 
     return { label, score, criteria };
-  }
+  }, [t]);
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -74,7 +74,7 @@ function CreateUser() {
     const info = evaluatePasswordStrength(formData.password);
     setPwFeedback(info);
     setPwMatch(formData.password === formData.password_confirmation);
-  }, [formData.password, formData.password_confirmation]);
+  }, [formData.password, formData.password_confirmation, evaluatePasswordStrength]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

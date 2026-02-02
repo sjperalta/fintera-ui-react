@@ -3,7 +3,6 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
 import { format, isBefore, parseISO, startOfDay } from "date-fns";
 import { formatStatus } from "../../utils/formatStatus";
 import { API_URL } from "../../../config";
@@ -11,9 +10,8 @@ import AuthContext from "../../context/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
 
-function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
+function PaymentData({ paymentData, onPaymentSuccess }) {
   const { id, contract, description, amount, due_date, status: initialStatus, interest_amount, paid_amount } = paymentData;
-  const navigate = useNavigate();
   const { token } = useContext(AuthContext);
   const { t } = useLocale();
   const { showToast } = useToast();
@@ -245,8 +243,8 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
       {paymentModal && createPortal(
         <div
           className={`fixed inset-0 flex items-center justify-center z-50 overflow-y-auto transition-all duration-300 ease-out ${isModalVisible
-              ? 'bg-black/50 backdrop-blur-sm'
-              : 'bg-black/0 backdrop-blur-none'
+            ? 'bg-black/50 backdrop-blur-sm'
+            : 'bg-black/0 backdrop-blur-none'
             }`}
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -257,8 +255,8 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
           <div
             ref={modalRef}
             className={`bg-white dark:bg-darkblack-600 rounded-lg p-6 w-full max-w-md mx-4 transition-all duration-300 ease-out transform ${isModalVisible
-                ? 'opacity-100 scale-100 translate-y-0'
-                : 'opacity-0 scale-95 translate-y-4'
+              ? 'opacity-100 scale-100 translate-y-0'
+              : 'opacity-0 scale-95 translate-y-4'
               }`}
             role="dialog"
             aria-modal="true"
@@ -345,7 +343,7 @@ function PaymentData({ paymentData, user, index, onPaymentSuccess }) {
                       throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
                     }
 
-                    const data = await response.json();
+                    await response.json();
 
                     showToast(t('payments.paymentSuccessful'), "success");
 
@@ -405,10 +403,6 @@ PaymentData.propTypes = {
     status: PropTypes.string.isRequired,
     interest_amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }).isRequired,
-  user: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-  }).isRequired,
-  index: PropTypes.number.isRequired,
   onPaymentSuccess: PropTypes.func,
 };
 

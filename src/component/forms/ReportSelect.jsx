@@ -3,7 +3,6 @@ import { getToken } from "../../../auth";
 import { useToast } from "../../contexts/ToastContext";
 import PropTypes from "prop-types";
 import { useState } from "react";
-import { createPortal } from "react-dom";
 
 import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

@@ -54,7 +54,7 @@ const Editor = forwardRef(
         ref.current = null;
         container.innerHTML = "";
       };
-    }, [ref]);
+    }, [ref, toolbarOptions]);
 
     return <div className={wrapperClass} ref={containerRef}></div>;
   }

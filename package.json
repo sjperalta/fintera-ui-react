@@ -58,6 +58,7 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9.39.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",

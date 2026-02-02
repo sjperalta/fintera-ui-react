@@ -55,7 +55,7 @@ const renderValue = (v) => {
     if (typeof v === "number" || typeof v === "boolean") return String(v);
     try {
         return <pre className="text-xs whitespace-pre-wrap font-mono bg-gray-50 dark:bg-black/20 p-1 rounded">{JSON.stringify(v, null, 2)}</pre>;
-    } catch (e) {
+    } catch {
         return String(v);
     }
 };

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import ProtoTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useLocale } from "../../contexts/LocaleContext";
@@ -90,7 +90,7 @@ export const ResetPass = ({ email, setEmail, error, loading, onSubmit, onClose }
   );
 };
 
-export const CodeVerify = ({ 
+export const CodeVerify = ({
   email,
   digits,
   setDigits,
@@ -109,7 +109,7 @@ export const CodeVerify = ({
       const newDigits = [...digits];
       newDigits[index] = value;
       setDigits(newDigits);
-      
+
       if (index < 4) {
         inputs.current[index + 1].focus();
       }
@@ -181,7 +181,7 @@ export const CodeVerify = ({
   );
 };
 
-export const NewPass = ({ 
+export const NewPass = ({
   password,
   setPassword,
   confirm,
@@ -309,7 +309,7 @@ function PasswordResetModal({ isActive, handleActive }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       const response = await fetch(`${API_URL}/api/v1/users/send_recovery_code`, {
         method: 'POST',
@@ -334,7 +334,7 @@ function PasswordResetModal({ isActive, handleActive }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       const code = digits.join('');
       const response = await fetch(`${API_URL}/api/v1/users/verify_recovery_code`, {
@@ -359,14 +359,14 @@ function PasswordResetModal({ isActive, handleActive }) {
   const handleResendCode = async () => {
     setResending(true);
     setError('');
-    
+
     try {
       await fetch(`${API_URL}/api/v1/users/send_recovery_code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-    } catch (err) {
+    } catch {
       setError('Failed to resend code');
     } finally {
       setResending(false);
@@ -377,7 +377,7 @@ function PasswordResetModal({ isActive, handleActive }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       if (password !== confirm) {
         throw new Error(t('auth.passwordsDoNotMatch'));

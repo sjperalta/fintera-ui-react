@@ -12,7 +12,7 @@ import { useToast } from "../../contexts/ToastContext";
 /**
  * Version 2.0 PaymentItem - Highly refined with Liquid Animations and Glassmorphism
  */
-function PaymentItem({ paymentInfo, index, userRole, refreshPayments, onClick, isMobileCard = false }) {
+function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobileCard = false }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const token = getToken();
@@ -707,7 +707,6 @@ export function PaymentDetailModal({ payment, onClose }) {
 
 PaymentItem.propTypes = {
   paymentInfo: PropTypes.object.isRequired,
-  index: PropTypes.number,
   userRole: PropTypes.string,
   refreshPayments: PropTypes.func,
   onClick: PropTypes.func,

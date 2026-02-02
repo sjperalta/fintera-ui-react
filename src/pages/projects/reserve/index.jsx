@@ -51,15 +51,11 @@ function Reserve() {
   const [lotMeasurementUnit, setLotMeasurementUnit] = useState("m2");
   const [lotAddress, setLotAddress] = useState("");
 
-  const [projectMeasurementUnit, setProjectMeasurementUnit] = useState("m2");
   const [projectName, setProjectName] = useState("");
-  const [projectPricePerUnit, setProjectPricePerUnit] = useState(null);
   const [projectInterestRate, setProjectInterestRate] = useState(null);
-  const [projectCommissionRate, setProjectCommissionRate] = useState(null);
   const [projectType, setProjectType] = useState("");
   const [projectAddress, setProjectAddress] = useState("");
   const [projectDeliveryDate, setProjectDeliveryDate] = useState(null);
-  const [projectAvailableLots, setProjectAvailableLots] = useState(null);
   const [headerLoading, setHeaderLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -121,14 +117,10 @@ function Reserve() {
         );
 
         setProjectName(projData.name || "");
-        setProjectMeasurementUnit(projData.measurement_unit || "m2");
-        setProjectPricePerUnit(projData.price_per_square_unit);
         setProjectInterestRate(projData.interest_rate);
-        setProjectCommissionRate(projData.commission_rate);
         setProjectType(projData.project_type || "");
         setProjectAddress(projData.address || "");
         setProjectDeliveryDate(projData.delivery_date);
-        setProjectAvailableLots(projData.available_lots);
       } catch (e) {
         // silently keep old minimal header if failure
         console.error(e);
@@ -140,7 +132,7 @@ function Reserve() {
     return () => {
       cancelled = true;
     };
-  }, [id, lot_id, token]);
+  }, [id, lot_id, token, t]);
 
   // Update defaults & visibility when financing type changes
   useEffect(() => {
@@ -160,12 +152,12 @@ function Reserve() {
   }, [financingType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Debounce the search function to limit API calls
-  const debouncedSearch = useCallback(
-    debounce((query) => {
+  const debouncedSearch = useMemo(
+    () => debounce((query) => {
       setCurrentPage(1); // Reset to first page on new search
       handleUserSearch(query, 1);
     }, 500),
-    [] // stable
+    [handleUserSearch] // include handleUserSearch as dependency
   );
 
   const handleQueryChange = (query) => {
@@ -179,7 +171,7 @@ function Reserve() {
     }
   };
 
-  const handleUserSearch = async (query, page = 1) => {
+  const handleUserSearch = useCallback(async (query, page = 1) => {
     if (query.length > 2) {
       setIsLoading(true);
       try {
@@ -228,7 +220,7 @@ function Reserve() {
       setTotalPages(1);
       setCurrentPage(1);
     }
-  };
+  }, [token]);
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
@@ -365,7 +357,6 @@ function Reserve() {
     numericDownPayment,
     financedAmount,
     monthlyPayment,
-    totalInitial,
   } = useMemo(() => {
     const lot = typeof lotPrice === "number" ? lotPrice : parseFloat(lotPrice);
     const reserveNum = parseFloat(reserveAmount) || 0;
@@ -383,7 +374,6 @@ function Reserve() {
       numericDownPayment: downNum,
       financedAmount: financed,
       monthlyPayment: monthly,
-      totalInitial: initial,
     };
   }, [lotPrice, reserveAmount, downPayment, paymentTerm]);
 
@@ -410,7 +400,7 @@ function Reserve() {
         month: "long",
         year: "numeric",
       });
-    } catch (e) {
+    } catch {
       return v;
     }
   };

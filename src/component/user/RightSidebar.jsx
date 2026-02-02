@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { API_URL } from "../../../config";
 import AuthContext from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";

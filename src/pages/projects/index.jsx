@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../../config";
 import AuthContext from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
-import { useRef } from "react";
+
 
 import Project from "../../component/project";
 import GenericFilter from "../../component/forms/GenericFilter";
@@ -12,7 +12,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faFileUpload,
-  faProjectDiagram,
   faSearch,
   faFilter
 } from "@fortawesome/free-solid-svg-icons";
@@ -29,9 +28,9 @@ function Projects() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortParam, setSortParam] = useState("");
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
+  const [perPage] = useState(20);
   const fileInputRef = useRef(null);
-  const [importing, setImporting] = useState(false);
+  // const [importing, setImporting] = useState(false);
 
   const [updateExisting, setUpdateExisting] = useState(false);
   const [skipDuplicates, setSkipDuplicates] = useState(true);
@@ -39,11 +38,7 @@ function Projects() {
   const navigate = useNavigate();
   const isAdmin = user?.role === 'admin';
 
-  useEffect(() => {
-    fetchProjects();
-  }, [searchTerm, sortParam, page, perPage, token]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -71,7 +66,11 @@ function Projects() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, sortParam, page, perPage, token]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const handleSearchChange = (term) => {
     setSearchTerm(term);
@@ -89,7 +88,7 @@ function Projects() {
   const handleImportChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImporting(true);
+    // setImporting(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -113,7 +112,7 @@ function Projects() {
       console.error(err);
       showToast(`${t('projectsPage.importErrorPrefix')} ${err.message}`, "error");
     } finally {
-      setImporting(false);
+      // setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };

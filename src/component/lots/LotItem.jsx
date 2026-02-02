@@ -12,10 +12,9 @@ import { motion } from "framer-motion";
  * 
  * @param {Object} lot - The lot object with all lot data
  * @param {string} userRole - Current user's role (admin, seller, etc.)
- * @param {boolean} isMobileCard - If true, renders full card; if false, returns only <td> elements
  * @param {boolean} isHighlighted - If true, applies highlighting styles (from contract navigation)
  */
-function LotItem({ lot, userRole, index = 0, isMobileCard = false, isHighlighted = false }) {
+function LotItem({ lot, userRole, index = 0, isHighlighted = false }) {
   const { t } = useLocale();
   const {
     id,
@@ -23,7 +22,6 @@ function LotItem({ lot, userRole, index = 0, isMobileCard = false, isHighlighted
     project_name,
     name,
     address,
-    registration_number,
     // dimensions, // dimensions string might be missing or unreliable in new data
     length,
     width,
@@ -33,13 +31,9 @@ function LotItem({ lot, userRole, index = 0, isMobileCard = false, isHighlighted
     price,
     override_price,
     effective_price, // Now available directly from API
-    balance,
     reserved_by,
-    reserved_by_user_id,
     contract_created_by,
-    contract_created_user_id,
     status,
-    contract_id,
   } = lot;
 
   const statusLabel = getStatusLabel(status);
@@ -51,7 +45,6 @@ function LotItem({ lot, userRole, index = 0, isMobileCard = false, isHighlighted
 
   // Check if price has been overridden (support both lower and higher prices)
   const hasPriceOverride = price > 0 && Math.abs(finalPrice - price) > 0.01;
-  const savings = (price && finalPrice < price) ? Number(price - finalPrice) : 0;
 
   // Check if area has been overridden or doesn't match dimensions
   const calculatedArea = (length && width) ? Number((length * width).toFixed(2)) : 0;

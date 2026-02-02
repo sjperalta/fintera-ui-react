@@ -5,7 +5,7 @@ import PaymentData from "./PaymentData";
 import { API_URL } from '../../../config'; // Ensure the base URL is correctly set
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './PaymentList.css'; // Import the CSS for transitions
-import WhiteBtn from "../button/WhiteBtn";
+
 import { useLocale } from "../../contexts/LocaleContext";
 
 function PaymentList({ user, token }) {
@@ -151,9 +151,9 @@ function PaymentList({ user, token }) {
   return (
     <div className="space-y-4">
       <TransitionGroup>
-        {displayedPayments.map((payment, index) => (
+        {displayedPayments.map((payment, _index) => (
           <CSSTransition key={payment.id} timeout={300} classNames="fade">
-            <PaymentData paymentData={payment} user={user} index={index} onPaymentSuccess={refreshPayments} />
+            <PaymentData paymentData={payment} onPaymentSuccess={refreshPayments} />
           </CSSTransition>
         ))}
       </TransitionGroup>

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faExclamationTriangle, faBan } from "@fortawesome/free-solid-svg-icons";
+import { faExclamationTriangle, faBan } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "../../contexts/ToastContext";
 import { useLocale } from "../../contexts/LocaleContext";
 

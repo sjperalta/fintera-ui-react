@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useContext } from "react";
+import { useEffect, useMemo, useState, useContext, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import { API_URL } from "../../../config";
@@ -18,24 +18,18 @@ import {
   faExclamationTriangle,
   faCalculator,
   faChartLine,
-  faCheckCircle,
-  faPiggyBank,
   faUser,
   faProjectDiagram,
   faMapMarkerAlt,
   faCalendarAlt,
-  faPercent,
   faBolt,
   faClock,
   faPhone,
   faIdCard
 } from "@fortawesome/free-solid-svg-icons";
-import ProjectLotCards from "./ProjectLotCards";
 import CreditScoreCard from "./CreditScoreCard";
-import ContractInfoCard from "./ContractInfoCard";
 import PaymentScheduleTab from "./PaymentScheduleTab";
 import LedgerEntriesTab from "./LedgerEntriesTab";
-import ContractSummaryCards from "./ContractSummaryCards";
 import ContractNotesTab from "./ContractNotesTab";
 
 function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
@@ -58,8 +52,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   const { t } = useLocale();
   const { user: currentUser } = useContext(AuthContext);
 
-  // Fetch fresh contract details with payment schedule and ledger entries
-  const fetchContractDetails = async (contractId) => {
+  const fetchContractDetails = useCallback(async (contractId) => {
     if (!contractId) return null;
 
     setLoading(true);
@@ -87,10 +80,9 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [contract.project_id, contract.lot_id, token, showToast, t]);
 
-  // Load payment schedule and ledger entries from fresh contract data
-  const loadContractData = async () => {
+  const loadContractData = useCallback(async () => {
     if (!contract?.id) {
       setSchedule([]);
       setLedgerEntries([]);
@@ -115,7 +107,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
       setSchedule([]);
       setLedgerEntries([]);
     }
-  };
+  }, [contract?.id, fetchContractDetails]);
 
   // Handle payment response and update contract balance
   const handlePaymentResponse = (paymentResponse) => {
@@ -138,11 +130,11 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   };
 
   useEffect(() => {
-    if (!open || !contract) {
+    if (!open || !contract?.id) {
       return;
     }
     loadContractData();
-  }, [open, contract?.id]);
+  }, [open, contract?.id, loadContractData]);
 
   // Clear state when modal is closed
   useEffect(() => {
@@ -1044,7 +1036,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
 
                         showToast(t('contracts.moratoryUpdated'), "success");
                         setEditingMora(null);
-                      } catch (error) {
+                      } catch {
                         showToast(t('contracts.errorUpdatingMoratory'), "error");
                       } finally {
                         setActionLoading(false);

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useOnboarding } from "../../contexts/OnboardingContext";
 import { useLocation } from "react-router-dom";
 

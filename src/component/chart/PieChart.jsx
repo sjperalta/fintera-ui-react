@@ -21,11 +21,10 @@ function PieChart({ data, customDataLabels, options }) {
 
   const customDatalabels = customDataLabels || {
     id: "customDatalabels",
-    afterDatasetsDraw(chart, args, pluginOptions) {
+    afterDatasetsDraw(chart) {
       const {
         ctx,
         data,
-        chartArea: { top, bottom, left, right, width, height },
       } = chart;
       ctx.save();
       data.datasets[0].data.forEach((datapoint, index) => {

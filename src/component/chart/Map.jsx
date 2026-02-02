@@ -3,32 +3,34 @@ import "jsvectormap/dist/maps/world.js";
 import { useEffect } from "react";
 
 function Map() {
-  var markers = [
-    {
-      name: "Palestine",
-      coords: [31.5, 34.8],
-    },
-    {
-      name: "Russia",
-      coords: [61, 105],
-    },
-    {
-      name: "Greenland",
-      coords: [72, -42],
-    },
-    {
-      name: "Canada",
-      coords: [56, -106],
-    },
-    {
-      name: "Australia",
-      coords: [-25, 140],
-    },
-  ];
+
 
   useEffect(() => {
     let map = undefined;
     if (map === undefined) {
+      const markers = [
+        {
+          name: "Palestine",
+          coords: [31.5, 34.8],
+        },
+        {
+          name: "Russia",
+          coords: [61, 105],
+        },
+        {
+          name: "Greenland",
+          coords: [72, -42],
+        },
+        {
+          name: "Canada",
+          coords: [56, -106],
+        },
+        {
+          name: "Australia",
+          coords: [-25, 140],
+        },
+      ];
+
       map = new jsVectorMap({
         map: "world",
         selector: "#world-map",

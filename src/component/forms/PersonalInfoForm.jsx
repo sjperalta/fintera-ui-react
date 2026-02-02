@@ -159,7 +159,7 @@ function PersonalInfoForm({ userId }) {
             localStorage.setItem("user", JSON.stringify(merged));
             if (typeof setAuthUser === "function") setAuthUser(merged);
           }
-        } catch (e) {
+        } catch {
           // ignore localStorage issues
         }
 

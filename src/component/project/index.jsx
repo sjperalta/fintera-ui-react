@@ -1,4 +1,3 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { API_URL } from "../../../config";
@@ -9,17 +8,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHome,
   faMapMarkerAlt,
-  faChartPie,
-  faTag,
   faEdit,
   faTrashAlt,
   faArrowRight
 } from "@fortawesome/free-solid-svg-icons";
-
-const truncateText = (text, maxLength) => {
-  if (typeof text !== "string") return "";
-  return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
-};
 
 function Project({ project, user, onDeleted }) {
   const { t } = useLocale();
@@ -35,7 +27,6 @@ function Project({ project, user, onDeleted }) {
     price_per_square_unit,
     measurement_unit,
     address,
-    description,
     delivery_date
   } = project;
 

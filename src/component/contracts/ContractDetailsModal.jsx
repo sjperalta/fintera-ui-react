@@ -9,10 +9,8 @@ import {
   faUser,
   faCreditCard,
   faCalendarAlt,
-  faTachometerAlt,
   faInfoCircle,
   faExclamationTriangle,
-  faHistory,
   faTimes,
   faEdit,
   faSave,
@@ -155,10 +153,10 @@ const ContractDetailsModal = ({
       setDownPayment(contract.down_payment ?? "");
     }
   }, [
-    contract?.id,
-    contract?.payment_term,
-    contract?.reserve_amount,
-    contract?.down_payment,
+    contract,
+    paymentTerm,
+    reserveAmount,
+    downPayment
   ]);
 
   // Fetch full contract details (including payment schedule)
@@ -281,14 +279,6 @@ const ContractDetailsModal = ({
     } finally {
       setIsSaving(false);
     }
-  };
-
-  // Handle cancel edit
-  const handleCancelEdit = () => {
-    setPaymentTerm(contract.payment_term ?? "");
-    setReserveAmount(contract.reserve_amount ?? "");
-    setDownPayment(contract.down_payment ?? "");
-    setIsEditMode(false);
   };
 
   const handleDownloadCustomerRecord = async () => {

@@ -71,7 +71,7 @@ function AuditInfo({
     if (typeof v === "number" || typeof v === "boolean") return String(v);
     try {
       return JSON.stringify(v, null, 2);
-    } catch (_e) {
+    } catch {
       return String(v);
     }
   };

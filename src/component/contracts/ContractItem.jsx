@@ -1,26 +1,22 @@
 import PropTypes from "prop-types";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faHome,
-  faUser,
-  faCreditCard,
-  faCalendarAlt,
+  faMapMarkerAlt,
   faCheckCircle,
   faTimesCircle,
-  faBan,
-  faLock,
-  faEllipsisV,
-  faMapMarkerAlt,
-  faIdCard,
-  faClipboardList,
-  faInfoCircle,
   faClock,
+  faClipboardList,
+  faLock,
+  faInfoCircle,
+  faReceipt,
   faEye,
-  faFileSignature,
-  faReceipt
+  faCreditCard,
+  faCalendarAlt,
+  faHome,
+  faBan
 } from "@fortawesome/free-solid-svg-icons";
 
 import { API_URL } from "../../../config";

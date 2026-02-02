@@ -47,7 +47,7 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
         } finally {
             setLoading(false);
         }
-    }, [selectedDate, token, API_URL]);
+    }, [selectedDate, token]);
 
     useEffect(() => {
         if (initialDate) {

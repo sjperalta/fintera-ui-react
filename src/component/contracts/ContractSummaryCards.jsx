@@ -2,14 +2,13 @@ import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faDollarSign,
   faCalendarAlt,
   faCalculator,
+  faTag,
+  faPiggyBank,
   faWallet,
   faHandHoldingUsd,
-  faPiggyBank,
   faChartLine,
-  faTag
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocale } from '../../contexts/LocaleContext';
 

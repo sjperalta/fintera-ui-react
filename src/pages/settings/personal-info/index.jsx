@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocale } from "../../../contexts/LocaleContext";
@@ -31,7 +31,7 @@ function PersonalInfo() {
     currentUser?.id !== user?.id;
 
   // Fetch User Data
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
@@ -54,13 +54,13 @@ function PersonalInfo() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, token, t, showToast]);
 
   useEffect(() => {
     if (userId && token) {
       fetchUser();
     }
-  }, [userId, token]);
+  }, [userId, token, fetchUser]);
 
   // Toggle User Status
   const toggleUserStatus = async () => {

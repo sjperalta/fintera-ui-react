@@ -2,21 +2,15 @@ import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faCalendarAlt,
-  faDollarSign,
   faClock,
   faCheckCircle,
   faExclamationTriangle,
-  faBan,
   faUndo,
   faReceipt,
-  faInfoCircle,
   faLock,
   faHistory,
   faCoins,
   faCalculator,
-  faArrowRight,
-  faEllipsisV,
   faPlus
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocale } from '../../contexts/LocaleContext';
