@@ -456,7 +456,7 @@ const ContractDetailsModal = ({
               {activeTab.replace('_', ' & ')}
             </h4>
             <div className="flex items-center gap-3">
-              {isAdmin && (
+              {isAdmin && activeTab === 'financial' && (
                 <button
                   onClick={() => setIsEditMode(!isEditMode)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 ${isEditMode
@@ -776,8 +776,8 @@ const ContractDetailsModal = ({
                         </div>
                       </div>
 
-                      {/* Credit Score Visualization */}
-                      {contract.applicant_credit_score !== undefined && (
+                      {/* Credit Score Visualization - Only visible for Admin */}
+                      {isAdmin && contract.applicant_credit_score !== undefined && (
                         <div className="bg-white dark:bg-darkblack-500 rounded-3xl border border-gray-100 dark:border-darkblack-400 shadow-sm p-8 flex flex-col items-center justify-center text-center">
                           <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-6">{t("contractDetailsModal.creditScore")}</p>
 

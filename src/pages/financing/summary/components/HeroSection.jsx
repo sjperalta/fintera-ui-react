@@ -7,11 +7,21 @@ function HeroSection({ balance, currency, userName }) {
 
 
     return (
-        <div className="relative w-full overflow-hidden rounded-[2rem] bg-bgray-50 dark:bg-bgray-950 p-6 sm:p-10 transition-all duration-700 border border-bgray-100 dark:border-bgray-900 group">
-            {/* Dynamic Background Blobs */}
-            <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[80%] bg-success-400/20 dark:bg-success-500/10 blur-[120px] rounded-full animate-pulse transition-all duration-1000 group-hover:scale-110"></div>
-            <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[90%] bg-indigo-400/20 dark:bg-indigo-500/10 blur-[120px] rounded-full animate-pulse delay-700 transition-all duration-1000 group-hover:scale-105"></div>
-            <div className="absolute top-[20%] left-[20%] w-[30%] h-[50%] bg-rose-400/10 dark:bg-rose-500/5 blur-[100px] rounded-full"></div>
+        <div className="relative w-full overflow-hidden rounded-[2rem] bg-bgray-50 dark:bg-[#080B14] p-6 sm:p-10 transition-all duration-700 border border-bgray-100 dark:border-white/10 group shadow-lg dark:shadow-success-500/5">
+            {/* Premium Dark Mode Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-success-500/[0.03] via-transparent to-indigo-500/[0.03] opacity-0 dark:opacity-100 transition-opacity duration-1000"></div>
+
+            {/* Top Shine Effect */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-success-400/20 to-transparent opacity-0 dark:opacity-100"></div>
+
+            {/* Refined Dynamic Background Blobs */}
+            <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[120%] bg-success-500/20 dark:bg-success-500/10 blur-[130px] rounded-full animate-pulse transition-all duration-1000 group-hover:scale-110"></div>
+            <div className="absolute bottom-[-30%] left-[-15%] w-[70%] h-[130%] bg-indigo-500/20 dark:bg-indigo-500/10 blur-[130px] rounded-full animate-pulse delay-700 transition-all duration-1000 group-hover:scale-105"></div>
+            <div className="absolute top-[10%] left-[10%] w-[40%] h-[60%] bg-rose-500/10 dark:bg-rose-500/5 blur-[110px] rounded-full transition-all duration-1000"></div>
+
+            {/* Subtle Grid Pattern for Dark Mode */}
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+                style={{ backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`, backgroundSize: '40px 40px' }}></div>
 
             <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
                 <div className="text-center lg:text-left space-y-4">
@@ -34,14 +44,14 @@ function HeroSection({ balance, currency, userName }) {
 
                 {/* Glassmorphic Balance Card */}
                 <div className="relative group/card">
-                    <div className="absolute inset-0 bg-white/40 dark:bg-success-500/20 blur-2xl rounded-[2rem] opacity-0 group-hover/card:opacity-100 transition-all duration-700"></div>
+                    <div className="absolute inset-0 bg-success-500/10 dark:bg-success-500/20 blur-3xl rounded-[2rem] opacity-0 group-hover/card:opacity-100 transition-all duration-700"></div>
 
-                    <div className="relative bg-white/40 dark:bg-white/5 backdrop-blur-2xl p-6 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)] dark:shadow-2xl border border-white/60 dark:border-white/10 min-w-[300px] transform transition-all duration-500 hover:scale-[1.02] active:scale-95">
+                    <div className="relative bg-white/40 dark:bg-bgray-900/40 backdrop-blur-2xl p-6 sm:p-10 rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-white/60 dark:border-white/20 min-w-[300px] transform transition-all duration-500 hover:scale-[1.02] active:scale-95">
                         <div className="flex justify-between items-center mb-6">
-                            <span className="text-[9px] text-bgray-500 dark:text-white/40 uppercase tracking-[0.3em] font-black">
+                            <span className="text-[9px] text-bgray-500 dark:text-success-400 uppercase tracking-[0.3em] font-black">
                                 {t('payments.balance')}
                             </span>
-                            <div className="w-10 h-10 rounded-xl bg-success-500/10 dark:bg-success-400/20 flex items-center justify-center border border-success-500/20">
+                            <div className="w-10 h-10 rounded-xl bg-success-500/10 dark:bg-success-400/20 flex items-center justify-center border border-success-500/20 shadow-inner">
                                 <svg className="w-5 h-5 text-success-600 dark:text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>

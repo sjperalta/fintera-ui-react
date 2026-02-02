@@ -12,18 +12,6 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
     const [loading, setLoading] = useState(false);
     const [stats, setStats] = useState({ totalCommissions: 0, distinctProjectCount: 0 });
 
-    useEffect(() => {
-        if (initialDate) {
-            setSelectedDate(initialDate);
-        }
-    }, [initialDate]);
-
-    useEffect(() => {
-        if (isActive) {
-            fetchCommissions();
-        }
-    }, [isActive, selectedDate, fetchCommissions]);
-
     const fetchCommissions = useCallback(async () => {
         setLoading(true);
         try {
@@ -59,7 +47,19 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
         } finally {
             setLoading(false);
         }
-    }, [selectedDate, token]);
+    }, [selectedDate, token, API_URL]);
+
+    useEffect(() => {
+        if (initialDate) {
+            setSelectedDate(initialDate);
+        }
+    }, [initialDate]);
+
+    useEffect(() => {
+        if (isActive) {
+            fetchCommissions();
+        }
+    }, [isActive, selectedDate, fetchCommissions]);
 
     const handleDownloadCSV = () => {
         const year = selectedDate.getFullYear();

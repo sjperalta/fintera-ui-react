@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import { API_URL } from "../../../config";
+import AuthContext from "../../contexts/AuthContext";
 import { getToken } from "../../../auth";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
@@ -55,6 +56,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   const { showToast } = useToast();
   const token = getToken();
   const { t } = useLocale();
+  const { user: currentUser } = useContext(AuthContext);
 
   // Fetch fresh contract details with payment schedule and ledger entries
   const fetchContractDetails = async (contractId) => {
@@ -398,7 +400,9 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">{t('contracts.clientRecord')}</p>
                     </div>
 
-                    <CreditScoreCard creditScore={currentContract?.applicant_credit_score} />
+                    {currentUser?.role === "admin" && (
+                      <CreditScoreCard creditScore={currentContract?.applicant_credit_score} />
+                    )}
 
                     <div>
                       <h5 className="text-sm font-black text-gray-900 dark:text-white mb-1 truncate">{currentContract?.applicant_name || t('contractInfo.client')}</h5>

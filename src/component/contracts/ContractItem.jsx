@@ -405,14 +405,16 @@ function ContractItem({
                 <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
                 {t("contracts.approve")}
               </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowRejectionModal(true); }}
-                disabled={actionLoading}
-                className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-bold shadow-sm shadow-red-200 dark:shadow-none transition-all flex items-center justify-center disabled:opacity-50"
-              >
-                <FontAwesomeIcon icon={faTimesCircle} className="mr-2" />
-                {t("contracts.reject")}
-              </button>
+              {contract.status?.toLowerCase() !== "rejected" && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowRejectionModal(true); }}
+                  disabled={actionLoading}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-bold shadow-sm shadow-red-200 dark:shadow-none transition-all flex items-center justify-center disabled:opacity-50"
+                >
+                  <FontAwesomeIcon icon={faTimesCircle} className="mr-2" />
+                  {t("contracts.reject")}
+                </button>
+              )}
             </div>
           )}
         </div>

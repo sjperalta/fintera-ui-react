@@ -63,7 +63,7 @@ function Reserve() {
   const [headerLoading, setHeaderLoading] = useState(true);
 
   const navigate = useNavigate();
-  const { token } = useContext(AuthContext);
+  const { token, user: currentUser } = useContext(AuthContext);
 
   // --- Fetch lot + project extra details (replaces earlier simple lot fetch if present) ---
   useEffect(() => {
@@ -917,10 +917,12 @@ function Reserve() {
                               </div>
                             </div>
 
-                            {/* Credit Score Card Integration */}
-                            <div className="mt-6">
-                              <CreditScoreCard creditScore={selectedUser.credit_score} />
-                            </div>
+                            {/* Credit Score Card Integration - Only visible for Admin */}
+                            {currentUser?.role === "admin" && (
+                              <div className="mt-6">
+                                <CreditScoreCard creditScore={selectedUser.credit_score} />
+                              </div>
+                            )}
                           </div>
                         </motion.div>
                       )}
