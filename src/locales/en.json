@@ -918,6 +918,7 @@
     "paymentSummary": "Payment Summary",
     "noNotes": "No notes available",
     "rejectContract": "Reject Contract",
+    "rejectionReason": "Rejection Reason",
     "rejectionReasonLong": "Please provide a clear reason for the rejection.",
     "rejectionReasonLabel": "Rejection reason",
     "rejectionReasonPlaceholder": "Enter details on why this contract cannot be approved...",

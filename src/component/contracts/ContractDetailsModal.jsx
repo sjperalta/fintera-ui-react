@@ -456,7 +456,7 @@ const ContractDetailsModal = ({
               {activeTab.replace('_', ' & ')}
             </h4>
             <div className="flex items-center gap-3">
-              {isAdmin && (
+              {isAdmin && activeTab === 'financial' && (
                 <button
                   onClick={() => setIsEditMode(!isEditMode)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 ${isEditMode
