@@ -392,7 +392,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">{t('contracts.clientRecord')}</p>
                     </div>
 
-                    {currentUser?.role === "admin" && (
+                    {(currentUser?.role === "admin" || currentUser?.role === "seller") && (
                       <CreditScoreCard creditScore={currentContract?.applicant_credit_score} />
                     )}
 

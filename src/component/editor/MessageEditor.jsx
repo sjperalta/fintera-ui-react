@@ -1,19 +1,16 @@
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import Editor from "./Editor";
 import Quill from "quill";
 
 const Delta = Quill.import("delta");
+const TOOLBAR_OPTIONS = [["bold", "italic", "underline"], ["image"]];
 
 const MessageEditor = ({ onTextChange }) => {
-
-
-  // Use a ref to access the quill instance directly
+  const defaultValue = useMemo(() => new Delta(), []);
   const quillRef = useRef();
-  const toolbarOptions = [["bold", "italic", "underline"], ["image"]];
 
   const handleTextChange = (..._args) => {
     if (onTextChange && quillRef.current) {
-      // Get the HTML content to preserve formatting and images
       const html = quillRef.current.root.innerHTML;
       onTextChange(html);
     }
@@ -23,9 +20,9 @@ const MessageEditor = ({ onTextChange }) => {
     <div>
       <Editor
         ref={quillRef}
-        defaultValue={new Delta()}
+        defaultValue={defaultValue}
         onTextChange={handleTextChange}
-        toolbarOptions={toolbarOptions}
+        toolbarOptions={TOOLBAR_OPTIONS}
         wrapperClass="quill-wrapper"
       />
     </div>
