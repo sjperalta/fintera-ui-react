@@ -218,10 +218,10 @@ function PersonalInfoForm({ userId }) {
     >
       <div className="border-b border-bgray-200 dark:border-darkblack-400 pb-6 mb-8">
         <h3 className="text-xl font-bold text-bgray-900 dark:text-white">
-          {t("personalInfo.title") || "Personal Information"}
+          {t("personalInfo.title")}
         </h3>
         <p className="text-sm text-bgray-500 dark:text-bgray-400 mt-1">
-          Update your personal details and preferences.
+          {t("personalInfo.description")}
         </p>
       </div>
 
@@ -282,7 +282,7 @@ function PersonalInfoForm({ userId }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0c0 .883 3.918 1.6 6 1.6s6-.717 6-1.6M3 9c0 .883 3.918 1.6 6 1.6s6-.717 6-1.6" />
               </svg>
             </span>
-            {t("personalInfo.generalInfo") || "Legal Information"}
+            {t("personalInfo.legalInfo")}
           </h4>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">

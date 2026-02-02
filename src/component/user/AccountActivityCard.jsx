@@ -17,7 +17,7 @@ const ActivityItem = ({ label, value, color, icon }) => (
     </div>
 );
 
-function AccountActivityCard({ user, delay = 0.1 }) {
+function AccountActivityCard({ user, delay = 0.1, showCreditScore = true }) {
     const { t } = useLocale();
 
     // Helper to format date
@@ -41,33 +41,35 @@ function AccountActivityCard({ user, delay = 0.1 }) {
         >
             <div className="flex items-center justify-between mb-8">
                 <h3 className="text-xl font-bold text-bgray-900 dark:text-white">
-                    Account Activity
+                    {t("personalInfo.accountActivity")}
                 </h3>
             </div>
 
             <div className="space-y-4">
-                {/* Credit Score Display */}
-                <div className="p-5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl text-white shadow-lg mb-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                    <p className="text-indigo-100 text-sm font-medium mb-1">Credit Score</p>
-                    <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold">{user?.credit_score || 0}</span>
-                        <span className="text-indigo-100 text-sm mb-1.5 font-medium">/ 100</span>
-                    </div>
+                {/* Credit Score Display - Conditionally visible */}
+                {showCreditScore && (
+                    <div className="p-5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl text-white shadow-lg mb-6 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                        <p className="text-indigo-100 text-sm font-medium mb-1">{t("personalInfo.creditScore")}</p>
+                        <div className="flex items-end gap-2">
+                            <span className="text-4xl font-bold">{user?.credit_score || 0}</span>
+                            <span className="text-indigo-100 text-sm mb-1.5 font-medium">/ 100</span>
+                        </div>
 
-                    {/* Simple Progress Bar for Credit Score */}
-                    <div className="mt-4 h-2 w-full bg-black/20 rounded-full overflow-hidden">
-                        <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.min((user?.credit_score / 100) * 100, 100)}%` }}
-                            transition={{ duration: 1, delay: delay + 0.2 }}
-                            className="h-full bg-white/90 rounded-full"
-                        />
+                        {/* Simple Progress Bar for Credit Score */}
+                        <div className="mt-4 h-2 w-full bg-black/20 rounded-full overflow-hidden">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${Math.min((user?.credit_score / 100) * 100, 100)}%` }}
+                                transition={{ duration: 1, delay: delay + 0.2 }}
+                                className="h-full bg-white/90 rounded-full"
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <ActivityItem
-                    label="Member Since"
+                    label={t("personalInfo.memberSince")}
                     value={formatDate(user?.created_at)}
                     color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
                     icon={
@@ -78,7 +80,7 @@ function AccountActivityCard({ user, delay = 0.1 }) {
                 />
 
                 <ActivityItem
-                    label="Last Confirmed"
+                    label={t("personalInfo.lastConfirmed")}
                     value={formatDate(user?.confirmed_at)}
                     color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
                     icon={
@@ -89,8 +91,8 @@ function AccountActivityCard({ user, delay = 0.1 }) {
                 />
 
                 <ActivityItem
-                    label="Preferred Language"
-                    value={user?.locale === 'es' ? "Español" : "English"}
+                    label={t("personalInfo.preferredLanguage")}
+                    value={user?.locale === 'es' ? t("personalInfo.spanish") : t("personalInfo.english")}
                     color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
                     icon={
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

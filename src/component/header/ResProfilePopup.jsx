@@ -22,7 +22,7 @@ function ResProfilePopup({ isActive }) {
         <div>
           <ul>
             <li className="w-full">
-              <Link to="/settings">
+              <Link to={userId ? `/settings/user/${userId}` : "#"} onClick={(e) => !userId && e.preventDefault()}>
                 <div className="flex items-center space-x-[18px] rounded-lg p-[14px] text-bgray-600 hover:bg-bgray-100 hover:text-bgray-900 dark:text-bgray-50 dark:hover:bg-darkblack-500">
                   <div className="w-[20px]">
                     <span>

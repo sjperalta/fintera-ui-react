@@ -153,9 +153,6 @@ function Summary() {
           <PaymentTimeline payments={payments} onPaymentSuccess={fetchAllData} />
         </section>
       </div>
-
-      {/* Mobile Floating Action Button */}
-      <ActionFab onClick={scrollToUpcoming} />
     </div>
   );
 }

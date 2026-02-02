@@ -17,12 +17,15 @@ function PersonalInfo() {
   const { t } = useLocale();
   const { showToast } = useToast();
   const token = getToken();
-  useContext(AuthContext);
+  const { user: currentUser } = useContext(AuthContext);
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Determine if credit score should be visible: Only for non-"user" roles (admin/seller)
+  const showCreditScore = currentUser?.role !== "user";
 
   // Fetch User Data
   const fetchUser = async () => {
@@ -44,7 +47,7 @@ function PersonalInfo() {
       setUser(data.user || data);
     } catch (err) {
       setError(err.message);
-      showToast("Error loading user data", "error");
+      showToast(t("errors.fetchUserFailed"), "error");
     } finally {
       setLoading(false);
     }
@@ -71,10 +74,10 @@ function PersonalInfo() {
 
       const newStatus = user.status === "active" ? "inactive" : "active";
       setUser(prev => ({ ...prev, status: newStatus }));
-      showToast(`User status updated to ${newStatus}`, "success");
+      showToast(`${t("personalInfo.profileUpdated")}: ${newStatus}`, "success");
     } catch (error) {
       console.error("Error:", error);
-      showToast("Error updating status", "error");
+      showToast(t("errors.updateUserFailed"), "error");
     }
   };
 
@@ -89,9 +92,9 @@ function PersonalInfo() {
   if (error) {
     return (
       <div className="text-center py-20">
-        <h3 className="text-xl text-red-500 font-bold mb-2">Error Loading Profile</h3>
+        <h3 className="text-xl text-red-500 font-bold mb-2">{t("personalInfo.errorLoadingProfile")}</h3>
         <p className="text-bgray-600 dark:text-bgray-400">{error}</p>
-        <button onClick={fetchUser} className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg">Retry</button>
+        <button onClick={fetchUser} className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg">{t("personalInfo.retry")}</button>
       </div>
     );
   }
@@ -108,7 +111,7 @@ function PersonalInfo() {
             transition={{ duration: 0.3 }}
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-bgray-900 dark:text-white">Edit Profile</h2>
+              <h2 className="text-2xl font-bold text-bgray-900 dark:text-white">{t("personalInfo.editProfile")}</h2>
               <button
                 onClick={() => {
                   setIsEditing(false);
@@ -116,7 +119,7 @@ function PersonalInfo() {
                 }}
                 className="px-4 py-2 bg-gray-200 dark:bg-darkblack-500 rounded-lg text-sm font-semibold hover:bg-gray-300 transition-colors"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
             {/* Reuse existing form - pass userId */}
@@ -132,28 +135,16 @@ function PersonalInfo() {
           >
             {/* Header Section */}
             <div>
-              {/* Wrapper to potentially catch clicks if needed, though buttons handle their own events */}
               <UserDetailsHeader
                 user={user}
                 toggleStatus={toggleUserStatus}
                 onEdit={() => setIsEditing(true)}
               />
-
-              {/* Quick Edit Button Override (if not using the one in Header) - Header has one.
-                   We need to make sure Header's Edit button triggers setIsEditing(true).
-                   Since UserDetailsHeader is a child, we need to pass a handler.
-                   Let's update UserDetailsHeader to accept onEdit click.
-               */}
             </div>
-
-            {/* We need to pass the edit handler to UserDetailsHeader. 
-                Wait, I didn't add onEdit prop to UserDetailsHeader in the previous step.
-                I need to update UserDetailsHeader to accept `onEdit` prop.
-            */}
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <PersonalInfoCard user={user} delay={0.1} />
-              <AccountActivityCard user={user} delay={0.2} />
+              <AccountActivityCard user={user} delay={0.2} showCreditScore={showCreditScore} />
             </div>
 
             {/* Temporary Edit Button if Header doesn't have it wired yet */}

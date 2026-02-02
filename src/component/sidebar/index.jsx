@@ -109,10 +109,39 @@ function Sidebar({ handleActive, user, handleLogout }) {
                 </li>
               )}
 
-              {/* Balance: All roles */}
+
+              {/* Profile Settings: Mobile and Desktop XL */}
+              <li
+                className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location.includes("/settings/user") ? "nav-active" : ""
+                  }`}
+              >
+                <Link to={`/settings/user/${user.id}`}>
+                  <div className="flex items-center space-x-2 sm:space-x-2.5">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
+                    >
+                      <path
+                        d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+                        fill="#1A202C"
+                      />
+                      <circle cx="18" cy="14" r="3" fill="#22C55E" />
+                    </svg>
+                    <span className="item-text text-sm sm:text-base lg:text-lg font-medium leading-none min-w-0 truncate">
+                      {t("dashboard.profileSettings")}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+
+              {/* Balance: All roles - Hidden on mobile, only desktop XL */}
               {isUser && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location.includes("/financing/user") ? "nav-active" : ""
+                  className={`item hidden xl:block py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location.includes("/financing/user") ? "nav-active" : ""
                     }`}
                 >
                   <Link to={`/financing/user/${user.id}`}>
@@ -139,10 +168,10 @@ function Sidebar({ handleActive, user, handleLogout }) {
 
 
 
-              {/* Transactions: Only Admin */}
+              {/* Transactions: Only Admin - Hidden on mobile */}
               {isAdmin && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/payments" ? "nav-active" : ""
+                  className={`item hidden xl:block py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/payments" ? "nav-active" : ""
                     }`}
                 >
                   <Link to="/payments">
@@ -204,10 +233,10 @@ function Sidebar({ handleActive, user, handleLogout }) {
                 </li>
               )}
 
-              {/* Contracts: Admin or Seller */}
+              {/* Contracts: Admin or Seller - Hidden on mobile */}
               {(isAdmin || isSeller) && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/contracts" ? "nav-active" : ""
+                  className={`item hidden xl:block py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/contracts" ? "nav-active" : ""
                     }`}
                 >
                   <Link to="/contracts">
@@ -243,10 +272,10 @@ function Sidebar({ handleActive, user, handleLogout }) {
                 </li>
               )}
 
-              {/* Projects: Admin or Seller */}
+              {/* Projects: Admin or Seller - Hidden on mobile */}
               {(isAdmin || isSeller) && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/projects" ? "nav-active" : ""
+                  className={`item hidden xl:block py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/projects" ? "nav-active" : ""
                     }`}
                 >
                   <Link to="/projects">
@@ -290,10 +319,10 @@ function Sidebar({ handleActive, user, handleLogout }) {
                 </li>
               )}
 
-              {/* Users: Admin or Seller */}
+              {/* Users: Admin or Seller - Hidden on mobile */}
               {(isAdmin || isSeller) && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/users" ? "nav-active" : ""
+                  className={`item hidden xl:block py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/users" ? "nav-active" : ""
                     }`}
                 >
                   <Link to="/users">
@@ -328,10 +357,10 @@ function Sidebar({ handleActive, user, handleLogout }) {
                 </li>
               )}
 
-              {/* Analytics: Admin only (assuming based on typical permissions, or similar to others) */}
+              {/* Analytics: Admin only - Hidden on mobile */}
               {isAdmin && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/analytics" ? "nav-active" : ""
+                  className={`item hidden xl:block py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/analytics" ? "nav-active" : ""
                     }`}
                 >
                   <Link to="/analytics">
@@ -360,10 +389,10 @@ function Sidebar({ handleActive, user, handleLogout }) {
                 </li>
               )}
 
-              {/* Audits: Only Admin */}
+              {/* Audits: Only Admin - Hidden on mobile */}
               {isAdmin && (
                 <li
-                  className={`item py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/audits" ? "nav-active" : ""
+                  className={`item hidden xl:block py-[9px] sm:py-[11px] text-bgray-900 dark:text-white ${location === "/audits" ? "nav-active" : ""
                     }`}
                 >
                   <Link to="/audits">
