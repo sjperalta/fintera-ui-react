@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useContext } from "react";
+import React, { useState, useMemo, useEffect, useContext, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "../../../config";
 import AuthContext from "../../contexts/AuthContext";
@@ -57,8 +57,7 @@ const Analytics = () => {
     const [overviewData, setOverviewData] = useState(null);
     const [distribution, setDistribution] = useState(null);
     const [performance, setPerformance] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+
 
     // Fetch projects for filter
     useEffect(() => {
@@ -92,7 +91,7 @@ const Analytics = () => {
     }, [projects, t]);
 
     // Fetch main analytics (Overview totals, Distribution, Performance)
-    const fetchMainAnalytics = async () => {
+    const fetchMainAnalytics = useCallback(async () => {
         if (!token) return;
 
         setIsFiltering(true);
@@ -137,12 +136,11 @@ const Analytics = () => {
             showToast(t("analytics.errorFetchingData"), "error");
         } finally {
             setIsFiltering(false);
-            setLoading(false);
         }
-    };
+    }, [token, filterValue, currentDate, t, showToast]);
 
     // Fetch trend data separately (ignoring global date range)
-    const fetchTrendData = async () => {
+    const fetchTrendData = useCallback(async () => {
         if (!token) return;
 
         setIsFilteringTrend(true);
@@ -164,15 +162,15 @@ const Analytics = () => {
         } finally {
             setIsFilteringTrend(false);
         }
-    };
+    }, [token, trendProjectId, selectedYear]);
 
     useEffect(() => {
         fetchMainAnalytics();
-    }, [token, filterValue, currentDate]);
+    }, [fetchMainAnalytics]);
 
     useEffect(() => {
         fetchTrendData();
-    }, [token, trendProjectId, selectedYear]);
+    }, [fetchTrendData]);
 
     const handleFilterChange = (val) => {
         setFilterValue(val);

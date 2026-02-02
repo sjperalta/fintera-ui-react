@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useContext, useMemo } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import debounce from 'lodash.debounce';
-import { STATUS_CONFIG, getStatusLabel } from "../../utils/statusUtils";
+import { getStatusLabel } from "../../utils/statusUtils";
 import AuthContext from "../../context/AuthContext";
 
 /**
@@ -10,15 +10,10 @@ import AuthContext from "../../context/AuthContext";
  * Uses centralized status utilities for consistent status handling
  */
 function LotFilter({ searchTerm, status, onSearchChange, onStatusChange }) {
-  const [activeFilter, setActiveFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [term, _setTerm] = useState(searchTerm);
-  const [selectedStatus, _setSelectedStatus] = useState(status);
-
   const { user } = useContext(AuthContext);
 
-  // Generate status options with only the relevant statuses for lot filtering
-  // Includes "Todos" option for showing all lots
   const statuses = [
     { key: "all", label: "Todos" },
     { key: "available", label: getStatusLabel("available") },
@@ -26,12 +21,15 @@ function LotFilter({ searchTerm, status, onSearchChange, onStatusChange }) {
     { key: "sold", label: getStatusLabel("sold") }
   ];
 
+  const activeOption = statuses.find(s => s.key === (status || "all"));
+  const activeFilter = activeOption ? activeOption.label : "Todos";
+
   const navigate = useNavigate();
   const { id } = useParams(); // Get project id from params
 
-  const handleActiveFilter = (e) => {
-    setActiveFilter(e.target.innerText);
-  };
+  // const handleActiveFilter = (e) => {
+  //   setActiveFilter(e.target.innerText);
+  // };
 
   const handleTermChange = (e) => {
     _setTerm(e.target.value);
@@ -39,8 +37,7 @@ function LotFilter({ searchTerm, status, onSearchChange, onStatusChange }) {
   };
 
   const handleStatusSelect = (statusOption) => {
-    _setSelectedStatus(statusOption.key);
-    setActiveFilter(statusOption.label);
+    // _setSelectedStatus(statusOption.key);
     onStatusChange(statusOption.key === "all" ? "" : statusOption.key); // Update parent with selected status key
   };
 

@@ -1,28 +1,28 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { } from "react-router-dom";
 import PropTypes from "prop-types";
 import debounce from 'lodash.debounce';
 import { formatStatus } from "../../utils/formatStatus";
 import { useLocale } from "../../contexts/LocaleContext";
 
 function TransactionFilter({ searchTerm, status, onSearchChange, onStatusChange }) {
-  const [activeFilter, setActiveFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [term, _setTerm] = useState(searchTerm);
-  const [selectedStatus, _setSelectedStatus] = useState(status);
   const { t } = useLocale();
+
+  const activeFilter = status ? formatStatus(status, t) : t('filters.all');
   // Payment status options (value for API). Labels come from formatStatus for consistency.
   const statuses = [
     { value: "" },
     { value: "submitted" },
     { value: "paid" },
   ];
-  
-  const navigate = useNavigate();
 
-  const handleActiveFilter = (e) => {
-    setActiveFilter(e.target.innerText);
-  };
+  // const navigate = useNavigate();
+
+  // const handleActiveFilter = (e) => {
+  //   setActiveFilter(e.target.innerText);
+  // };
 
   const handleTermChange = (e) => {
     _setTerm(e.target.value);
@@ -30,7 +30,7 @@ function TransactionFilter({ searchTerm, status, onSearchChange, onStatusChange 
   };
 
   const handleStatusSelect = (statusValue) => {
-    _setSelectedStatus(statusValue);
+    // _setSelectedStatus(statusValue);
     onStatusChange(statusValue); // Update parent with selected status (empty string means all)
   };
 
@@ -55,13 +55,7 @@ function TransactionFilter({ searchTerm, status, onSearchChange, onStatusChange 
     };
   }, [debouncedSearch]);
 
-  // Initialize visible label from incoming prop `status`
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    _setSelectedStatus(status);
-     
-    setActiveFilter(status ? formatStatus(status, t) : t('filters.all'));
-  }, [status]);
+
 
   return (
     <div className="bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex">
@@ -158,8 +152,6 @@ function TransactionFilter({ searchTerm, status, onSearchChange, onStatusChange 
                 key={statusOption.value !== undefined ? statusOption.value : statusOption.label}
                 onClick={() => {
                   setShowFilter(false);
-                  // set the visible label (use central helper)
-                  setActiveFilter(formatStatus(statusOption.value || "", t));
                   handleStatusSelect(statusOption.value);
                 }}
                 className="text-sm text-bgray-900 dark:text-bgray-50 hover:dark:bg-darkblack-600 cursor-pointer px-5 py-2 hover:bg-bgray-100 font-semibold"
@@ -190,7 +182,7 @@ function TransactionFilter({ searchTerm, status, onSearchChange, onStatusChange 
           </svg>
         </button>
       </div>
-    </div>
+    </div >
   );
 }
 

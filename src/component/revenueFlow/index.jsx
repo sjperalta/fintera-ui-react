@@ -60,7 +60,7 @@ function RevenueFlow({ selectedYear = new Date().getFullYear(), currentMonth }) 
     };
 
     fetchRevenueFlow();
-  }, [token, selectedYear, currentMonth]);
+  }, [token, selectedYear, currentMonth, t]);
 
   // Fallback static data (in case API fails)
   let month = [

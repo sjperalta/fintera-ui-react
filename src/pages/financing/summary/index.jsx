@@ -9,7 +9,7 @@ import HeroSection from "./components/HeroSection";
 import StatsOverview from "./components/StatsOverview";
 import NextPaymentCard from "./components/NextPaymentCard";
 import PaymentTimeline from "./components/PaymentTimeline";
-import ActionFab from "./components/ActionFab";
+
 
 function Summary() {
   const { user, token } = useContext(AuthContext);
@@ -72,12 +72,7 @@ function Summary() {
     fetchAllData();
   }, [fetchAllData]);
 
-  const scrollToUpcoming = () => {
-    const upcoming = document.querySelector('.payment-upcoming');
-    if (upcoming) {
-      upcoming.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+
 
   // derived stats
   const totalPaid = payments.reduce((acc, curr) => acc + (parseFloat(curr.paid_amount) || 0), 0);

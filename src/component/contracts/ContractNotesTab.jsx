@@ -110,22 +110,20 @@ export default function ContractNotesTab({ currentContract, onContractUpdate }) 
     <div className="space-y-6">
       {/* Notes Sections */}
       <div className="space-y-4">
-        {notes.map((note, index) => (
+        {notes.map((note, _index) => (
           <div key={note.type} className="bg-white dark:bg-darkblack-600 rounded-lg border border-bgray-200 dark:border-darkblack-400 overflow-hidden">
-            <div className={`px-6 py-4 border-b border-bgray-200 dark:border-darkblack-400 ${
-              note.color === 'red' ? 'bg-red-50 dark:bg-red-900/20' :
-              note.color === 'yellow' ? 'bg-yellow-50 dark:bg-yellow-900/20' :
-              note.color === 'orange' ? 'bg-orange-50 dark:bg-orange-900/20' :
-              'bg-blue-50 dark:bg-blue-900/20'
-            }`}>
+            <div className={`px-6 py-4 border-b border-bgray-200 dark:border-darkblack-400 ${note.color === 'red' ? 'bg-red-50 dark:bg-red-900/20' :
+                note.color === 'yellow' ? 'bg-yellow-50 dark:bg-yellow-900/20' :
+                  note.color === 'orange' ? 'bg-orange-50 dark:bg-orange-900/20' :
+                    'bg-blue-50 dark:bg-blue-900/20'
+              }`}>
               <div className="flex items-center">
                 <span className="text-lg mr-3">{note.icon}</span>
-                <h4 className={`font-semibold ${
-                  note.color === 'red' ? 'text-red-800 dark:text-red-200' :
-                  note.color === 'yellow' ? 'text-yellow-800 dark:text-yellow-200' :
-                  note.color === 'orange' ? 'text-orange-800 dark:text-orange-200' :
-                  'text-blue-800 dark:text-blue-200'
-                }`}>
+                <h4 className={`font-semibold ${note.color === 'red' ? 'text-red-800 dark:text-red-200' :
+                    note.color === 'yellow' ? 'text-yellow-800 dark:text-yellow-200' :
+                      note.color === 'orange' ? 'text-orange-800 dark:text-orange-200' :
+                        'text-blue-800 dark:text-blue-200'
+                  }`}>
                   {note.title}
                 </h4>
               </div>
@@ -176,8 +174,8 @@ export default function ContractNotesTab({ currentContract, onContractUpdate }) 
                     </div>
                   )}
                   {note.content === t('contractNotes.noGeneralNotes') ||
-                   note.content === t('contractNotes.noSpecialConditions') ||
-                   note.content === t('contractNotes.notApplicable') ? (
+                    note.content === t('contractNotes.noSpecialConditions') ||
+                    note.content === t('contractNotes.notApplicable') ? (
                     <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 italic">
                       {t('contractNotes.sectionNoInfo')}
                     </div>

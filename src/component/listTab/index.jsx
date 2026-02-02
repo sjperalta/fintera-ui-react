@@ -3,7 +3,7 @@ import Pagination from "../Pagination";
 import Filter from "../forms/Filter";
 import FilterFull from "../forms/FilterFull";
 import Search from "../forms/Search";
-function ListTab({ pageSize }) {
+function ListTab({ _pageSize }) {
   return (
     <div className="w-full rounded-lg bg-white px-[24px] py-[20px] dark:bg-darkblack-600">
       <div className="flex flex-col space-y-5">

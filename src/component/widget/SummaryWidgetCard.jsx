@@ -11,7 +11,7 @@ const createGradient = (ctx) => {
   return gradient;
 };
 
-function SummaryWidgetCard({ title, amount, fee, memberImg, totalEarnImg, currency, type }) {
+function SummaryWidgetCard({ title, amount, fee, totalEarnImg, currency, type }) {
   const chartRef = useRef(null);
   const { t } = useLocale();
 
@@ -122,7 +122,7 @@ function SummaryWidgetCard({ title, amount, fee, memberImg, totalEarnImg, curren
     <div className={`relative rounded-xl bg-white dark:bg-darkblack-600 p-6 shadow-lg ${cardStyles.shadow} border border-gray-100 dark:border-darkblack-500 overflow-hidden transition-all duration-300 hover:shadow-xl`}>
       {/* Background decoration */}
       <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${cardStyles.gradient} opacity-5 rounded-full -mr-16 -mt-16`}></div>
-      
+
       <div className="relative z-10">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -151,7 +151,7 @@ function SummaryWidgetCard({ title, amount, fee, memberImg, totalEarnImg, curren
             <p className="text-3xl font-bold leading-tight text-bgray-900 dark:text-white mb-2">
               {currency}{amount}
             </p>
-            {fee && (   
+            {fee && (
               <div className="flex items-center space-x-2 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
                 <span className={`${cardStyles.iconColor}`}>
                   <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -189,8 +189,6 @@ function SummaryWidgetCard({ title, amount, fee, memberImg, totalEarnImg, curren
 SummaryWidgetCard.propTypes = {
   title: ProtoTypes.string,
   amount: ProtoTypes.string,
-  groth: ProtoTypes.string,
-  memberImg: ProtoTypes.string,
   totalEarnImg: ProtoTypes.string,
 };
 

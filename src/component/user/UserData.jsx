@@ -1,13 +1,13 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
 import { API_URL } from "../../../config";
 import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
 
-function UserData({ userInfo, index, token, onClick, isMobileCard = false }) {
+function UserData({ userInfo, index, token, onClick }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const { id, full_name, phone, email, status: initialStatus, role, created_at, creator } = userInfo;
@@ -218,7 +218,6 @@ UserData.propTypes = {
   index: PropTypes.number,
   token: PropTypes.string,
   onClick: PropTypes.func,
-  isMobileCard: PropTypes.bool,
 };
 
 export default UserData;

@@ -121,7 +121,7 @@ function PasswordChange({ token, userId }) {
         const msg = data.error || data.message || (data.errors ? data.errors.join(", ") : "Error updating password.");
         showToast(msg, "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Network error. Please try again.", "error");
     } finally {
       setIsSubmitting(false);

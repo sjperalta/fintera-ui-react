@@ -1,8 +1,5 @@
 import ProtoTypes from "prop-types";
-import logo from "../../assets/images/logo/logo-color.svg";
-import logoW from "../../assets/images/logo/logo-white.svg";
 import { useState, useContext } from "react";
-import { Link } from "react-router-dom";
 import ResProfilePopup from "./ResProfilePopup";
 import { useLocale } from "../../contexts/LocaleContext";
 import { usePageTitle } from "../../hooks/usePageTitle";

@@ -51,15 +51,11 @@ function Reserve() {
   const [lotMeasurementUnit, setLotMeasurementUnit] = useState("m2");
   const [lotAddress, setLotAddress] = useState("");
 
-  const [projectMeasurementUnit, setProjectMeasurementUnit] = useState("m2");
   const [projectName, setProjectName] = useState("");
-  const [projectPricePerUnit, setProjectPricePerUnit] = useState(null);
   const [projectInterestRate, setProjectInterestRate] = useState(null);
-  const [projectCommissionRate, setProjectCommissionRate] = useState(null);
   const [projectType, setProjectType] = useState("");
   const [projectAddress, setProjectAddress] = useState("");
   const [projectDeliveryDate, setProjectDeliveryDate] = useState(null);
-  const [projectAvailableLots, setProjectAvailableLots] = useState(null);
   const [headerLoading, setHeaderLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -121,14 +117,10 @@ function Reserve() {
         );
 
         setProjectName(projData.name || "");
-        setProjectMeasurementUnit(projData.measurement_unit || "m2");
-        setProjectPricePerUnit(projData.price_per_square_unit);
         setProjectInterestRate(projData.interest_rate);
-        setProjectCommissionRate(projData.commission_rate);
         setProjectType(projData.project_type || "");
         setProjectAddress(projData.address || "");
         setProjectDeliveryDate(projData.delivery_date);
-        setProjectAvailableLots(projData.available_lots);
       } catch (e) {
         // silently keep old minimal header if failure
         console.error(e);
@@ -140,7 +132,7 @@ function Reserve() {
     return () => {
       cancelled = true;
     };
-  }, [id, lot_id, token]);
+  }, [id, lot_id, token, t]);
 
   // Update defaults & visibility when financing type changes
   useEffect(() => {
@@ -159,27 +151,7 @@ function Reserve() {
     }
   }, [financingType]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Debounce the search function to limit API calls
-  const debouncedSearch = useCallback(
-    debounce((query) => {
-      setCurrentPage(1); // Reset to first page on new search
-      handleUserSearch(query, 1);
-    }, 500),
-    [] // stable
-  );
-
-  const handleQueryChange = (query) => {
-    setUserQuery(query);
-    if (query.length > 2) {
-      debouncedSearch(query);
-    } else {
-      setUserResults([]);
-      setTotalPages(1);
-      setCurrentPage(1);
-    }
-  };
-
-  const handleUserSearch = async (query, page = 1) => {
+  const handleUserSearch = useCallback(async (query, page = 1) => {
     if (query.length > 2) {
       setIsLoading(true);
       try {
@@ -228,6 +200,26 @@ function Reserve() {
       setTotalPages(1);
       setCurrentPage(1);
     }
+  }, [token]);
+
+  // Debounce the search function to limit API calls
+  const debouncedSearch = useMemo(
+    () => debounce((query) => {
+      setCurrentPage(1); // Reset to first page on new search
+      handleUserSearch(query, 1);
+    }, 500),
+    [handleUserSearch] // include handleUserSearch as dependency
+  );
+
+  const handleQueryChange = (query) => {
+    setUserQuery(query);
+    if (query.length > 2) {
+      debouncedSearch(query);
+    } else {
+      setUserResults([]);
+      setTotalPages(1);
+      setCurrentPage(1);
+    }
   };
 
   const handleLoadMore = () => {
@@ -235,6 +227,19 @@ function Reserve() {
     if (nextPage <= totalPages) {
       handleUserSearch(userQuery, nextPage);
     }
+  };
+
+  const handleUserSelect = (user) => {
+    setFullName(user.full_name);
+    setPhone(user.phone);
+    setIdentity(user.identity);
+    setRtn(user.rtn);
+    setEmail(user.email);
+    setSelectedUser(user);
+    setUserResults([]);
+    setCurrentPage(1);
+    setTotalPages(1);
+    setUserMode("search");
   };
 
   const handleSubmit = async (e) => {
@@ -331,19 +336,6 @@ function Reserve() {
     }
   };
 
-  const handleUserSelect = (user) => {
-    setFullName(user.full_name);
-    setPhone(user.phone);
-    setIdentity(user.identity);
-    setRtn(user.rtn);
-    setEmail(user.email);
-    setSelectedUser(user);
-    setUserResults([]);
-    setCurrentPage(1);
-    setTotalPages(1);
-    setUserMode("search");
-  };
-
   const clearSelectedUser = () => {
     setSelectedUser(null);
     setFullName("");
@@ -365,7 +357,6 @@ function Reserve() {
     numericDownPayment,
     financedAmount,
     monthlyPayment,
-    totalInitial,
   } = useMemo(() => {
     const lot = typeof lotPrice === "number" ? lotPrice : parseFloat(lotPrice);
     const reserveNum = parseFloat(reserveAmount) || 0;
@@ -383,7 +374,6 @@ function Reserve() {
       numericDownPayment: downNum,
       financedAmount: financed,
       monthlyPayment: monthly,
-      totalInitial: initial,
     };
   }, [lotPrice, reserveAmount, downPayment, paymentTerm]);
 
@@ -410,7 +400,7 @@ function Reserve() {
         month: "long",
         year: "numeric",
       });
-    } catch (e) {
+    } catch {
       return v;
     }
   };
@@ -846,11 +836,18 @@ function Reserve() {
                                     onClick={() => handleUserSelect(u)}
                                     className="w-full text-left px-6 py-5 hover:bg-success-50 dark:hover:bg-success-900/10 border-b border-bgray-50 dark:border-darkblack-400 last:border-0 transition-colors"
                                   >
-                                    <div className="flex justify-between items-center mb-1">
-                                      <span className="font-bold text-bgray-900 dark:text-white">{u.full_name}</span>
-                                      <span className="text-xs bg-bgray-100 dark:bg-darkblack-600 px-2 py-1 rounded-md text-bgray-500 dark:text-bgray-400 font-mono tracking-tighter">
-                                        ID: {u.identity || "—"}
-                                      </span>
+                                    <div className="flex justify-between items-start mb-1">
+                                      <span className="font-bold text-bgray-900 dark:text-white capitalize">{u.full_name}</span>
+                                      {(currentUser?.role === "admin" || currentUser?.role === "seller") && u.credit_score !== undefined && (
+                                        <div className="flex flex-col items-end">
+                                          <div className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${u.credit_score >= 80 ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : u.credit_score >= 60 ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-rose-50 text-rose-600 border border-rose-100"}`}>
+                                            Score: {Math.round(u.credit_score)}%
+                                          </div>
+                                          <p className={`text-[8px] font-bold uppercase mt-0.5 ${u.credit_score >= 80 ? "text-emerald-500" : u.credit_score >= 60 ? "text-amber-500" : "text-rose-500"}`}>
+                                            {u.credit_score >= 80 ? t('creditScore.excellent') : u.credit_score >= 60 ? t('creditScore.good') : t('creditScore.needsImprovement')}
+                                          </p>
+                                        </div>
+                                      )}
                                     </div>
                                     <div className="flex gap-4 text-xs text-bgray-500 dark:text-bgray-400 font-medium">
                                       <span className="flex items-center"><span className="mr-1">📧</span> {u.email}</span>
@@ -917,8 +914,8 @@ function Reserve() {
                               </div>
                             </div>
 
-                            {/* Credit Score Card Integration - Only visible for Admin */}
-                            {currentUser?.role === "admin" && (
+                            {/* Credit Score Card Integration - Only visible for Admin and Seller */}
+                            {(currentUser?.role === "admin" || currentUser?.role === "seller") && (
                               <div className="mt-6">
                                 <CreditScoreCard creditScore={selectedUser.credit_score} />
                               </div>

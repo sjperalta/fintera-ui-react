@@ -4,7 +4,6 @@ import logo from "../../assets/images/logo/logo-color.svg";
 import logoW from "../../assets/images/logo/logo-white.svg";
 
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
 import { useLocale } from "../../contexts/LocaleContext";
 
 function Sidebar({ handleActive, user, handleLogout }) {

@@ -4,7 +4,7 @@ import { useLocale } from "../../contexts/LocaleContext";
 import { getToken } from "../../../auth";
 import { API_URL } from "../../../config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faPen, faTrash, faInfo, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faPen, faTrash, faInfo } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 
 function RecentActivity() {

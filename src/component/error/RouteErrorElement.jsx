@@ -9,7 +9,7 @@ export default function RouteErrorElement() {
   React.useEffect(() => {
     try {
       Sentry.captureException(error)
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, [error])

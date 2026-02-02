@@ -5,27 +5,19 @@ import { getToken } from "../../../auth";
 import { useToast } from "../../contexts/ToastContext";
 import { useLocale } from "../../contexts/LocaleContext";
 
+const FIELDS = ["full_name", "email", "identity", "rtn", "phone", "address"];
+
 function Progressbar({ className, user }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
-
-  const fields = ["full_name", "email", "identity", "rtn", "phone", "address"];
+  const [filled, _] = useState(0);
 
   const percent = useMemo(() => {
     if (!user || typeof user !== "object") return 0;
 
     const missing = [];
-    const filled = fields.reduce((acc, key) => {
-      const v = user[key];
-      // consider field filled if it exists and has a meaningful value
-      const hasValue = v !== null && v !== undefined && v !== "";
-      const isFilled = hasValue && String(v).trim().length > 0;
-      if (!isFilled) missing.push(key);
-      return isFilled ? acc + 1 : acc;
-    }, 0);
-
-    const total = fields.length || 1;
+    const total = FIELDS.length || 1;
     const raw = Math.round((filled / total) * 100);
     const clamped = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
 
@@ -35,7 +27,7 @@ function Progressbar({ className, user }) {
     }
 
     return clamped;
-  }, [user]);
+  }, [user, filled]);
 
   const strokeOffset = `calc(215 - 215 * (${percent} / 100))`;
 
@@ -111,7 +103,7 @@ function Progressbar({ className, user }) {
               {t("progressbar.completeInfo")}
             </h4>
             <span className="text-sm font-medium text-bgray-700 dark:text-darkblack-300">
-              {t("progressbar.percentComplete", { percent, count: fields.length })}
+              {t("progressbar.percentComplete", { percent, count: FIELDS.length })}
             </span>
           </div>
         </div>

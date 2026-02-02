@@ -16,7 +16,7 @@ function LotsList() {
   // Search and filter state
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
 
   // Highlighted lot state for navigation from contracts
   const [highlightedLotId, setHighlightedLotId] = useState(null);
@@ -101,10 +101,7 @@ function LotsList() {
     [searchTerm, statusFilter]
   );
 
-  // Refresh function
-  const refreshLots = useCallback(() => {
-    setRefreshTrigger((prev) => prev + 1);
-  }, []);
+
 
   // Render function for GenericList
   const renderLotItem = useCallback(
@@ -169,7 +166,7 @@ function LotsList() {
             entityName="lots"
             showMobileCards={true}
             showDesktopTable={false}
-            refreshTrigger={refreshTrigger}
+            refreshTrigger={0}
           />
         </section>
       </div>

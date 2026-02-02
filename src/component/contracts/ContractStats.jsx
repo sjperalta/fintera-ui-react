@@ -3,12 +3,10 @@ import { useLocale } from "../../contexts/LocaleContext";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faFileContract,
-    faClock,
     faCheckCircle,
+    faClock,
+    faFileContract,
     faTimesCircle,
-    faBan,
-    faLock
 } from "@fortawesome/free-solid-svg-icons";
 
 const StatCard = ({ title, value, icon, color, delay }) => (

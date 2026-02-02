@@ -1,16 +1,16 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import debounce from 'lodash.debounce';
 import { formatStatus } from "../../utils/formatStatus";
 import { useLocale } from "../../contexts/LocaleContext";
 
 function ContractFilter({ searchTerm, status, onSearchChange, onStatusChange }) {
-  const [activeFilter, setActiveFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [term, setTerm] = useState(searchTerm);
-  const [selectedStatus, setSelectedStatus] = useState(status);
   const { t } = useLocale();
+
+  // Derive activeFilter during render
+  const activeFilter = status ? formatStatus(status, t) : t('filters.all');
   // Contract status options (values). Labels come from formatStatus for consistency.
   const statuses = [
     { value: "" },
@@ -21,13 +21,6 @@ function ContractFilter({ searchTerm, status, onSearchChange, onStatusChange }) 
     { value: "cancelled" },
     { value: "closed" },
   ]; // Contract status options
-  
-  const navigate = useNavigate();
-  const { id } = useParams(); // Get project id from params
-
-  const handleActiveFilter = (e) => {
-    setActiveFilter(e.target.innerText);
-  };
 
   const handleTermChange = (e) => {
     setTerm(e.target.value);
@@ -35,7 +28,7 @@ function ContractFilter({ searchTerm, status, onSearchChange, onStatusChange }) 
   };
 
   const handleStatusSelect = (statusValue) => {
-    setSelectedStatus(statusValue);
+    // setSelectedStatus(statusValue);
     onStatusChange(statusValue); // Update parent with selected status (empty = all)
   };
 
@@ -59,14 +52,6 @@ function ContractFilter({ searchTerm, status, onSearchChange, onStatusChange }) 
       debouncedSearch.cancel();
     };
   }, [debouncedSearch]);
-
-  // Initialize visible label from incoming prop `status`
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSelectedStatus(status);
-     
-    setActiveFilter(status ? formatStatus(status, t) : t('filters.all'));
-  }, [status]);
 
   return (
     <div className="bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex">
@@ -163,8 +148,6 @@ function ContractFilter({ searchTerm, status, onSearchChange, onStatusChange }) 
                 key={statusOption.value !== undefined ? statusOption.value : statusOption.label}
                 onClick={() => {
                   setShowFilter(false);
-                  // set the visible label using central helper
-                  setActiveFilter(formatStatus(statusOption.value || "", t));
                   handleStatusSelect(statusOption.value);
                 }}
                 className="text-sm text-bgray-900 dark:text-bgray-50 hover:dark:bg-darkblack-600 cursor-pointer px-5 py-2 hover:bg-bgray-100 font-semibold"

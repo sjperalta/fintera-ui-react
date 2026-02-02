@@ -23,7 +23,7 @@ class ErrorBoundary extends React.Component {
         // captureException may return an eventId; store it so we can show a report dialog
         this.setState({ eventId });
       }
-    } catch (e) {
+    } catch {
       // swallow errors from Sentry itself
       // but still mark that an error occurred
       this.setState({ eventId: null });
@@ -41,7 +41,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError && !prevState.hasError) {
       try {
         this.retryButtonRef.current?.focus();
-      } catch (e) {
+      } catch {
         // ignore focus errors
       }
     }
@@ -100,6 +100,9 @@ class ErrorBoundary extends React.Component {
 ErrorBoundary.propTypes = {
   fallback: PropTypes.node,
   children: PropTypes.node,
+  localeContext: PropTypes.shape({
+    t: PropTypes.func.isRequired,
+  }),
 };
 
 // Wrapper component to provide locale context to class component

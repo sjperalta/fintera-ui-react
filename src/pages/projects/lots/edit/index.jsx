@@ -26,7 +26,6 @@ function EditLot() {
   const [length, setLength] = useState(0);
   const [width, setWidth] = useState(0);
   const [measurementUnit, setMeasurementUnit] = useState("m2");
-  const [balance, setBalance] = useState(0);
   const [status, setStatus] = useState("");
   const [projectName, setProjectName] = useState("");
   const [projectPricePerUnit, setProjectPricePerUnit] = useState(0);
@@ -41,8 +40,8 @@ function EditLot() {
   const [overridePriceValue, setOverridePriceValue] = useState("");
   const [overrideArea, setOverrideArea] = useState(false);
   const [overrideAreaValue, setOverrideAreaValue] = useState("");
-  const [serverPrice, setServerPrice] = useState(null);
-  const [serverArea, setServerArea] = useState(null);
+  const [_ser_verPrice_, setServerPrice] = useState(null);
+  const [_serverArea_, setServerArea] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -71,7 +70,7 @@ function EditLot() {
         setLength(data.length ?? 0);
         setWidth(data.width ?? 0);
         setMeasurementUnit(data.measurement_unit || data.unit || "m2");
-        setBalance(data.balance || 0);
+        // setBalance(data.balance || 0);
         setStatus(data.status || "");
         setAddress(data.address || "");
         setRegistrationNumber(data.registration_number || data.registrationNumber || "");

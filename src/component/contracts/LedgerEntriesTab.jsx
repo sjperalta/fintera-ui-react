@@ -1,19 +1,17 @@
 import PropTypes from 'prop-types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faReceipt,
   faArrowDown,
   faArrowUp,
-  faCircle,
   faMoneyBillWave,
-  faCalendarAlt,
-  faHashtag
+  faCalendarAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocale } from '../../contexts/LocaleContext';
 import { formatStatus } from '../../utils/formatStatus';
 
-const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries, fmt }) => {
+const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries }) => {
   const { t } = useLocale();
 
   // Calculate totals
