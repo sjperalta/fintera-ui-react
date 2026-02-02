@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
+vi.stubEnv('NODE_ENV', 'development')
 
 // Mock Sentry module (define mocks inside factory to avoid hoisting TDZ)
 vi.mock('@sentry/react', () => {
@@ -13,6 +14,25 @@ vi.mock('@sentry/react', () => {
 })
 
 import * as Sentry from '@sentry/react'
+// Mock LocaleContext with absolute path
+vi.mock('src/contexts/LocaleContext', () => ({
+  useLocale: () => ({
+    locale: 'en',
+    setLocale: () => {},
+    t: (key) => {
+      const translations = {
+        'errors.reportFeedback': 'Report Feedback',
+        'common.retry': 'Retry',
+        'errors.somethingWentWrong': 'Something went wrong.',
+      };
+      return translations[key] || key;
+    },
+    getSupportedLocales: () => ['en', 'es'],
+    getCurrentLocaleName: () => 'English',
+  }),
+  LocaleProvider: ({ children }) => children,
+}));
+
 import ErrorBoundary from '../ErrorBoundary.jsx'
 
 function Thrower({ shouldThrow }) {
@@ -39,7 +59,7 @@ describe('ErrorBoundary', () => {
   expect(Sentry.captureException).toHaveBeenCalled()
 
   // Report button should be shown (eventId returned)
-  const reportBtn = screen.getByText('Report feedback')
+  const reportBtn = screen.getByText('errors.reportFeedback')
   expect(reportBtn).toBeTruthy()
 
   // Click report and assert showReportDialog called with eventId
@@ -47,7 +67,7 @@ describe('ErrorBoundary', () => {
   expect(Sentry.showReportDialog).toHaveBeenCalledWith({ eventId: 'event-123' })
 
     // Now retry: re-render with a non-throwing child
-    const retryBtn = screen.getByText('Retry')
+    const retryBtn = screen.getByText('common.retry')
     fireEvent.click(retryBtn)
 
     rerender(
