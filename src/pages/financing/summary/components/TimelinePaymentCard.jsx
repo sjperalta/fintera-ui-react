@@ -7,7 +7,7 @@ import { useToast } from '../../../../contexts/ToastContext';
 import AuthContext from '../../../../contexts/AuthContext';
 import { API_URL } from '../../../../../config';
 
-function TimelinePaymentCard({ payment, onPaymentSuccess }) {
+function TimelinePaymentCard({ payment, onPaymentSuccess, cardId }) {
     const { t, locale } = useLocale();
     const { showToast } = useToast();
     const { token } = useContext(AuthContext);
@@ -16,10 +16,15 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
     const [selectedFile, setSelectedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
-    const { id, amount, due_date, status, interest_amount, contract } = payment;
+    const { id, amount, due_date, status, interest_amount, contract, description, project_name, lot_name, rejection_reason, rejection_reason_notes } = payment;
+    const statusLower = (status || '').toLowerCase();
     const dueDate = parseISO(due_date);
-    const isOverdue = isBefore(dueDate, startOfDay(new Date())) && status !== 'paid';
+    const isOverdue = isBefore(dueDate, startOfDay(new Date())) && statusLower !== 'paid' && statusLower !== 'rejected';
+    const isRejected = statusLower === 'rejected';
+    const rejectionReason = rejection_reason || rejection_reason_notes;
     const currency = contract?.currency || 'HNL';
+    const displayProject = project_name || contract?.lot?.project?.name || '';
+    const displayLot = lot_name || contract?.lot?.name || '';
     const dateLocale = locale === 'es' ? es : enUS;
 
     const interest = Number(interest_amount || 0);
@@ -61,13 +66,14 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
     };
 
     const getStatusColor = () => {
-        if (status === 'paid') return 'bg-emerald-500';
+        if (statusLower === 'paid') return 'bg-emerald-500';
+        if (isRejected) return 'bg-rose-500';
         if (isOverdue) return 'bg-rose-500';
         return 'bg-amber-500';
     };
 
     return (
-        <div className="relative pl-8 pb-4 group last:pb-0">
+        <div id={cardId} className="relative pl-8 pb-4 group last:pb-0">
             {/* Vertical timeline line */}
             <div className="absolute left-[3px] top-4 bottom-0 w-[2px] bg-bgray-200 dark:bg-bgray-800 group-last:hidden"></div>
 
@@ -81,13 +87,36 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
                             <span className="text-xs font-semibold text-bgray-500 uppercase tracking-widest">
                                 {format(dueDate, 'dd MMM yyyy', { locale: dateLocale })}
                             </span>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight ${status === 'paid' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                                isOverdue ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' :
-                                    'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight ${statusLower === 'paid' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                                isRejected ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' :
+                                    isOverdue ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' :
+                                        'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
                                 }`}>
-                                {status === 'paid' ? t('payments.paid') : isOverdue ? t('payments.overdue') : t('payments.pending')}
+                                {statusLower === 'paid' ? t('payments.paid') : isRejected ? t('payments.statusOptions.rejected') : isOverdue ? t('payments.overdue') : t('payments.pending')}
                             </span>
                         </div>
+                        {(description || displayProject || displayLot) && (
+                            <p className="text-sm font-medium text-bgray-700 dark:text-bgray-300">
+                                {[description, displayProject && displayLot ? `${displayProject} – ${displayLot}` : displayProject || displayLot].filter(Boolean).join(' · ')}
+                            </p>
+                        )}
+                        {isRejected && (
+                            <div className="flex items-start gap-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20">
+                                <svg className="w-5 h-5 flex-shrink-0 text-rose-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+                                </svg>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wide">
+                                        {t('payments.statusOptions.rejected')}
+                                    </p>
+                                    {rejectionReason ? (
+                                        <p className="text-sm text-rose-600 dark:text-rose-400 mt-1 italic">"{rejectionReason}"</p>
+                                    ) : (
+                                        <p className="text-sm text-rose-600 dark:text-rose-400 mt-1">{t('payments.paymentRejectedNotice')}</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                         <h4 className="text-xl font-black text-bgray-900 dark:text-white">
                             {formatCurrency(totalDue)}
                         </h4>
@@ -103,7 +132,7 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
                     </div>
 
                     <div className="flex items-center gap-3 self-end md:self-center">
-                        {status !== 'paid' && status !== 'submitted' && (
+                        {statusLower !== 'paid' && statusLower !== 'submitted' && (
                             <button
                                 onClick={() => setIsModalOpen(true)}
                                 className="px-5 py-2 bg-bgray-900 dark:bg-white text-white dark:text-bgray-900 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg shadow-bgray-900/20 dark:shadow-none"
@@ -111,7 +140,15 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
                                 {t('payments.uploadReceipt')}
                             </button>
                         )}
-                        {status === 'paid' && (
+                        {isRejected && (
+                            <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-500/10 px-4 py-2 rounded-xl text-sm border border-rose-200 dark:border-rose-500/20">
+                                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+                                </svg>
+                                {t('payments.statusOptions.rejected')}
+                            </div>
+                        )}
+                        {statusLower === 'paid' && (
                             <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-500/5 px-4 py-2 rounded-xl text-sm">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -126,28 +163,58 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
             {/* Modal Portal */}
             {isModalOpen && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-bgray-900/40 backdrop-blur-md p-4 animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-bgray-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-bgray-100 dark:border-bgray-800 animate-in zoom-in-95 duration-200">
+                    <div className="bg-white dark:bg-bgray-900 w-full max-w-lg rounded-3xl p-8 shadow-2xl border border-bgray-100 dark:border-bgray-800 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-start mb-6">
                             <div>
                                 <h3 className="text-2xl font-black text-bgray-900 dark:text-white">{t('payments.uploadReceipt')}</h3>
-                                <p className="text-sm text-bgray-500 mt-1">{t('payments.detailedPaymentInfo')}</p>
+                                <p className="text-sm text-bgray-500 mt-1">{t('payments.uploadReceiptForThisPayment')}</p>
                             </div>
                             <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-bgray-100 dark:hover:bg-bgray-800 rounded-full transition-colors">
                                 <svg className="w-5 h-5 text-bgray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="p-4 rounded-2xl bg-bgray-50 dark:bg-bgray-800/50 border border-bgray-100 dark:border-bgray-700">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm text-bgray-500">{t('payments.amount')}</span>
-                                    <span className="text-lg font-bold text-bgray-900 dark:text-white">{formatCurrency(totalDue)}</span>
+                        {/* Payment details */}
+                        <div className="space-y-4 mb-6">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-bgray-400 border-b border-bgray-200 dark:border-bgray-700 pb-2">
+                                {t('payments.paymentDetailsSection')}
+                            </h4>
+                            <div className="p-4 rounded-2xl bg-bgray-50 dark:bg-bgray-800/50 border border-bgray-100 dark:border-bgray-700 space-y-3">
+                                {(description || displayProject || displayLot) && (
+                                    <div>
+                                        <span className="text-[10px] font-bold text-bgray-400 uppercase tracking-wider block mb-0.5">{t('payments.description')}</span>
+                                        <p className="text-sm font-medium text-bgray-900 dark:text-white">
+                                            {[description, displayProject && displayLot ? `${displayProject} – ${displayLot}` : displayProject || displayLot].filter(Boolean).join(' · ')}
+                                        </p>
+                                    </div>
+                                )}
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] font-bold text-bgray-400 uppercase tracking-wider">{t('payments.dueDate')}</span>
+                                    <span className="text-sm font-bold text-bgray-900 dark:text-white">{format(dueDate, 'PPP', { locale: dateLocale })}</span>
                                 </div>
-                                <div className="text-[10px] text-bgray-400 uppercase tracking-wider">
-                                    {format(dueDate, 'PPP', { locale: dateLocale })}
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] font-bold text-bgray-400 uppercase tracking-wider">{t('payments.subtotal')}</span>
+                                    <span className="text-sm font-bold text-bgray-900 dark:text-white">{formatCurrency(amount)}</span>
+                                </div>
+                                {interest > 0 && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-bold text-rose-500 uppercase tracking-wider">{t('payments.lateInterest')}</span>
+                                        <span className="text-sm font-bold text-rose-600 dark:text-rose-400">{formatCurrency(interest)}</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between items-center pt-2 border-t border-bgray-200 dark:border-bgray-600">
+                                    <span className="text-[10px] font-black text-bgray-500 uppercase tracking-wider">{t('payments.totalAmount')}</span>
+                                    <span className="text-lg font-black text-bgray-900 dark:text-white">{formatCurrency(totalDue)}</span>
                                 </div>
                             </div>
 
+                            {/* What you're uploading */}
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-bgray-400 border-b border-bgray-200 dark:border-bgray-700 pb-2 mt-6">
+                                {t('payments.whatYouAreUploading')}
+                            </h4>
+                            <p className="text-sm text-bgray-500 dark:text-bgray-400">
+                                {t('payments.uploadReceiptDescription')}
+                            </p>
                             <div className="relative group">
                                 <input
                                     type="file"
@@ -168,7 +235,7 @@ function TimelinePaymentCard({ payment, onPaymentSuccess }) {
                                     <span className="text-sm font-bold text-bgray-900 dark:text-white">
                                         {selectedFile ? selectedFile.name : t('payments.selectFileToUpload')}
                                     </span>
-                                    <span className="text-xs text-bgray-500 mt-1">{t('payments.clickToBrowse')}</span>
+                                    <span className="text-xs text-bgray-500 mt-1">{t('payments.acceptedFormats')}</span>
                                 </label>
                             </div>
                         </div>

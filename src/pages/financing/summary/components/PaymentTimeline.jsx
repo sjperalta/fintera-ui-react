@@ -9,10 +9,11 @@ function PaymentTimeline({ payments, onPaymentSuccess }) {
 
     const sortedPayments = [...payments].sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
 
-    // Group by status/time
-    const overdue = sortedPayments.filter(p => new Date(p.due_date) < new Date() && p.status !== 'paid');
-    const upcoming = sortedPayments.filter(p => new Date(p.due_date) >= new Date() && p.status !== 'paid');
-    const paid = sortedPayments.filter(p => p.status === 'paid');
+    // Group by status/time (rejected first, then overdue/upcoming/paid)
+    const rejected = sortedPayments.filter(p => (p.status || '').toLowerCase() === 'rejected');
+    const overdue = sortedPayments.filter(p => new Date(p.due_date) < new Date() && (p.status || '').toLowerCase() !== 'paid' && (p.status || '').toLowerCase() !== 'rejected');
+    const upcoming = sortedPayments.filter(p => new Date(p.due_date) >= new Date() && (p.status || '').toLowerCase() !== 'paid' && (p.status || '').toLowerCase() !== 'rejected');
+    const paid = sortedPayments.filter(p => (p.status || '').toLowerCase() === 'paid');
 
     const displayedUpcoming = showAllUpcoming ? upcoming : upcoming.slice(0, 3);
     const displayedPaid = showAllPaid ? paid : paid.slice(0, 3);
@@ -24,7 +25,23 @@ function PaymentTimeline({ payments, onPaymentSuccess }) {
     );
 
     return (
-        <div className="space-y-12">
+        <div id="financing-timeline" className="space-y-12">
+            {rejected.length > 0 && (
+                <section>
+                    <h3 className="text-rose-600 dark:text-rose-400 font-bold mb-6 flex items-center gap-3 text-lg">
+                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+                        </svg>
+                        {t('payments.rejectedPayments')}
+                    </h3>
+                    <div className="ml-1 space-y-4">
+                        {rejected.map((p) => (
+                            <TimelinePaymentCard key={p.id} payment={p} onPaymentSuccess={onPaymentSuccess} />
+                        ))}
+                    </div>
+                </section>
+            )}
+
             {overdue.length > 0 && (
                 <section>
                     <h3 className="text-rose-500 font-bold mb-6 flex items-center gap-3 text-lg">
@@ -32,8 +49,8 @@ function PaymentTimeline({ payments, onPaymentSuccess }) {
                         {t('payments.overdue')}
                     </h3>
                     <div className="ml-1 space-y-4">
-                        {overdue.map(p => (
-                            <TimelinePaymentCard key={p.id} payment={p} onPaymentSuccess={onPaymentSuccess} />
+                        {overdue.map((p, i) => (
+                            <TimelinePaymentCard key={p.id} payment={p} onPaymentSuccess={onPaymentSuccess} cardId={i === 0 ? "financing-first-payment-card" : undefined} />
                         ))}
                     </div>
                 </section>
@@ -56,8 +73,8 @@ function PaymentTimeline({ payments, onPaymentSuccess }) {
                         )}
                     </div>
                     <div className="ml-1 space-y-4">
-                        {displayedUpcoming.map(p => (
-                            <TimelinePaymentCard key={p.id} payment={p} onPaymentSuccess={onPaymentSuccess} />
+                        {displayedUpcoming.map((p, i) => (
+                            <TimelinePaymentCard key={p.id} payment={p} onPaymentSuccess={onPaymentSuccess} cardId={overdue.length === 0 && i === 0 ? "financing-first-payment-card" : undefined} />
                         ))}
                     </div>
                 </section>
@@ -80,8 +97,8 @@ function PaymentTimeline({ payments, onPaymentSuccess }) {
                         )}
                     </div>
                     <div className={`ml-1 space-y-4 ${!showAllPaid ? 'opacity-70' : ''} transition-opacity`}>
-                        {displayedPaid.map(p => (
-                            <TimelinePaymentCard key={p.id} payment={p} onPaymentSuccess={onPaymentSuccess} />
+                        {displayedPaid.map((p, i) => (
+                            <TimelinePaymentCard key={p.id} payment={p} onPaymentSuccess={onPaymentSuccess} cardId={overdue.length === 0 && upcoming.length === 0 && i === 0 ? "financing-first-payment-card" : undefined} />
                         ))}
                     </div>
                 </section>

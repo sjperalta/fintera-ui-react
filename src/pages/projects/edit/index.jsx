@@ -48,6 +48,10 @@ function EditProject() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!id) {
+      setLoadingProject(false);
+      return;
+    }
     const fetchProject = async () => {
       setLoadingProject(true);
       setError(null);
@@ -61,19 +65,23 @@ function EditProject() {
         });
         if (!res.ok) throw new Error(t('projects.failedToLoadProject'));
         const data = await res.json();
-        setName(data.name || "");
-        setDescription(data.description || "");
-        setAddress(data.address || "");
-        setLotCount(data.lot_count || 0);
-        setPricePerSquareUnit(data.price_per_square_unit || 0);
-        setMeasurementUnit(data.measurement_unit || "m2");
-        setInterestRate(data.interest_rate || 0);
-        setCommissionRate(data.commission_rate || 0);
-        setDeliveryDate(data.delivery_date || "");
-        setProjectType(data.project_type || "residential");
-        setAvailableLots(data.available_lots || 0);
-        setReservedLots(data.reserved_lots || 0);
-        setSoldLots(data.sold_lots || 0);
+        // Handle wrapped responses (e.g. { project: ... } or { data: ... })
+        const pdata = data.project || data.data || data;
+        setName(pdata.name || "");
+        setDescription(pdata.description || "");
+        setAddress(pdata.address || "");
+        setLotCount(pdata.lot_count || 0);
+        setPricePerSquareUnit(pdata.price_per_square_unit || 0);
+        setMeasurementUnit(pdata.measurement_unit || "m2");
+        setInterestRate(pdata.interest_rate || 0);
+        setCommissionRate(pdata.commission_rate || 0);
+        // Normalize ISO date (e.g. 2028-01-01T00:00:00Z) to YYYY-MM-DD for input[type="date"]
+        const rawDate = pdata.delivery_date || "";
+        setDeliveryDate(rawDate ? rawDate.slice(0, 10) : "");
+        setProjectType(pdata.project_type || "residential");
+        setAvailableLots(pdata.available_lots || 0);
+        setReservedLots(pdata.reserved_lots || 0);
+        setSoldLots(pdata.sold_lots || 0);
       } catch (err) {
         setError(err.message);
       } finally {

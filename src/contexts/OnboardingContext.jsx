@@ -108,7 +108,7 @@ export const OnboardingProvider = ({ children }) => {
                     popover: {
                         title: t("onboarding.projectsTour.addProject.title") || "Add Project",
                         description: t("onboarding.projectsTour.addProject.desc") || "Create new real estate projects easily.",
-                        side: "left",
+                        side: "right",
                         align: "start"
                     }
                 },
@@ -117,7 +117,7 @@ export const OnboardingProvider = ({ children }) => {
                     popover: {
                         title: t("onboarding.projectsTour.import.title") || "Import Projects",
                         description: t("onboarding.projectsTour.import.desc") || "Bulk upload projects via CSV.",
-                        side: "left",
+                        side: "right",
                         align: "start"
                     }
                 },
@@ -310,8 +310,55 @@ export const OnboardingProvider = ({ children }) => {
                         align: "start"
                     }
                 }
-            ]
+            ],
 
+            financing: [
+                {
+                    element: "#financing-hero",
+                    popover: {
+                        title: t("onboarding.financingTour.hero.title") || "Your Balance",
+                        description: t("onboarding.financingTour.hero.desc") || "This is your current balance. From this page you can see your payment progress and manage your installments.",
+                        side: "bottom",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#financing-stats",
+                    popover: {
+                        title: t("onboarding.financingTour.stats.title") || "Payment Progress",
+                        description: t("onboarding.financingTour.stats.desc") || "See how much you have paid vs total amount. The bar shows your overall progress.",
+                        side: "top",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#financing-next-payment",
+                    popover: {
+                        title: t("onboarding.financingTour.nextPayment.title") || "Next Payment",
+                        description: t("onboarding.financingTour.nextPayment.desc") || "Your next upcoming installment: amount and due date. Plan ahead for this payment.",
+                        side: "top",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#financing-timeline",
+                    popover: {
+                        title: t("onboarding.financingTour.timeline.title") || "Payment History",
+                        description: t("onboarding.financingTour.timeline.desc") || "All your installments in one place: overdue (red), upcoming (amber), and completed (green). Scroll to see more.",
+                        side: "top",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#financing-first-payment-card",
+                    popover: {
+                        title: t("onboarding.financingTour.uploadReceipt.title") || "Upload Receipt",
+                        description: t("onboarding.financingTour.uploadReceipt.desc") || "For each pending payment you can upload a receipt here. Click the button, select your proof of payment, and confirm. Your balance will update once approved.",
+                        side: "right",
+                        align: "start"
+                    }
+                }
+            ]
         };
 
         const steps = stepsConfig[tourKey] || [];

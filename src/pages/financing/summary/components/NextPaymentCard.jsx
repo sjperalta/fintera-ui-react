@@ -5,7 +5,7 @@ function NextPaymentCard({ payments, currency }) {
     const { t } = useLocale();
 
     const nextPayment = payments
-        .filter(p => p.status !== 'paid' && new Date(p.due_date) >= new Date())
+        .filter(p => (p.status || '').toLowerCase() !== 'paid' && (p.status || '').toLowerCase() !== 'rejected' && new Date(p.due_date) >= new Date())
         .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))[0];
 
     if (!nextPayment) {
@@ -18,9 +18,12 @@ function NextPaymentCard({ payments, currency }) {
 
     const totalDue = Number(nextPayment.amount || 0) + Number(nextPayment.interest_amount || 0);
     const dueDate = new Date(nextPayment.due_date);
+    const displayProject = nextPayment.project_name || nextPayment.contract?.lot?.project?.name || '';
+    const displayLot = nextPayment.lot_name || nextPayment.contract?.lot?.name || '';
+    const paymentContext = [nextPayment.description, displayProject && displayLot ? `${displayProject} – ${displayLot}` : displayProject || displayLot].filter(Boolean);
 
     return (
-        <div className="w-full bg-white dark:bg-bgray-900/50 backdrop-blur-sm border border-bgray-200 dark:border-bgray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+        <div id="financing-next-payment" className="w-full bg-white dark:bg-bgray-900/50 backdrop-blur-sm border border-bgray-200 dark:border-bgray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
             {/* Dynamic background accent */}
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                 <svg className="w-24 h-24 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
@@ -34,6 +37,11 @@ function NextPaymentCard({ payments, currency }) {
                 </h3>
 
                 <div className="space-y-1">
+                    {paymentContext.length > 0 && (
+                        <p className="text-sm font-medium text-bgray-700 dark:text-bgray-300 mb-2">
+                            {paymentContext.join(' · ')}
+                        </p>
+                    )}
                     <p className="text-3xl font-black text-bgray-900 dark:text-white">
                         {currency} {totalDue.toLocaleString()}
                     </p>

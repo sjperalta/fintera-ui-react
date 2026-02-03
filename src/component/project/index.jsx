@@ -27,7 +27,8 @@ function Project({ project, user, onDeleted }) {
     price_per_square_unit,
     measurement_unit,
     address,
-    delivery_date
+    delivery_date,
+    created_at
   } = project;
 
   const unitLabel = (u) => {
@@ -101,6 +102,12 @@ function Project({ project, user, onDeleted }) {
               <div className="flex items-center text-xs text-bgray-500 dark:text-bgray-500">
                 <span className="font-semibold mr-1">{t('projects.delivery')}:</span>
                 <span>{new Date(delivery_date).toLocaleDateString()}</span>
+              </div>
+            )}
+            {created_at && (
+              <div className="flex items-center text-xs text-bgray-500 dark:text-bgray-500">
+                <span className="font-semibold mr-1">{t('projects.created')}:</span>
+                <span>{new Date(created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
               </div>
             )}
           </div>
@@ -212,6 +219,7 @@ Project.propTypes = {
     measurement_unit: PropTypes.string,
     price_per_square_unit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     delivery_date: PropTypes.string,
+    created_at: PropTypes.string,
   }).isRequired,
   user: PropTypes.object,
   onDeleted: PropTypes.func,
