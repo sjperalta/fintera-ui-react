@@ -308,6 +308,7 @@
     "deliveryDate": "Delivery Date",
     "enterDeliveryDate": "Enter delivery date",
     "delivery": "Delivery",
+    "created": "Created",
     "projectType": "Project Type",
     "residential": "Residential",
     "commercial": "Commercial",
@@ -346,6 +347,8 @@
     "pending": "Pending",
     "paid": "Paid",
     "overdue": "Overdue",
+    "rejectedPayments": "Rejected",
+    "paymentRejectedNotice": "This payment was rejected. You can upload a new receipt to resubmit.",
     "paymentSchedule": "Payment Schedule",
     "managePayments": "Manage your pending payments",
     "completed": "Completed",
@@ -359,6 +362,10 @@
     "noContracts": "You don't have any active financing contracts.",
     "connectionError": "Connection Error",
     "uploadReceipt": "Upload Payment Receipt",
+    "uploadReceiptForThisPayment": "Upload proof of payment for the installment below.",
+    "paymentDetailsSection": "Payment details",
+    "whatYouAreUploading": "What you're uploading",
+    "uploadReceiptDescription": "Attach your receipt or proof of payment (bank transfer, deposit slip, or photo). Accepted formats: PDF, JPG, PNG.",
     "showLess": "Show less",
     "showAll": "Show All",
     "loadingPayments": "Loading payments...",
@@ -378,6 +385,10 @@
     "totalAmount": "Total Amount",
     "approvedAt": "Approved At",
     "authorizedBy": "Authorized By",
+    "temporalData": "Temporal Data",
+    "authorityAndEntity": "Authority & Entity",
+    "propertyLot": "Property / Lot",
+    "receipt": "Receipt",
     "noReceipt": "No receipt available",
     "paymentDetail": "Payment Details",
     "actions": "Actions",
@@ -435,6 +446,15 @@
     "attachedDocument": "Attached Document",
     "previewNotAvailable": "Preview not available",
     "approveSuccess": "Payment approved successfully!",
+    "reject": "Reject",
+    "rejectPayment": "Reject Payment",
+    "rejectError": "Failed to reject payment",
+    "rejectSuccess": "Payment rejected.",
+    "rejecting": "Rejecting...",
+    "confirmRejection": "Confirm Rejection",
+    "rejectionReasonLong": "Provide a clear reason for rejecting this payment submission.",
+    "rejectionReasonLabel": "Reason for rejection",
+    "rejectionReasonPlaceholder": "Enter why this payment cannot be accepted...",
     "subtitle": "Manage and monitor your clients' payments",
     "totalApplied": "Total Received",
     "paymentHistory": "Payment History",
@@ -1350,6 +1370,28 @@
       "timeline": {
         "title": "Timeline",
         "desc": "View system activity chronologically."
+      }
+    },
+    "financingTour": {
+      "hero": {
+        "title": "Your Balance",
+        "desc": "This is your current balance. From this page you can see your payment progress and manage your installments."
+      },
+      "stats": {
+        "title": "Payment Progress",
+        "desc": "See how much you have paid vs total amount. The bar shows your overall progress."
+      },
+      "nextPayment": {
+        "title": "Next Payment",
+        "desc": "Your next upcoming installment: amount and due date. Plan ahead for this payment."
+      },
+      "timeline": {
+        "title": "Payment History",
+        "desc": "All your installments in one place: overdue (red), upcoming (amber), and completed (green). Scroll to see more."
+      },
+      "uploadReceipt": {
+        "title": "Upload Receipt",
+        "desc": "For each pending payment you can upload a receipt here. Click the button, select your proof of payment, and confirm. Your balance will update once approved."
       }
     },
     "analyticsTour": {

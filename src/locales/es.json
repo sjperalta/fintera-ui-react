@@ -308,6 +308,7 @@
     "deliveryDate": "Fecha de Entrega",
     "enterDeliveryDate": "Ingrese fecha de entrega",
     "delivery": "Entrega",
+    "created": "Creado",
     "projectType": "Tipo de Proyecto",
     "residential": "Residencial",
     "commercial": "Comercial",
@@ -346,6 +347,8 @@
     "pending": "Pendiente",
     "paid": "Pagado",
     "overdue": "Vencido",
+    "rejectedPayments": "Rechazados",
+    "paymentRejectedNotice": "Este pago fue rechazado. Puedes subir un nuevo comprobante para reenviar.",
     "paymentSchedule": "Cronograma de Pagos",
     "managePayments": "Gestiona tus pagos pendientes",
     "completed": "Completado",
@@ -359,6 +362,10 @@
     "noContracts": "No tienes ningún contrato de financiamiento activo.",
     "connectionError": "Error de conexión",
     "uploadReceipt": "Subir Comprobante de Pago",
+    "uploadReceiptForThisPayment": "Sube el comprobante de pago de la cuota indicada abajo.",
+    "paymentDetailsSection": "Detalles del pago",
+    "whatYouAreUploading": "Lo que estás subiendo",
+    "uploadReceiptDescription": "Adjunta tu comprobante o prueba de pago (transferencia, depósito o foto). Formatos aceptados: PDF, JPG, PNG.",
     "showLess": "Mostrar menos",
     "showAll": "Mostrar Todo",
     "loadingPayments": "Cargando pagos...",
@@ -379,6 +386,10 @@
     "approvedAt": "Aprobado el",
     "authorizedBy": "Autorizado por",
     "approved": "Aprobado",
+    "temporalData": "Datos Temporales",
+    "authorityAndEntity": "Autoridad y Entidad",
+    "propertyLot": "Propiedad / Lote",
+    "receipt": "Comprobante",
     "noReceipt": "Sin comprobante disponible",
     "paymentDetail": "Detalles del Pago",
     "actions": "Acciones",
@@ -436,6 +447,15 @@
     "attachedDocument": "Documento Adjunto",
     "previewNotAvailable": "Vista previa no disponible",
     "approveSuccess": "¡Pago aprobado exitosamente!",
+    "reject": "Rechazar",
+    "rejectPayment": "Rechazar Pago",
+    "rejectError": "Error al rechazar el pago",
+    "rejectSuccess": "Pago rechazado.",
+    "rejecting": "Rechazando...",
+    "confirmRejection": "Confirmar Rechazo",
+    "rejectionReasonLong": "Indique una razón clara para rechazar este envío de pago.",
+    "rejectionReasonLabel": "Razón del rechazo",
+    "rejectionReasonPlaceholder": "Indique por qué este pago no puede ser aceptado...",
     "subtitle": "Administra y supervisa los pagos de tus clientes",
     "totalApplied": "Total Recibido",
     "upcoming": "Próximos",
@@ -1364,6 +1384,28 @@
       "timeline": {
         "title": "Línea de Tiempo",
         "desc": "Visualiza la actividad del sistema de manera cronológica."
+      }
+    },
+    "financingTour": {
+      "hero": {
+        "title": "Tu saldo",
+        "desc": "Este es tu saldo actual. Desde esta página puedes ver tu avance de pagos y gestionar tus cuotas."
+      },
+      "stats": {
+        "title": "Avance de pagos",
+        "desc": "Consulta cuánto has pagado frente al total. La barra muestra tu progreso general."
+      },
+      "nextPayment": {
+        "title": "Próximo pago",
+        "desc": "Tu próxima cuota: monto y fecha de vencimiento. Planifica con anticipación."
+      },
+      "timeline": {
+        "title": "Historial de pagos",
+        "desc": "Todas tus cuotas en un solo lugar: vencidas (rojo), próximas (ámbar) y completadas (verde). Desplázate para ver más."
+      },
+      "uploadReceipt": {
+        "title": "Subir comprobante",
+        "desc": "Para cada pago pendiente puedes subir un comprobante aquí. Haz clic en el botón, selecciona tu comprobante de pago y confirma. Tu saldo se actualizará una vez aprobado."
       }
     },
     "analyticsTour": {

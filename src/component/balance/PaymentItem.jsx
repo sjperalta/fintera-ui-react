@@ -19,10 +19,13 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
 
   // Modal State
   const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
+  const [rejectLoading, setRejectLoading] = useState(false);
   const [editAmount, setEditAmount] = useState(paymentInfo.amount);
   const [editInterest, setEditInterest] = useState(paymentInfo.interest_amount || 0);
   const [approvalResult, setApprovalResult] = useState(null);
+  const [rejectResult, setRejectResult] = useState(null);
 
   const hasReceipt = Boolean(paymentInfo.has_receipt || paymentInfo.document_url);
 
@@ -69,6 +72,13 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
           dot: "bg-amber-500",
           border: "border-amber-500/20"
         };
+      case "rejected":
+        return {
+          bg: "bg-rose-500/10",
+          text: "text-rose-600 dark:text-rose-400",
+          dot: "bg-rose-500",
+          border: "border-rose-500/20"
+        };
       default:
         if (isOverdue) return { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-500", border: "border-rose-500/20" };
         return { bg: "bg-slate-500/10", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400", border: "border-slate-500/20" };
@@ -80,7 +90,9 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
     ? t('payments.statusOptions.submitted')
     : statusLower === "paid"
       ? t('payments.statusOptions.paid')
-      : formatStatus(paymentInfo.status, t);
+      : statusLower === "rejected"
+        ? t('payments.statusOptions.rejected')
+        : formatStatus(paymentInfo.status, t);
 
   const handleApprove = async (fileToUpload = null) => {
     setApproveLoading(true);
@@ -123,6 +135,32 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
       setApprovalResult({ type: 'error', message: err.message });
     } finally {
       setApproveLoading(false);
+    }
+  };
+
+  const handleReject = async (rejectionReason) => {
+    setRejectLoading(true);
+    setRejectResult(null);
+    try {
+      const res = await fetch(`${API_URL}/api/v1/payments/${paymentInfo.id}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ rejection_reason: rejectionReason }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.errors?.join(" ") || errorData.error || t('payments.rejectError'));
+      }
+      setRejectResult({ type: 'success', message: t('payments.rejectSuccess') });
+      setTimeout(() => {
+        if (typeof refreshPayments === "function") refreshPayments();
+        setShowRejectModal(false);
+        setRejectResult(null);
+      }, 1500);
+    } catch (err) {
+      setRejectResult({ type: 'error', message: err.message });
+    } finally {
+      setRejectLoading(false);
     }
   };
 
@@ -206,14 +244,24 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
 
             <div className="flex gap-2">
               {statusLower === "submitted" && userRole === "admin" && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={(e) => { e.stopPropagation(); setShowApproveModal(true); }}
-                  className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm hover:bg-slate-800 transition-all flex items-center justify-center"
-                >
-                  {t('payments.approve')}
-                </motion.button>
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={(e) => { e.stopPropagation(); setShowApproveModal(true); }}
+                    className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm hover:bg-slate-800 transition-all flex items-center justify-center"
+                  >
+                    {t('payments.approve')}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={(e) => { e.stopPropagation(); setShowRejectModal(true); }}
+                    className="px-6 py-2.5 bg-rose-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm hover:bg-rose-600 transition-all flex items-center justify-center"
+                  >
+                    {t('payments.reject')}
+                  </motion.button>
+                </>
               )}
               {statusLower === "paid" && (
                 <motion.button
@@ -235,6 +283,11 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
           handleApprove={handleApprove} approveLoading={approveLoading} approvalResult={approvalResult}
           editAmount={editAmount} setEditAmount={setEditAmount} editInterest={editInterest} setEditInterest={setEditInterest}
           t={t} hasReceipt={hasReceipt} handleDownloadReceipt={handleDownloadReceipt}
+        />}
+        {showRejectModal && <RejectPaymentModal
+          paymentInfo={paymentInfo} onClose={() => setShowRejectModal(false)}
+          handleReject={handleReject} rejectLoading={rejectLoading} rejectResult={rejectResult}
+          t={t}
         />}
       </motion.div>
     );
@@ -299,14 +352,24 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
       <td className="px-6 py-4">
         <div className="flex justify-end gap-3 transition-opacity duration-300">
           {statusLower === "submitted" && userRole === "admin" && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={(e) => { e.stopPropagation(); setShowApproveModal(true); }}
-              className="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-md hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-95 transition-all"
-            >
-              {t('payments.approve')}
-            </motion.button>
+            <>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => { e.stopPropagation(); setShowApproveModal(true); }}
+                className="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-md hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-95 transition-all"
+              >
+                {t('payments.approve')}
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => { e.stopPropagation(); setShowRejectModal(true); }}
+                className="px-5 py-2 bg-rose-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-md hover:bg-rose-600 active:scale-95 transition-all"
+              >
+                {t('payments.reject')}
+              </motion.button>
+            </>
           )}
           {statusLower === "paid" && (
             <motion.button
@@ -330,6 +393,14 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
             handleApprove={handleApprove} approveLoading={approveLoading} approvalResult={approvalResult}
             editAmount={editAmount} setEditAmount={setEditAmount} editInterest={editInterest} setEditInterest={setEditInterest}
             t={t} hasReceipt={hasReceipt} handleDownloadReceipt={handleDownloadReceipt}
+          />
+        )}
+        {showRejectModal && (
+          <RejectPaymentModal
+            key="reject-modal"
+            paymentInfo={paymentInfo} onClose={() => setShowRejectModal(false)}
+            handleReject={handleReject} rejectLoading={rejectLoading} rejectResult={rejectResult}
+            t={t}
           />
         )}
       </AnimatePresence>
@@ -523,6 +594,101 @@ function ApproveModal({
   );
 }
 
+/**
+ * Reject Payment Modal - Admin rejects a submitted payment with reason
+ */
+function RejectPaymentModal({ paymentInfo, onClose, handleReject, rejectLoading, rejectResult, t }) {
+  const [reason, setReason] = useState("");
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!reason.trim()) return;
+    handleReject(reason.trim());
+  };
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-slate-900/50 backdrop-blur-[12px] flex items-center justify-center z-[9999] p-6"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
+        className="bg-white dark:bg-darkblack-600 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-white/10"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="bg-rose-50 dark:bg-rose-900/10 p-8 flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
+            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white leading-tight">
+              {t('payments.rejectPayment')}
+            </h3>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+              {t('payments.rejectionReasonLong')}
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={onSubmit} className="p-8 space-y-6">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            {paymentInfo.description}
+          </p>
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+              {t('payments.rejectionReasonLabel')} *
+            </label>
+            <textarea
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+              placeholder={t('payments.rejectionReasonPlaceholder')}
+              className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/10 focus:border-rose-500 outline-none font-medium text-slate-900 dark:text-white min-h-[120px] resize-none text-sm"
+              required
+              disabled={rejectLoading}
+            />
+          </div>
+
+          <AnimatePresence>
+            {rejectResult && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`p-4 rounded-2xl text-center text-[10px] font-bold uppercase tracking-wider ${rejectResult.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}
+              >
+                {rejectResult.message}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={rejectLoading}
+              className="flex-1 py-4 rounded-2xl bg-slate-100 dark:bg-darkblack-500 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] hover:bg-slate-200 dark:hover:bg-darkblack-400 transition-all"
+            >
+              {t('common.cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={rejectLoading || !reason.trim()}
+              className="flex-[2] py-4 rounded-2xl bg-rose-500 text-white font-bold uppercase tracking-wider text-[10px] shadow-lg hover:bg-rose-600 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+            >
+              {rejectLoading ? (
+                <span className="animate-spin block w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
+              ) : null}
+              {rejectLoading ? t('payments.rejecting') : t('payments.confirmRejection')}
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>,
+    document.body
+  );
+}
 
 /**
  * Payment Detail Modal - Comprehensive view of a payment record
@@ -552,6 +718,7 @@ export function PaymentDetailModal({ payment, onClose }) {
     switch (statusLower) {
       case "paid": return { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500", border: "border-blue-500/20" };
       case "submitted": return { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500", border: "border-amber-500/20" };
+      case "rejected": return { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-500", border: "border-rose-500/20" };
       default: return { bg: "bg-slate-500/10", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400", border: "border-slate-500/20" };
     }
   };
@@ -599,7 +766,7 @@ export function PaymentDetailModal({ payment, onClose }) {
               }}
               className="mt-4 w-full py-4 bg-white dark:bg-darkblack-500 rounded-2xl text-[10px] font-black uppercase tracking-widest text-blue-500 border border-blue-500/10 hover:bg-blue-50 transition-all mb-4"
             >
-              {t('common.download')} Receipt
+              {t('common.download')} {t('payments.receipt')}
             </button>
           )}
         </div>
@@ -610,7 +777,7 @@ export function PaymentDetailModal({ payment, onClose }) {
             <div>
               <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.15em] border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border} mb-4`}>
                 <span className={`w-2 h-2 rounded-full mr-3 ${statusConfig.dot}`} />
-                {statusLower === 'paid' ? t('payments.statusOptions.paid') : statusLower === 'submitted' ? t('payments.statusOptions.submitted') : (payment.status || 'Pending')}
+                {statusLower === 'paid' ? t('payments.statusOptions.paid') : statusLower === 'submitted' ? t('payments.statusOptions.submitted') : statusLower === 'rejected' ? t('payments.statusOptions.rejected') : (payment.status || 'Pending')}
               </div>
               <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none italic mb-2">
                 {t('payments.paymentDetail')} <span className="text-blue-500 font-normal">.</span>
@@ -648,7 +815,7 @@ export function PaymentDetailModal({ payment, onClose }) {
 
             {/* Timestamps */}
             <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 dark:border-white/5 pb-2">Temporal Data</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 dark:border-white/5 pb-2">{t('payments.temporalData')}</h4>
               <div className="space-y-4">
                 <div className="flex justify-between items-center bg-slate-50 dark:bg-white/[0.02] p-3 rounded-xl border border-slate-100 dark:border-white/5">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">{t('payments.dueDate')}</span>
@@ -671,14 +838,14 @@ export function PaymentDetailModal({ payment, onClose }) {
 
             {/* Management Info */}
             <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 dark:border-white/5 pb-2">Authority & Entity</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 dark:border-white/5 pb-2">{t('payments.authorityAndEntity')}</h4>
               <div className="space-y-4">
                 <div className="p-3 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5">
                   <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">{t('payments.applicant')}</span>
                   <span className="text-sm font-bold text-slate-900 dark:text-white uppercase">{payment.applicant_name || payment.contract?.applicant_user?.full_name || "-"}</span>
                 </div>
                 <div className="p-3 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Property / Lot</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">{t('payments.propertyLot')}</span>
                   <span className="text-sm font-bold text-slate-900 dark:text-white uppercase">
                     {payment.project_name || payment.contract?.lot?.project?.name ? `${payment.project_name || payment.contract?.lot?.project?.name} - ` : ""}
                     Lote {payment.lot_name || payment.contract?.lot?.name || "-"}
@@ -693,6 +860,16 @@ export function PaymentDetailModal({ payment, onClose }) {
                       </div>
                       <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase">{payment.approver || payment.approved_by_name}</span>
                     </div>
+                  </div>
+                )}
+                {statusLower === 'rejected' && (
+                  <div className="p-3 bg-rose-500/5 rounded-xl border border-rose-500/10">
+                    <span className="text-[9px] font-bold text-rose-500 uppercase block mb-1">{t('payments.rejectionReasonLabel')}</span>
+                    <p className="text-sm font-medium text-rose-700 dark:text-rose-300 leading-relaxed">
+                      {payment.rejection_reason || payment.rejection_reason_notes || payment.rejection_note
+                        ? `"${payment.rejection_reason || payment.rejection_reason_notes || payment.rejection_note}"`
+                        : t('payments.paymentRejectedNotice')}
+                    </p>
                   </div>
                 )}
               </div>

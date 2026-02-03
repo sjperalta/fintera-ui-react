@@ -122,8 +122,8 @@ function Projects() {
 
   return (
     <main className="w-full xl:px-[48px] px-6 pb-6 xl:pb-[48px] sm:pt-[156px] pt-[100px] bg-bgray-50 dark:bg-darkblack-700 min-h-screen">
-      {/* Unified Action & Search Bar */}
-      <div className="mb-10 flex flex-col gap-6" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="100">
+      {/* Unified Action & Search Bar - z-20 so order filter dropdown appears above project cards */}
+      <div className="relative z-20 mb-10 flex flex-col gap-6" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="100">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
           {/* Search and Filters - Takes up remaining space */}
           <div className="flex-1">

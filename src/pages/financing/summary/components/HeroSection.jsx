@@ -7,7 +7,7 @@ function HeroSection({ balance, currency, userName }) {
 
 
     return (
-        <div className="relative w-full overflow-hidden rounded-[2rem] bg-bgray-50 dark:bg-[#080B14] p-6 sm:p-10 transition-all duration-700 border border-bgray-100 dark:border-white/10 group shadow-lg dark:shadow-success-500/5">
+        <div id="financing-hero" className="relative w-full overflow-hidden rounded-[2rem] bg-bgray-50 dark:bg-[#080B14] p-6 sm:p-10 transition-all duration-700 border border-bgray-100 dark:border-white/10 group shadow-lg dark:shadow-success-500/5">
             {/* Premium Dark Mode Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-tr from-success-500/[0.03] via-transparent to-indigo-500/[0.03] opacity-0 dark:opacity-100 transition-opacity duration-1000"></div>
 

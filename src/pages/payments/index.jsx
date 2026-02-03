@@ -68,10 +68,11 @@ function Payments() {
   const statusOptions = useMemo(() => [
     { value: "", label: t('filters.all') },
     { value: "submitted", label: t('payments.statusOptions.submitted') },
-    { value: "paid", label: t('payments.statusOptions.paid') }
+    { value: "paid", label: t('payments.statusOptions.paid') },
+    { value: "rejected", label: t('payments.statusOptions.rejected') }
   ], [t]);
 
-
+  const statusLabel = status ? (statusOptions.find(o => o.value === status)?.label ?? status) : '';
 
   const columns = useMemo(() => [
     { label: t('payments.description'), align: "left", sortKey: "description" },
@@ -84,7 +85,7 @@ function Payments() {
 
   const filters = useMemo(() => ({
     search_term: searchTerm,
-    status: status || "[paid|submitted]",
+    status: status || "[paid|submitted|rejected]",
     start_date: startDate,
     end_date: endDate
   }), [searchTerm, status, startDate, endDate]);
@@ -206,7 +207,7 @@ function Payments() {
               columns={columns}
               sortBy="updated_at-desc"
               itemsPerPage={20}
-              emptyMessage={t('payments.noPaymentsFound', { searchTerm: searchTerm, status: status })}
+              emptyMessage={t('payments.noPaymentsFound', { searchTerm: searchTerm, status: statusLabel })}
               loadingMessage={t('payments.loadingPayments')}
               entityName="payments"
               refreshTrigger={refreshTrigger}
