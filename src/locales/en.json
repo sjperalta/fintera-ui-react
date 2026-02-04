@@ -1015,6 +1015,7 @@
     "good": "★★ GOOD",
     "needsImprovement": "★ NEEDS IMPROVEMENT",
     "outOf100": "out of 100%",
+    "ficoRange": "FICO 300–850",
     "excellentDesc": "Excellent",
     "goodDesc": "Good",
     "fairDesc": "Fair",
@@ -1203,7 +1204,20 @@
     "events": {
       "create": "Create",
       "update": "Update",
-      "destroy": "Delete"
+      "destroy": "Delete",
+      "approve": "Approve",
+      "reject": "Reject",
+      "cancel": "Cancel",
+      "close": "Close",
+      "login": "Login",
+      "capital_repayment": "Capital Repayment"
+    },
+    "models": {
+      "Contract": "Contract",
+      "Lot": "Lot",
+      "User": "User",
+      "Project": "Project",
+      "Payment": "Payment"
     }
   },
   "paymentHistory": {

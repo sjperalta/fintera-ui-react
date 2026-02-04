@@ -47,26 +47,31 @@ function AccountActivityCard({ user, delay = 0.1, showCreditScore = true }) {
 
             <div className="space-y-4">
                 {/* Credit Score Display - Conditionally visible */}
-                {showCreditScore && (
+                {showCreditScore && (() => {
+                    const FICO_MIN = 300, FICO_MAX = 850;
+                    const score = Math.round(Math.max(FICO_MIN, Math.min(FICO_MAX, user?.credit_score ?? 0)));
+                    const progressPercent = ((score - FICO_MIN) / (FICO_MAX - FICO_MIN)) * 100;
+                    return (
                     <div className="p-5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl text-white shadow-lg mb-6 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                         <p className="text-indigo-100 text-sm font-medium mb-1">{t("personalInfo.creditScore")}</p>
                         <div className="flex items-end gap-2">
-                            <span className="text-4xl font-bold">{user?.credit_score || 0}</span>
-                            <span className="text-indigo-100 text-sm mb-1.5 font-medium">/ 100</span>
+                            <span className="text-4xl font-bold">{score}</span>
+                            <span className="text-indigo-100 text-sm mb-1.5 font-medium">/ {FICO_MAX}</span>
                         </div>
 
-                        {/* Simple Progress Bar for Credit Score */}
+                        {/* FICO progress bar (300–850) */}
                         <div className="mt-4 h-2 w-full bg-black/20 rounded-full overflow-hidden">
                             <motion.div
                                 initial={{ width: 0 }}
-                                animate={{ width: `${Math.min((user?.credit_score / 100) * 100, 100)}%` }}
+                                animate={{ width: `${Math.min(progressPercent, 100)}%` }}
                                 transition={{ duration: 1, delay: delay + 0.2 }}
                                 className="h-full bg-white/90 rounded-full"
                             />
                         </div>
                     </div>
-                )}
+                    );
+                })()}
 
                 <ActivityItem
                     label={t("personalInfo.memberSince")}

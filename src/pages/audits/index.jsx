@@ -31,11 +31,11 @@ function Audits() {
 
   const modelFilterOptions = [
     { value: "", label: t("audits.filterByModel") },
-    { value: "Contract", label: "Contract" },
-    { value: "Lot", label: "Lot" },
-    { value: "User", label: "User" },
-    { value: "Project", label: "Project" },
-    { value: "Payment", label: "Payment" },
+    { value: "Contract", label: t("audits.models.Contract") },
+    { value: "Lot", label: t("audits.models.Lot") },
+    { value: "User", label: t("audits.models.User") },
+    { value: "Project", label: t("audits.models.Project") },
+    { value: "Payment", label: t("audits.models.Payment") },
   ];
 
   const fetchAudits = useCallback(async (pageNum, reset = false) => {
@@ -94,13 +94,13 @@ function Audits() {
     }
   };
 
-  const handleSearch = (term) => {
+  const handleSearch = useCallback((term) => {
     setSearchTerm(term);
-  };
+  }, []);
 
-  const handleFilter = (value) => {
+  const handleFilter = useCallback((value) => {
     setFilterState(prev => ({ ...prev, model: value }));
-  };
+  }, []);
 
   return (
     <main className="w-full xl:px-[48px] px-6 pb-6 xl:pb-[48px] sm:pt-[156px] pt-[100px] dark:bg-darkblack-700 min-h-screen">

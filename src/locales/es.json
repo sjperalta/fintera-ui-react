@@ -1029,6 +1029,7 @@
     "good": "★★ BUENO",
     "needsImprovement": "★ NECESITA MEJORA",
     "outOf100": "de 100%",
+    "ficoRange": "FICO 300–850",
     "excellentDesc": "Excelente",
     "goodDesc": "Bueno",
     "fairDesc": "Regular",
@@ -1217,7 +1218,20 @@
     "events": {
       "create": "Crear",
       "update": "Actualizar",
-      "destroy": "Eliminar"
+      "destroy": "Eliminar",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "login": "Inicio de sesión",
+      "capital_repayment": "Abono a capital"
+    },
+    "models": {
+      "Contract": "Contrato",
+      "Lot": "Lote",
+      "User": "Usuario",
+      "Project": "Proyecto",
+      "Payment": "Pago"
     }
   },
   "paymentHistory": {

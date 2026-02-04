@@ -11,16 +11,11 @@ import { useLocale } from "../../contexts/LocaleContext";
  */
 const formatEvent = (event, t) => {
   if (!event) return event;
-  switch (event.toLowerCase()) {
-    case "create":
-      return t("audits.events.create");
-    case "update":
-      return t("audits.events.update");
-    case "destroy":
-      return t("audits.events.destroy");
-    default:
-      return event.charAt(0).toUpperCase() + event.slice(1);
-  }
+  const lower = event.toLowerCase();
+  const key = "audits.events." + lower;
+  const translated = t(key);
+  if (translated !== key) return translated;
+  return event.charAt(0).toUpperCase() + event.slice(1);
 };
 
 /**
@@ -88,7 +83,7 @@ function AuditInfo({
                 {formatEvent(event, t)}
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                {model}
+                {t("audits.models." + model) || model}
               </span>
             </div>
             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -184,7 +179,7 @@ function AuditInfo({
       {/* Model */}
       <td className="px-6 py-4">
         <span className="text-base font-medium text-bgray-900 dark:text-white">
-          {model}
+          {t("audits.models." + model) || model}
         </span>
       </td>
 

@@ -7,15 +7,17 @@ import { useToast } from "../../contexts/ToastContext";
 import { useLocale } from "../../contexts/LocaleContext";
 import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
 
-// Helper to determine descriptor and color for credit score (0-100 percent)
+// Helper to determine descriptor and color for FICO credit score (300–850)
+const FICO_MIN = 300;
+const FICO_MAX = 850;
 const creditScoreInfo = (score, t) => {
   const s = Number(score);
   if (Number.isNaN(s) || score === null || score === undefined) return { scoreLabel: "N/A", descriptor: t ? t('creditScore.unknownDesc') : "Unknown", color: "gray" };
-  const pct = Math.max(0, Math.min(100, Math.round(s)));
-  if (pct >= 90) return { scoreLabel: `${pct}%`, descriptor: t ? t('creditScore.excellentDesc') : "Excellent", color: "green" };
-  if (pct >= 75) return { scoreLabel: `${pct}%`, descriptor: t ? t('creditScore.goodDesc') : "Good", color: "emerald" };
-  if (pct >= 50) return { scoreLabel: `${pct}%`, descriptor: t ? t('creditScore.fairDesc') : "Fair", color: "yellow" };
-  return { scoreLabel: `${pct}%`, descriptor: t ? t('creditScore.poorDesc') : "Poor", color: "red" };
+  const fico = Math.max(FICO_MIN, Math.min(FICO_MAX, Math.round(s)));
+  if (fico >= 750) return { scoreLabel: String(fico), descriptor: t ? t('creditScore.excellentDesc') : "Excellent", color: "green" };
+  if (fico >= 670) return { scoreLabel: String(fico), descriptor: t ? t('creditScore.goodDesc') : "Good", color: "emerald" };
+  if (fico >= 580) return { scoreLabel: String(fico), descriptor: t ? t('creditScore.fairDesc') : "Fair", color: "yellow" };
+  return { scoreLabel: String(fico), descriptor: t ? t('creditScore.poorDesc') : "Poor", color: "red" };
 };
 
 function RightSidebar({ user, onClose }) {
