@@ -32,6 +32,33 @@ function formatRTN(raw) {
   return out;
 }
 
+// Defined outside so the component identity is stable and inputs don't lose focus on re-render
+function InputField({ label, name, value, onChange, type = "text", readOnly = false, icon }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={name} className="text-sm font-semibold text-bgray-700 dark:text-bgray-300 ml-1">
+        {label}
+      </label>
+      <div className="relative">
+        {icon && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-bgray-400">
+            {icon}
+          </div>
+        )}
+        <input
+          type={type}
+          name={name}
+          id={name}
+          value={value ?? ""}
+          onChange={onChange}
+          readOnly={readOnly}
+          className={`w-full bg-white dark:bg-darkblack-500 text-bgray-900 dark:text-white p-4 ${icon ? 'pl-12' : 'pl-4'} rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-300 outline-none ${readOnly ? "opacity-70 cursor-not-allowed bg-bgray-50 dark:bg-darkblack-600" : ""}`}
+        />
+      </div>
+    </div>
+  );
+}
+
 function PersonalInfoForm({ userId }) {
   const { t, setLocale, locale } = useLocale();
   const [user, setUser] = useState({
@@ -183,31 +210,6 @@ function PersonalInfoForm({ userId }) {
   );
 
   if (error) return <p className="text-red-500">{t("common.error")}: {error}</p>;
-
-  // Input Field Component for consistency
-  const InputField = ({ label, name, value, onChange, type = "text", readOnly = false, icon }) => (
-    <div className="flex flex-col gap-2">
-      <label htmlFor={name} className="text-sm font-semibold text-bgray-700 dark:text-bgray-300 ml-1">
-        {label}
-      </label>
-      <div className="relative">
-        {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-bgray-400">
-            {icon}
-          </div>
-        )}
-        <input
-          type={type}
-          name={name}
-          id={name}
-          value={value}
-          onChange={onChange}
-          readOnly={readOnly}
-          className={`w-full bg-white dark:bg-darkblack-500 text-bgray-900 dark:text-white p-4 ${icon ? 'pl-12' : 'pl-4'} rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-300 outline-none ${readOnly ? "opacity-70 cursor-not-allowed bg-bgray-50 dark:bg-darkblack-600" : ""}`}
-        />
-      </div>
-    </div>
-  );
 
   return (
     <motion.div

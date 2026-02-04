@@ -145,7 +145,11 @@ const router = createBrowserRouter(
         },
         {
           path: "/settings/user/:userId",
-          Component: Settings,
+          element: (
+            <AdminOrOwnerRoute>
+              <Settings />
+            </AdminOrOwnerRoute>
+          ),
           children: [
             {
               index: true,

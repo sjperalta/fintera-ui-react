@@ -95,13 +95,11 @@ function GenericFilter({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // If parent modifies props externally, sync them in
+  // If parent modifies searchTerm externally (e.g. clear button), sync into local term.
+  // Do not depend on term: when user types, we must not reset term to stale searchTerm.
   useEffect(() => {
-    if (searchTerm !== term) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTerm(searchTerm);
-    }
-  }, [searchTerm, term]);
+    setTerm(searchTerm);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (filterValue !== selectedFilter) {

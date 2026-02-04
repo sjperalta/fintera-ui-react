@@ -146,6 +146,7 @@ function PersonalInfo() {
                 toggleStatus={toggleUserStatus}
                 onEdit={() => setIsEditing(true)}
                 showActions={canEditUser}
+                showToggleStatus={currentUser?.role === "admin"}
               />
             </div>
 

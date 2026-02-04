@@ -84,8 +84,8 @@ function SidebarV2({ user, handleLogout }) {
                     </li>
                   )}
 
-                  {/* Payments: Admin or Seller */}
-                  {(isAdmin || isSeller) && (
+                  {/* Payments: Admin only (hidden for seller on tablet) */}
+                  {isAdmin && (
                     <li className="item px-[43px] py-[11px]">
                       <Link
                         to="/payments"

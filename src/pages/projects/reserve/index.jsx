@@ -16,6 +16,7 @@ function Reserve() {
   const [financingType, setFinancingType] = useState("direct");
   const [reserveAmount, setReserveAmount] = useState("");
   const [downPayment, setDownPayment] = useState(""); // prima
+  const [maxPaymentDate, setMaxPaymentDate] = useState(""); // for bank: date by which rest will be paid
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [identity, setIdentity] = useState("");
@@ -138,16 +139,16 @@ function Reserve() {
   useEffect(() => {
     if (financingType === "bank") {
       setPaymentTerm(6); // default but hidden
-      // prima shown but not required, default 0 if empty
       if (downPayment === "" || downPayment === null) setDownPayment("0");
     } else if (financingType === "cash") {
       setPaymentTerm(2); // default but hidden
       if (downPayment === "" || downPayment === null) setDownPayment("0");
+      setMaxPaymentDate("");
     } else {
       // direct
       setPaymentTerm((pt) => (pt && pt > 0 ? pt : 12));
-      // keep downPayment if already present, otherwise empty
       if (downPayment === "" || downPayment === null) setDownPayment("");
+      setMaxPaymentDate("");
     }
   }, [financingType]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -260,8 +261,12 @@ function Reserve() {
       if (!downPayment || Number(downPayment) < 0) {
         errors.push(t("reservations.downPaymentRequired"));
       }
+    } else if (financingType === "bank" || financingType === "cash") {
+      if (downPayment === "" || downPayment === null) setDownPayment("0");
+      if (!maxPaymentDate || !maxPaymentDate.trim()) {
+        errors.push(t("reservations.maxPaymentDateRequired"));
+      }
     } else {
-      // bank or cash: prima displayed but not required (defaults handled)
       if (downPayment === "" || downPayment === null) setDownPayment("0");
     }
 
@@ -276,6 +281,9 @@ function Reserve() {
     formData.append("contract[financing_type]", financingType);
     formData.append("contract[reserve_amount]", reserveAmount);
     formData.append("contract[down_payment]", downPayment || "0");
+    if ((financingType === "bank" || financingType === "cash") && maxPaymentDate && maxPaymentDate.trim()) {
+      formData.append("contract[max_payment_date]", maxPaymentDate.trim());
+    }
     formData.append("contract[note]", contractNotes);
     formData.append("contract[applicant_user_id]", selectedUser?.id || ""); // Send empty string if creating a new user
     formData.append("user[full_name]", fullName);
@@ -681,6 +689,32 @@ function Reserve() {
                     </AnimatePresence>
                   </div>
 
+                  <AnimatePresence>
+                    {(financingType === "bank" || financingType === "cash") && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex flex-col gap-3"
+                      >
+                        <label className="text-sm text-bgray-500 dark:text-bgray-400 font-bold uppercase tracking-wider">
+                          {t("reservations.maxPaymentDate")}
+                        </label>
+                        <input
+                          type="date"
+                          value={maxPaymentDate}
+                          onChange={(e) => setMaxPaymentDate(e.target.value)}
+                          className="bg-bgray-50 dark:bg-darkblack-500 dark:text-white p-4 rounded-2xl h-16 w-full border-2 border-transparent focus:border-success-300 focus:ring-0 transition-all font-semibold text-lg"
+                          required={financingType === "bank" || financingType === "cash"}
+                          min={new Date().toISOString().slice(0, 10)}
+                        />
+                        <p className="text-xs text-bgray-400 dark:text-bgray-500 italic">
+                          {t("reservations.maxPaymentDateDescription")}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   <div className="flex flex-col gap-3">
                     <label className="text-sm text-bgray-500 dark:text-bgray-400 font-bold uppercase tracking-wider">
                       {t("reservations.notes")}
@@ -729,11 +763,17 @@ function Reserve() {
                       <div className="flex justify-between items-end pt-4">
                         <div>
                           <p className="text-xs text-success-300/70 font-bold uppercase tracking-wider mb-1">
-                            {t("reservations.financedAmount")}
+                            {(financingType === "bank" || financingType === "cash") ? t("reservations.balanceDueBy") : t("reservations.financedAmount")}
                           </p>
-                          <p className="text-3xl font-black tabular-nums tracking-tighter text-success-300">
-                            {formatCurrency(financedAmount)}
-                          </p>
+                          {(financingType === "bank" || financingType === "cash") ? (
+                            <p className="text-3xl font-black tabular-nums tracking-tighter text-success-300">
+                              {maxPaymentDate ? formatDate(maxPaymentDate) : "—"}
+                            </p>
+                          ) : (
+                            <p className="text-3xl font-black tabular-nums tracking-tighter text-success-300">
+                              {formatCurrency(financedAmount)}
+                            </p>
+                          )}
                         </div>
                         {financingType === "direct" && monthlyPayment && (
                           <div className="text-right">
@@ -745,6 +785,16 @@ function Reserve() {
                             </p>
                             <p className="text-[9px] text-bgray-500 italic">
                               {paymentTerm} cuotas
+                            </p>
+                          </div>
+                        )}
+                        {(financingType === "bank" || financingType === "cash") && financedAmount != null && (
+                          <div className="text-right">
+                            <p className="text-[10px] text-bgray-400 font-bold uppercase mb-1">
+                              {t("reservations.remainingBalance")}
+                            </p>
+                            <p className="text-xl font-bold tabular-nums">
+                              {formatCurrency(financedAmount)}
                             </p>
                           </div>
                         )}

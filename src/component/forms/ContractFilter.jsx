@@ -11,16 +11,14 @@ function ContractFilter({ searchTerm, status, onSearchChange, onStatusChange }) 
 
   // Derive activeFilter during render
   const activeFilter = status ? formatStatus(status, t) : t('filters.all');
-  // Contract status options (values). Labels come from formatStatus for consistency.
+  // Contract status options: pending, approved, rejected, closed (cancelled no longer used)
   const statuses = [
     { value: "" },
     { value: "pending" },
-    { value: "submitted" },
     { value: "approved" },
     { value: "rejected" },
-    { value: "cancelled" },
     { value: "closed" },
-  ]; // Contract status options
+  ];
 
   const handleTermChange = (e) => {
     setTerm(e.target.value);

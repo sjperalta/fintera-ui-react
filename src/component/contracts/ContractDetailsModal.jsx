@@ -29,7 +29,8 @@ import {
   faClipboardList,
   faFilePdf,
   faFileAlt,
-  faFileSignature
+  faFileSignature,
+  faTrashAlt
 } from "@fortawesome/free-solid-svg-icons";
 import { formatStatus } from "../../utils/formatStatus";
 import { useLocale } from "../../contexts/LocaleContext";
@@ -123,6 +124,7 @@ const ContractDetailsModal = ({
   onClose,
   contract,
   onContractUpdate,
+  onContractDeleted,
 }) => {
   const { t } = useLocale();
   const { user, token } = useContext(AuthContext);
@@ -131,6 +133,7 @@ const ContractDetailsModal = ({
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { showToast } = useToast();
 
   // Editable fields
@@ -139,25 +142,30 @@ const ContractDetailsModal = ({
     contract?.reserve_amount ?? ""
   );
   const [downPayment, setDownPayment] = useState(contract?.down_payment ?? "");
+  const [maxPaymentDate, setMaxPaymentDate] = useState(
+    contract?.max_payment_date ? String(contract.max_payment_date).slice(0, 10) : ""
+  );
   const [activeTab, setActiveTab] = useState("overview");
   const [fullContract, setFullContract] = useState(null);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
 
   const statusTheme = useMemo(() => getStatusTheme(contract?.status), [contract?.status]);
 
-  // Update local state when contract changes (after save)
+  // Edit schedule, reserve and pago inicial only when status is pending, rejected or submitted
+  const canEditSchedule = useMemo(() => {
+    const s = contract?.status?.toLowerCase();
+    return s === "pending" || s === "rejected" || s === "submitted";
+  }, [contract?.status]);
+
+  // Sync local state from contract only when contract prop changes (e.g. open modal, or parent passed updated contract). Do not depend on paymentTerm/reserveAmount/downPayment or typing will reset the inputs.
   useEffect(() => {
     if (contract) {
       setPaymentTerm(contract.payment_term ?? "");
       setReserveAmount(contract.reserve_amount ?? "");
       setDownPayment(contract.down_payment ?? "");
+      setMaxPaymentDate(contract.max_payment_date ? String(contract.max_payment_date).slice(0, 10) : "");
     }
-  }, [
-    contract,
-    paymentTerm,
-    reserveAmount,
-    downPayment
-  ]);
+  }, [contract?.id, contract?.payment_term, contract?.reserve_amount, contract?.down_payment, contract?.max_payment_date]);
 
   // Fetch full contract details (including payment schedule)
   useEffect(() => {
@@ -249,6 +257,9 @@ const ContractDetailsModal = ({
             payment_term: Number(paymentTerm),
             reserve_amount: Number(reserveAmount),
             down_payment: Number(downPayment),
+            ...((displayContract?.financing_type?.toLowerCase() === "bank" || displayContract?.financing_type?.toLowerCase() === "cash") && maxPaymentDate
+              ? { max_payment_date: maxPaymentDate }
+              : {}),
           }),
         }
       );
@@ -269,6 +280,11 @@ const ContractDetailsModal = ({
       );
       setIsEditMode(false);
 
+      // Refresh full contract in modal so displayed values (e.g. monthly payment) stay in sync
+      if (result.contract) {
+        setFullContract((prev) => (prev ? { ...prev, ...result.contract } : result.contract));
+      }
+
       // Notify parent component of update
       if (onContractUpdate) {
         onContractUpdate(result.contract);
@@ -278,6 +294,36 @@ const ContractDetailsModal = ({
       showToast(error.message, "error");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteContract = async () => {
+    if (!contract?.id || !token) return;
+    if (!window.confirm(t("contractDetailsModal.deleteConfirm"))) return;
+    setIsDeleting(true);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/v1/projects/${contract.project_id}/lots/${contract.lot_id}/contracts/${contract.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || t("contractDetailsModal.errorDeleting"));
+      }
+      showToast(data.message || t("contractDetailsModal.deletedSuccess"), "success");
+      onContractDeleted?.();
+      onClose();
+    } catch (error) {
+      console.error("Error deleting contract:", error);
+      showToast(error.message, "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -427,7 +473,22 @@ const ContractDetailsModal = ({
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-6 border-t border-gray-100 dark:border-darkblack-400">
+          <div className="p-6 border-t border-gray-100 dark:border-darkblack-400 space-y-3">
+            {isAdmin && contract?.status?.toLowerCase() === "rejected" && (
+              <button
+                type="button"
+                onClick={handleDeleteContract}
+                disabled={isDeleting}
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-300 disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <div className="w-5 h-5 border-2 border-red-300 border-t-red-600 rounded-full animate-spin" />
+                ) : (
+                  <FontAwesomeIcon icon={faTrashAlt} />
+                )}
+                {t("contractDetailsModal.deleteContract")}
+              </button>
+            )}
             <button
               onClick={onClose}
               className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gray-100 dark:bg-darkblack-400 text-bgray-600 dark:text-bgray-300 font-black hover:bg-gray-200 dark:hover:bg-darkblack-300 transition-all duration-300"
@@ -446,7 +507,7 @@ const ContractDetailsModal = ({
               {activeTab.replace('_', ' & ')}
             </h4>
             <div className="flex items-center gap-3">
-              {isAdmin && activeTab === 'financial' && (
+              {isAdmin && activeTab === 'financial' && canEditSchedule && (
                 <button
                   onClick={() => setIsEditMode(!isEditMode)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 ${isEditMode
@@ -641,6 +702,14 @@ const ContractDetailsModal = ({
                           {formatCurrency(Number(contract.amount) - Number(reserveAmount || 0) - (contract.financing_type?.toLowerCase() === "direct" ? Number(downPayment || 0) : 0))}
                         </p>
                       </div>
+                      {(contract.financing_type?.toLowerCase() === "bank" || contract.financing_type?.toLowerCase() === "cash") && (displayContract?.max_payment_date || maxPaymentDate) && (
+                        <div className="p-6 rounded-3xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
+                          <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-2">{t("contractDetailsModal.balanceDueBy")}</p>
+                          <p className="text-xl font-black text-amber-700 dark:text-amber-400">
+                            {new Date((displayContract?.max_payment_date || maxPaymentDate)).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
+                          </p>
+                        </div>
+                      )}
                       {contract.financing_type?.toLowerCase() === "direct" && (
                         <div className="p-6 rounded-3xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20">
                           <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2">{t("contractDetailsModal.monthlyPayment")}</p>
@@ -654,6 +723,15 @@ const ContractDetailsModal = ({
                         </div>
                       )}
                     </div>
+
+                    {isEditMode && (
+                      <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40">
+                        <FontAwesomeIcon icon={faExclamationTriangle} className="text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                          {t("contractDetailsModal.scheduleEditWarning")}
+                        </p>
+                      </div>
+                    )}
 
                     {/* Editable Fields Grid */}
                     <div className="bg-white dark:bg-darkblack-500 rounded-[2.5rem] border border-gray-100 dark:border-darkblack-400 shadow-sm p-10">
@@ -717,6 +795,28 @@ const ContractDetailsModal = ({
                             )}
                           </div>
                         </div>
+
+                        {/* Max payment date (bank or cash) */}
+                        {(displayContract?.financing_type?.toLowerCase() === "bank" || displayContract?.financing_type?.toLowerCase() === "cash") && (
+                          <div className="space-y-3">
+                            <label className="text-sm font-black text-bgray-900 dark:text-white block uppercase tracking-wider">{t("contractDetailsModal.maxPaymentDate")}</label>
+                            <div className="relative group">
+                              <FontAwesomeIcon icon={faCalendarAlt} className="absolute left-5 top-1/2 -translate-y-1/2 text-bgray-400 group-focus-within:text-blue-500 transition-colors" />
+                              {isEditMode ? (
+                                <input
+                                  type="date"
+                                  value={maxPaymentDate}
+                                  onChange={(e) => setMaxPaymentDate(e.target.value)}
+                                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-50 dark:bg-darkblack-400 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-darkblack-600 outline-none transition-all font-bold text-bgray-900 dark:text-white"
+                                />
+                              ) : (
+                                <p className="pl-12 py-4 text-bgray-600 dark:text-bgray-300 font-bold">
+                                  {maxPaymentDate ? new Date(maxPaymentDate).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) : "—"}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
