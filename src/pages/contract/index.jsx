@@ -63,15 +63,13 @@ function Contract() {
     fetchStats();
   }, [token, refreshTrigger]);
 
-  // Status filter options
+  // Status filter options: pending, approved, rejected, closed (cancelled no longer used)
   const statusOptions = useMemo(
     () => [
       { value: "", label: t('contracts.allStatuses') },
       { value: "pending", label: t('contracts.status.pending') },
-      { value: "submitted", label: t('contracts.status.submitted') },
       { value: "approved", label: t('contracts.status.approved') },
       { value: "rejected", label: t('contracts.status.rejected') },
-      { value: "cancelled", label: t('contracts.status.cancelled') },
       { value: "closed", label: t('contracts.status.closed') },
     ],
     [t]

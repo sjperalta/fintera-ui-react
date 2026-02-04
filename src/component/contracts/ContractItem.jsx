@@ -16,7 +16,7 @@ import {
   faCreditCard,
   faCalendarAlt,
   faHome,
-  faBan
+  faTrashAlt
 } from "@fortawesome/free-solid-svg-icons";
 
 import { API_URL } from "../../../config";
@@ -207,31 +207,31 @@ function ContractItem({
     }
   };
 
-  const handleCancel = async (e) => {
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const handleDeleteContract = async (e) => {
     e?.stopPropagation();
-    if (!contract.id) return;
-    if (!window.confirm(t("contracts.confirmCancel") || "¿Está seguro de que desea cancelar este contrato?"))
-      return;
-
-    setActionLoading(true);
+    if (!contract?.id || !token) return;
+    if (!window.confirm(t("contractDetailsModal.deleteConfirm"))) return;
+    setDeleteLoading(true);
     try {
       const response = await fetch(
-        `${API_URL}/api/v1/projects/${contract.project_id}/lots/${contract.lot_id}/contracts/${contract.id}/cancel`,
+        `${API_URL}/api/v1/projects/${contract.project_id}/lots/${contract.lot_id}/contracts/${contract.id}`,
         {
-          method: "POST",
+          method: "DELETE",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
-      if (!response.ok) throw new Error("Error cancelando el contrato.");
-      showToast("Contrato cancelado exitosamente.", "success");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || t("contractDetailsModal.errorDeleting"));
+      showToast(data.message || t("contractDetailsModal.deletedSuccess"), "success");
       refreshContracts();
     } catch (error) {
-      showToast(`Error: ${error.message}`, "error");
+      showToast(error.message, "error");
     } finally {
-      setActionLoading(false);
+      setDeleteLoading(false);
     }
   };
 
@@ -401,7 +401,23 @@ function ContractItem({
                 <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
                 {t("contracts.approve")}
               </button>
-              {contract.status?.toLowerCase() !== "rejected" && (
+              {contract.status?.toLowerCase() === "rejected" ? (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleDeleteContract(e); }}
+                  disabled={deleteLoading}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-bold shadow-sm shadow-red-200 dark:shadow-none transition-all flex items-center justify-center disabled:opacity-50"
+                >
+                  {deleteLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
+                      {t("contractDetailsModal.deleteContract")}
+                    </>
+                  )}
+                </button>
+              ) : (
                 <button
                   onClick={(e) => { e.stopPropagation(); setShowRejectionModal(true); }}
                   disabled={actionLoading}
@@ -428,7 +444,15 @@ function ContractItem({
           )
         }
         <RejectionModal isOpen={showRejectionModal} onClose={() => setShowRejectionModal(false)} onSubmit={handleReject} loading={actionLoading} />
-        <ContractDetailsModal isOpen={showDetailsModal} onClose={() => setShowDetailsModal(false)} contract={contract} />
+        <ContractDetailsModal
+          isOpen={showDetailsModal}
+          onClose={() => setShowDetailsModal(false)}
+          contract={contract}
+          onContractDeleted={() => {
+            setShowDetailsModal(false);
+            refreshContracts();
+          }}
+        />
       </motion.div >
     );
   }
@@ -536,14 +560,19 @@ function ContractItem({
             </button>
           )}
 
-          {userRole === "admin" && ["pending", "submitted", "rejected"].includes(contract.status?.toLowerCase()) && (
+          {userRole === "admin" && contract.status?.toLowerCase() === "rejected" && (
             <button
-              onClick={handleCancel}
-              disabled={actionLoading}
-              title={t("contracts.cancel")}
-              className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-500 hover:text-white transition-all flex items-center justify-center border border-yellow-200 dark:border-yellow-800/30 disabled:opacity-50"
+              type="button"
+              onClick={(e) => { e.stopPropagation(); handleDeleteContract(e); }}
+              disabled={deleteLoading}
+              title={t("contractDetailsModal.deleteContract")}
+              className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center border border-red-200 dark:border-red-800/30 disabled:opacity-50"
             >
-              <FontAwesomeIcon icon={faBan} />
+              {deleteLoading ? (
+                <div className="w-4 h-4 border-2 border-red-300 border-t-red-600 rounded-full animate-spin" />
+              ) : (
+                <FontAwesomeIcon icon={faTrashAlt} />
+              )}
             </button>
           )}
 
@@ -579,7 +608,15 @@ function ContractItem({
         document.body
       )}
       <RejectionModal isOpen={showRejectionModal} onClose={() => setShowRejectionModal(false)} onSubmit={handleReject} loading={actionLoading} />
-      <ContractDetailsModal isOpen={showDetailsModal} onClose={() => setShowDetailsModal(false)} contract={contract} />
+      <ContractDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        contract={contract}
+        onContractDeleted={() => {
+          setShowDetailsModal(false);
+          refreshContracts();
+        }}
+      />
     </motion.tr>
   );
 }

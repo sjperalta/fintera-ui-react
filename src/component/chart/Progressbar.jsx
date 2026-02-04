@@ -11,23 +11,19 @@ function Progressbar({ className, user }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [filled, _] = useState(0);
 
   const percent = useMemo(() => {
     if (!user || typeof user !== "object") return 0;
 
-    const missing = [];
     const total = FIELDS.length || 1;
-    const raw = Math.round((filled / total) * 100);
-    const clamped = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
-
-    if (clamped < 100) {
-      // minimal debug so you can inspect why it's not 100%
-      console.debug("Progressbar missing fields:", missing, "filled count:", filled, "total fields:", total, "user object keys:", Object.keys(user));
+    let filled = 0;
+    for (const key of FIELDS) {
+      const val = user[key];
+      if (val != null && String(val).trim() !== "") filled += 1;
     }
-
-    return clamped;
-  }, [user, filled]);
+    const raw = Math.round((filled / total) * 100);
+    return Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
+  }, [user]);
 
   const strokeOffset = `calc(215 - 215 * (${percent} / 100))`;
 
