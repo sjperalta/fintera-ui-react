@@ -1,17 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { useOnboarding } from "../../contexts/OnboardingContext";
 import { useLocation } from "react-router-dom";
+import AuthContext from "../../contexts/AuthContext";
 
 const OnboardingTour = () => {
     const { startTour, isTourCompleted } = useOnboarding();
     const location = useLocation();
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const path = location.pathname;
+        const isSeller = user?.role === "seller";
         let tourKey = null;
 
         if (path === "/" || path === "/home") {
-            tourKey = "home";
+            tourKey = isSeller ? "sellerHome" : "home";
         } else if (path.startsWith("/projects")) {
             tourKey = "projects";
         } else if (path.startsWith("/contracts")) {
@@ -33,18 +36,19 @@ const OnboardingTour = () => {
             }, 1000);
             return () => clearTimeout(timer);
         }
-    }, [isTourCompleted, location.pathname, startTour]);
+    }, [isTourCompleted, location.pathname, startTour, user?.role]);
 
     useEffect(() => {
         const pathToTourKey = (path) => {
-            if (path === "/" || path === "/home") return "home";
+            const isSeller = user?.role === "seller";
+            if (path === "/" || path === "/home") return isSeller ? "sellerHome" : "home";
             if (path.startsWith("/projects")) return "projects";
             if (path.startsWith("/contracts")) return "contracts";
             if (path.startsWith("/users")) return "users";
             if (path.startsWith("/audits")) return "audits";
             if (path.startsWith("/analytics")) return "analytics";
             if (path.startsWith("/financing/user")) return "financing";
-            return "home";
+            return isSeller ? "sellerHome" : "home";
         };
 
         const handleStartTour = (e) => {
@@ -58,7 +62,7 @@ const OnboardingTour = () => {
 
         window.addEventListener("start-onboarding-tour", handleStartTour);
         return () => window.removeEventListener("start-onboarding-tour", handleStartTour);
-    }, [startTour, location.pathname]);
+    }, [startTour, location.pathname, user?.role]);
 
     return null;
 };

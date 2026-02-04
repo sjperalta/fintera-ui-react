@@ -16,7 +16,9 @@ function Users() {
   const [selectedUser, setSelectedUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const searchParams = new URLSearchParams(location.search);
+  const myClients = searchParams.get("my_clients") === "1";
+  const { user: currentUser } = useContext(AuthContext);
   const { t } = useLocale();
   const token = getToken();
 
@@ -29,9 +31,9 @@ function Users() {
       { value: "admin", label: t('userFilter.admin') }
     ];
 
-    if (user?.role === 'admin') {
+    if (currentUser?.role === 'admin') {
       return allRoles;
-    } else if (user?.role === 'seller') {
+    } else if (currentUser?.role === 'seller') {
       return [allRoles[0], allRoles[1]];
     }
 
@@ -48,6 +50,8 @@ function Users() {
         index={index}
         token={token}
         onClick={handleClick}
+        showStatusToggle={currentUser?.role !== "seller"}
+        showEditButton={currentUser?.role !== "seller"}
       />
     );
   };
@@ -137,7 +141,12 @@ function Users() {
           <GenericList
             endpoint="/api/v1/users"
             renderItem={renderUserItem}
-            filters={{ search_term: searchTerm, role: role, status: filterStatus === "all" ? "all" : undefined }}
+            filters={{
+              search_term: searchTerm,
+              role: role,
+              status: filterStatus === "all" ? "all" : "active",
+              ...(myClients && { my_clients: "1" })
+            }}
             onItemSelect={setSelectedUser}
             columns={[]} // No columns needed for grid view
             gridClassName="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"

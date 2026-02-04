@@ -289,6 +289,7 @@
     "address": "Dirección",
     "enterAddress": "Ingrese dirección del proyecto",
     "lotsCount": "Número de Lotes",
+    "lotsCountDisabledWhenReserved": "No se puede editar el número de lotes cuando hay lotes reservados o vendidos.",
     "enterLotsCount": "Ingrese número de lotes",
     "measurementUnit": "Unidad de Medida",
     "pricePerUnit": "Precio por Unidad",
@@ -759,7 +760,8 @@
     "all": "Todas",
     "loading": "Cargando notificaciones...",
     "noNotifications": "No hay notificaciones",
-    "markAllAsRead": "Marcar Todo Como Leído"
+    "markAllAsRead": "Marcar Todo Como Leído",
+    "markAsRead": "Marcar como leída"
   },
   "widgets": {
     "totalIncome": "Ingresos Totales",
@@ -841,7 +843,11 @@
       "sales": "Ventas Totales",
       "leads": "Nuevos Prospectos",
       "growth": "Crecimiento",
-      "thisMonth": "Este Mes"
+      "thisMonth": "Este Mes",
+      "yearToDate": "Acumulado del año",
+      "last6Months": "Últimos 6 meses",
+      "estimated": "Est.",
+      "forMonth": "Del Mes"
     }
   },
   "commissions": {
@@ -1293,6 +1299,40 @@
     "profile": {
       "title": "Tu Perfil",
       "desc": "Accede a tu configuración, cambia el idioma o reinicia este recorrido en cualquier momento desde aquí."
+    },
+    "sellerHome": {
+      "welcome": {
+        "title": "¡Bienvenido a Fintera!",
+        "desc": "Este es tu panel de vendedor. Aquí puedes ver tu rendimiento de ventas, prospectos activos y comisiones."
+      },
+      "stats": {
+        "title": "Métricas Clave",
+        "desc": "Tu volumen de ventas, prospectos activos, comisión estimada y tasa de conversión de un vistazo."
+      },
+      "newSale": {
+        "title": "Nueva Venta",
+        "desc": "Inicia una nueva venta seleccionando un proyecto y reservando un lote para tu cliente."
+      },
+      "addLead": {
+        "title": "Agregar Prospecto",
+        "desc": "Registra nuevos prospectos para dar seguimiento y potenciales ventas."
+      },
+      "performanceChart": {
+        "title": "Tendencia de Rendimiento",
+        "desc": "Visualiza cómo evolucionan tus ventas durante el mes seleccionado."
+      },
+      "recentCustomers": {
+        "title": "Clientes Recientes",
+        "desc": "Vista rápida de tus últimas ventas y actividad de clientes."
+      },
+      "viewCommissions": {
+        "title": "Ver Comisiones",
+        "desc": "Abre tu reporte de comisiones para rastrear ganancias y rendimiento."
+      },
+      "sidebar": {
+        "title": "Panel",
+        "desc": "Regresa aquí cuando quieras para ver el resumen de tus ventas."
+      }
     },
     "projectsTour": {
       "addProject": {

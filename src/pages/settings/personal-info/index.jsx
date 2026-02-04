@@ -30,6 +30,9 @@ function PersonalInfo() {
     user?.role === "user" &&
     currentUser?.id !== user?.id;
 
+  // Sellers cannot edit other users' information (only their own profile)
+  const canEditUser = currentUser?.role !== "seller" || Number(userId) === currentUser?.id;
+
   // Fetch User Data
   const fetchUser = useCallback(async () => {
     try {
@@ -142,6 +145,7 @@ function PersonalInfo() {
                 user={user}
                 toggleStatus={toggleUserStatus}
                 onEdit={() => setIsEditing(true)}
+                showActions={canEditUser}
               />
             </div>
 
@@ -151,16 +155,18 @@ function PersonalInfo() {
             </div>
 
             {/* Temporary Edit Button if Header doesn't have it wired yet */}
-            <div className="fixed bottom-8 right-8 z-50 xl:hidden">
-              <button
-                onClick={() => setIsEditing(true)}
-                className="w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-700 transition"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </button>
-            </div>
+            {canEditUser && (
+              <div className="fixed bottom-8 right-8 z-50 xl:hidden">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-700 transition"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+              </div>
+            )}
 
           </motion.div>
         )}

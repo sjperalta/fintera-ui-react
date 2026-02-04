@@ -35,22 +35,15 @@ const SellerDashboard = ({ user }) => {
     const navigate = useNavigate();
     const { token } = useContext(AuthContext);
     const [showCommissionsModal, setShowCommissionsModal] = useState(false);
-    const [currentDate, setCurrentDate] = useState(new Date());
     const [dashboardData, setDashboardData] = useState(null);
-
-
-    const changeMonth = (offset) => {
-        const newDate = new Date(currentDate);
-        newDate.setMonth(newDate.getMonth() + offset);
-        setCurrentDate(newDate);
-    };
+    const [chartData, setChartData] = useState(null);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
-
             try {
-                const month = currentDate.getMonth() + 1;
-                const year = currentDate.getFullYear();
+                const now = new Date();
+                const month = now.getMonth() + 1;
+                const year = now.getFullYear();
                 const response = await fetch(`${API_URL}/api/v1/dashboard/seller?month=${month}&year=${year}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -60,6 +53,7 @@ const SellerDashboard = ({ user }) => {
                 if (response.ok) {
                     const data = await response.json();
                     setDashboardData(data);
+                    setChartData(data?.chart_data ?? null);
                 }
             } catch (error) {
                 console.error("Failed to fetch dashboard stats", error);
@@ -69,13 +63,7 @@ const SellerDashboard = ({ user }) => {
         if (token) {
             fetchDashboardData();
         }
-    }, [currentDate, token]);
-
-    const months = [
-        t("months.january"), t("months.february"), t("months.march"), t("months.april"),
-        t("months.may"), t("months.june"), t("months.july"), t("months.august"),
-        t("months.september"), t("months.october"), t("months.november"), t("months.december")
-    ];
+    }, [token]);
 
     // Format currency helper
     const formatCurrency = (amount) => {
@@ -95,7 +83,7 @@ const SellerDashboard = ({ user }) => {
             {
                 label: t("sellerDashboard.totalSalesValue"),
                 value: formatCurrency(dashboardData.total_sales_value),
-                change: "This Month", // Can be calculated if we fetch prev month
+                change: t("sellerDashboard.stats.last6Months"),
                 color: "text-blue-600 dark:text-blue-400",
                 icon: (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -104,7 +92,7 @@ const SellerDashboard = ({ user }) => {
             {
                 label: t("sellerDashboard.activeLeads"),
                 value: dashboardData.active_leads,
-                change: "Active",
+                change: t("sellerDashboard.stats.last6Months"),
                 color: "text-purple-600 dark:text-purple-400",
                 icon: (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -113,7 +101,7 @@ const SellerDashboard = ({ user }) => {
             {
                 label: t("sellerDashboard.pendingCommission"),
                 value: formatCurrency(dashboardData.pending_commission),
-                change: "Est.",
+                change: t("sellerDashboard.stats.last6Months"),
                 color: "text-orange-600 dark:text-orange-400",
                 icon: (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -122,7 +110,7 @@ const SellerDashboard = ({ user }) => {
             {
                 label: t("sellerDashboard.conversionRate"),
                 value: `${dashboardData.conversion_rate.toFixed(1)}%`,
-                change: "For Month",
+                change: t("sellerDashboard.stats.last6Months"),
                 color: "text-green-600 dark:text-green-400",
                 icon: (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -131,15 +119,15 @@ const SellerDashboard = ({ user }) => {
         ];
     }, [dashboardData, t]);
 
-    const chartData = useMemo(() => {
-        if (!dashboardData?.chart_data) return { labels: [], datasets: [] };
+    const chartDataForGraph = useMemo(() => {
+        if (!chartData) return { labels: [], datasets: [] };
 
         return {
-            labels: dashboardData.chart_data.labels,
+            labels: chartData.labels,
             datasets: [
                 {
                     label: t("sellerDashboard.stats.sales"),
-                    data: dashboardData.chart_data.data,
+                    data: chartData.data,
                     borderColor: "rgb(59, 130, 246)",
                     backgroundColor: "rgba(59, 130, 246, 0.1)",
                     fill: true,
@@ -148,7 +136,7 @@ const SellerDashboard = ({ user }) => {
                 }
             ]
         };
-    }, [dashboardData, t]);
+    }, [chartData, t]);
 
     const chartOptions = {
         responsive: true,
@@ -214,7 +202,7 @@ const SellerDashboard = ({ user }) => {
             className="space-y-8"
         >
             {/* Hero Section */}
-            <motion.section variants={itemVariants} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 p-8 text-white shadow-2xl">
+            <motion.section id="seller-dashboard-hero" variants={itemVariants} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 p-8 text-white shadow-2xl">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="text-center md:text-left">
                         <h1 className="text-3xl md:text-4xl font-bold mb-2">
@@ -226,27 +214,9 @@ const SellerDashboard = ({ user }) => {
                     </div>
 
                     <div className="flex flex-col items-end gap-4">
-                        {/* Month Filter */}
-                        <div className="flex items-center bg-white/10 backdrop-blur-md rounded-xl p-1 border border-white/20">
-                            <button
-                                onClick={() => changeMonth(-1)}
-                                className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                            </button>
-                            <span className="w-32 text-center font-bold text-white select-none">
-                                {months[currentDate.getMonth()]} {currentDate.getFullYear()}
-                            </span>
-                            <button
-                                onClick={() => changeMonth(1)}
-                                className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                            </button>
-                        </div>
-
                         <div className="flex flex-wrap justify-center gap-4">
                             <motion.button
+                                id="seller-new-sale-btn"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => navigate("/projects")}
@@ -258,6 +228,7 @@ const SellerDashboard = ({ user }) => {
                                 {t("sellerDashboard.newSale")}
                             </motion.button>
                             <motion.button
+                                id="seller-add-lead-btn"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => navigate("/users/create")}
@@ -278,7 +249,7 @@ const SellerDashboard = ({ user }) => {
             </motion.section>
 
             {/* Stats Grid */}
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <section id="seller-dashboard-stats" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat, idx) => (
                     <motion.div
                         key={idx}
@@ -310,6 +281,7 @@ const SellerDashboard = ({ user }) => {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 {/* Performance Chart */}
                 <motion.div
+                    id="seller-performance-chart"
                     variants={itemVariants}
                     className="xl:col-span-2 bg-white dark:bg-darkblack-600 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-darkblack-500"
                 >
@@ -319,7 +291,7 @@ const SellerDashboard = ({ user }) => {
                                 {t("sellerDashboard.performanceTrend")}
                             </h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t("sellerDashboard.stats.thisMonth")}
+                                {t("sellerDashboard.stats.last6Months")}
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -330,12 +302,13 @@ const SellerDashboard = ({ user }) => {
                         </div>
                     </div>
                     <div className="h-[300px]">
-                        <Line data={chartData} options={chartOptions} />
+                        <Line data={chartDataForGraph} options={chartOptions} />
                     </div>
                 </motion.div>
 
                 {/* Pipeline / Recent Activities */}
                 <motion.div
+                    id="seller-recent-customers"
                     variants={itemVariants}
                     className="bg-white dark:bg-darkblack-600 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-darkblack-500 flex flex-col"
                 >
@@ -343,7 +316,10 @@ const SellerDashboard = ({ user }) => {
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                             {t("sellerDashboard.recentCustomers")}
                         </h3>
-                        <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+                        <button
+                            onClick={() => navigate("/users?my_clients=1")}
+                            className="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+                        >
                             {t("sellerDashboard.viewAllCustomers")}
                         </button>
                     </div>
@@ -384,6 +360,7 @@ const SellerDashboard = ({ user }) => {
 
                     <div className="mt-8">
                         <motion.button
+                            id="seller-view-commissions-btn"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => setShowCommissionsModal(true)}
@@ -401,7 +378,7 @@ const SellerDashboard = ({ user }) => {
             <CommissionsModal
                 isActive={showCommissionsModal}
                 handleClose={() => setShowCommissionsModal(false)}
-                initialDate={currentDate}
+                initialDate={new Date()}
             />
         </motion.div>
     );

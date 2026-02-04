@@ -7,7 +7,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { API_URL } from "../../../config";
 import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
 
-function UserData({ userInfo, index, token, onClick }) {
+function UserData({ userInfo, index, token, onClick, showStatusToggle = true, showEditButton = true }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const { id, full_name, phone, email, status: initialStatus, role, created_at, creator } = userInfo;
@@ -124,22 +124,24 @@ function UserData({ userInfo, index, token, onClick }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              id={index === 0 ? "user-status-toggle" : undefined}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleUserStatus();
-              }}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${status === "active" ? "bg-emerald-500" : "bg-gray-200 dark:bg-gray-700"
-                }`}
-            >
-              <motion.span
-                animate={{ x: status === "active" ? 18 : 2 }}
-                className="inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-all shadow-sm"
-              />
-            </button>
-          </div>
+          {showStatusToggle && (
+            <div className="flex items-center gap-2">
+              <button
+                id={index === 0 ? "user-status-toggle" : undefined}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleUserStatus();
+                }}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${status === "active" ? "bg-emerald-500" : "bg-gray-200 dark:bg-gray-700"
+                  }`}
+              >
+                <motion.span
+                  animate={{ x: status === "active" ? 18 : 2 }}
+                  className="inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-all shadow-sm"
+                />
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="space-y-3 mb-6">
@@ -180,17 +182,19 @@ function UserData({ userInfo, index, token, onClick }) {
         </div>
 
         <div className="flex gap-2.5">
-          <Link
-            to={`/settings/user/${id}`}
-            id={index === 0 ? "user-edit-btn" : undefined}
-            onClick={(e) => e.stopPropagation()}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl transition-all duration-300 font-bold text-xs"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            {t('common.edit')}
-          </Link>
+          {showEditButton && (
+            <Link
+              to={`/settings/user/${id}`}
+              id={index === 0 ? "user-edit-btn" : undefined}
+              onClick={(e) => e.stopPropagation()}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl transition-all duration-300 font-bold text-xs"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              {t('common.edit')}
+            </Link>
+          )}
           <button
             id={index === 0 ? "user-invite-btn" : undefined}
             onClick={(e) => {
@@ -218,6 +222,8 @@ UserData.propTypes = {
   index: PropTypes.number,
   token: PropTypes.string,
   onClick: PropTypes.func,
+  showStatusToggle: PropTypes.bool,
+  showEditButton: PropTypes.bool,
 };
 
 export default UserData;

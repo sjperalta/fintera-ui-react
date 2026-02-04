@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
 import { useLocale } from "../../contexts/LocaleContext";
 
-function UserDetailsHeader({ user, toggleStatus, onEdit }) {
+function UserDetailsHeader({ user, toggleStatus, onEdit, showActions = true }) {
     const { t } = useLocale();
     // Safe-check if user is undefined
     const { full_name, role, status, id, email } = user || {};
@@ -60,26 +60,28 @@ function UserDetailsHeader({ user, toggleStatus, onEdit }) {
                 </div>
 
                 {/* Actions Section */}
-                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
-                    <button
-                        onClick={toggleStatus}
-                        className={`flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all duration-300 ${status === "active"
-                            ? "bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400"
-                            : "bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30 dark:text-emerald-400"
-                            }`}
-                    >
-                        {status === "active" ? t("personalInfo.deactivateUser") : t("personalInfo.activateUser")}
-                    </button>
+                {showActions && (
+                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                        <button
+                            onClick={toggleStatus}
+                            className={`flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all duration-300 ${status === "active"
+                                ? "bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400"
+                                : "bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30 dark:text-emerald-400"
+                                }`}
+                        >
+                            {status === "active" ? t("personalInfo.deactivateUser") : t("personalInfo.activateUser")}
+                        </button>
 
-                    <button
-                        onClick={onEdit}
-                        className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20 transition-all duration-300 font-semibold group">
-                        <span>{t("personalInfo.editProfile")}</span>
-                        <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                    </button>
-                </div>
+                        <button
+                            onClick={onEdit}
+                            className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20 transition-all duration-300 font-semibold group">
+                            <span>{t("personalInfo.editProfile")}</span>
+                            <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                    </div>
+                )}
             </div>
         </motion.div>
     );

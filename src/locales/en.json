@@ -289,6 +289,7 @@
     "address": "Address",
     "enterAddress": "Enter project address",
     "lotsCount": "Number of Lots",
+    "lotsCountDisabledWhenReserved": "Number of lots cannot be edited when there are reserved or sold lots.",
     "enterLotsCount": "Enter number of lots",
     "measurementUnit": "Measurement Unit",
     "pricePerUnit": "Price per Unit",
@@ -750,7 +751,8 @@
     "all": "All",
     "loading": "Loading notifications...",
     "noNotifications": "No notifications",
-    "markAllAsRead": "Mark All As Read"
+    "markAllAsRead": "Mark All As Read",
+    "markAsRead": "Mark as read"
   },
   "widgets": {
     "totalIncome": "Total Income",
@@ -832,7 +834,11 @@
       "sales": "Total Sales",
       "leads": "New Leads",
       "growth": "Growth",
-      "thisMonth": "This Month"
+      "thisMonth": "This Month",
+      "yearToDate": "Year to date",
+      "last6Months": "Last 6 months",
+      "estimated": "Est.",
+      "forMonth": "For Month"
     }
   },
   "commissions": {
@@ -1279,6 +1285,40 @@
     "profile": {
       "title": "Your Profile",
       "desc": "Access your settings, change language, or restart this tour at any time from here."
+    },
+    "sellerHome": {
+      "welcome": {
+        "title": "Welcome to Fintera!",
+        "desc": "This is your seller dashboard. Here you can see your sales performance, active leads, and commissions."
+      },
+      "stats": {
+        "title": "Key Metrics",
+        "desc": "Your sales volume, active leads, estimated commission, and conversion rate at a glance."
+      },
+      "newSale": {
+        "title": "New Sale",
+        "desc": "Start a new sale by selecting a project and reserving a lot for your client."
+      },
+      "addLead": {
+        "title": "Add Lead",
+        "desc": "Register new leads (prospects) to track and follow up on potential sales."
+      },
+      "performanceChart": {
+        "title": "Performance Trend",
+        "desc": "See how your sales are trending over the selected month."
+      },
+      "recentCustomers": {
+        "title": "Recent Customers",
+        "desc": "Quick view of your latest sales and customer activity."
+      },
+      "viewCommissions": {
+        "title": "View Commissions",
+        "desc": "Open your commissions report to track earnings and performance."
+      },
+      "sidebar": {
+        "title": "Dashboard",
+        "desc": "Return here anytime to see your sales overview."
+      }
     },
     "projectsTour": {
       "addProject": {

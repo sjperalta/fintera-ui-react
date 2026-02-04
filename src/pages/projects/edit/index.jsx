@@ -365,9 +365,15 @@ function EditProject() {
                       value={lotCount}
                       onChange={(e) => setLotCount(Number(e.target.value))}
                       required
-                      className="w-full h-12 pl-12 pr-4 bg-bgray-50 dark:bg-darkblack-500 border border-bgray-200 dark:border-darkblack-400 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white"
+                      disabled={reservedLots > 0 || soldLots > 0}
+                      className={`w-full h-12 pl-12 pr-4 bg-bgray-50 dark:bg-darkblack-500 border border-bgray-200 dark:border-darkblack-400 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white ${(reservedLots > 0 || soldLots > 0) ? "opacity-60 cursor-not-allowed" : ""}`}
                     />
                   </div>
+                  {(reservedLots > 0 || soldLots > 0) && (
+                    <p className="mt-1.5 text-sm text-bgray-500 dark:text-bgray-400">
+                      {t('projects.lotsCountDisabledWhenReserved')}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-bgray-700 dark:text-bgray-300 mb-2">
