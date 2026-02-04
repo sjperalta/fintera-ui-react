@@ -888,16 +888,21 @@ function Reserve() {
                                   >
                                     <div className="flex justify-between items-start mb-1">
                                       <span className="font-bold text-bgray-900 dark:text-white capitalize">{u.full_name}</span>
-                                      {(currentUser?.role === "admin" || currentUser?.role === "seller") && u.credit_score !== undefined && (
+                                      {(currentUser?.role === "admin" || currentUser?.role === "seller") && u.credit_score !== undefined && (() => {
+                                        const fico = Math.round(Math.max(300, Math.min(850, u.credit_score)));
+                                        const isExcellent = fico >= 750;
+                                        const isGood = fico >= 670 && fico < 750;
+                                        return (
                                         <div className="flex flex-col items-end">
-                                          <div className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${u.credit_score >= 80 ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : u.credit_score >= 60 ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-rose-50 text-rose-600 border border-rose-100"}`}>
-                                            Score: {Math.round(u.credit_score)}%
+                                          <div className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${isExcellent ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : isGood ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-rose-50 text-rose-600 border border-rose-100"}`}>
+                                            FICO: {fico}
                                           </div>
-                                          <p className={`text-[8px] font-bold uppercase mt-0.5 ${u.credit_score >= 80 ? "text-emerald-500" : u.credit_score >= 60 ? "text-amber-500" : "text-rose-500"}`}>
-                                            {u.credit_score >= 80 ? t('creditScore.excellent') : u.credit_score >= 60 ? t('creditScore.good') : t('creditScore.needsImprovement')}
+                                          <p className={`text-[8px] font-bold uppercase mt-0.5 ${isExcellent ? "text-emerald-500" : isGood ? "text-amber-500" : "text-rose-500"}`}>
+                                            {isExcellent ? t('creditScore.excellent') : isGood ? t('creditScore.good') : t('creditScore.needsImprovement')}
                                           </p>
                                         </div>
-                                      )}
+                                        );
+                                      })()}
                                     </div>
                                     <div className="flex gap-4 text-xs text-bgray-500 dark:text-bgray-400 font-medium">
                                       <span className="flex items-center"><span className="mr-1">📧</span> {u.email}</span>

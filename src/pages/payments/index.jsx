@@ -83,12 +83,14 @@ function Payments() {
     { label: t('common.actions'), align: "left" }
   ], [t]);
 
-  const filters = useMemo(() => ({
-    search_term: searchTerm,
-    status: status || "[paid|submitted|rejected]",
-    start_date: startDate,
-    end_date: endDate
-  }), [searchTerm, status, startDate, endDate]);
+  const filters = useMemo(() => {
+    const obj = {};
+    if (searchTerm) obj.search_term = searchTerm;
+    if (status) obj.status = status;
+    if (startDate) obj.start_date = startDate;
+    if (endDate) obj.end_date = endDate;
+    return obj;
+  }, [searchTerm, status, startDate, endDate]);
 
   const handleRefresh = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);

@@ -16,8 +16,9 @@ import {
 
 const formatEvent = (event, t) => {
     if (!event) return event;
-    switch (event.toLowerCase()) {
-        case "create": // Backend sometimes sends upper/lower
+    const lower = event.toLowerCase();
+    switch (lower) {
+        case "create":
         case "created":
             return { text: t("audits.events.create"), icon: faPlus, color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400" };
         case "update":
@@ -27,24 +28,26 @@ const formatEvent = (event, t) => {
         case "delete":
         case "deleted":
             return { text: t("audits.events.destroy"), icon: faTrash, color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" };
+        case "approve":
+            return { text: t("audits.events.approve"), icon: faFingerprint, color: "bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400" };
+        case "reject":
+            return { text: t("audits.events.reject"), icon: faTrash, color: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" };
+        case "cancel":
+        case "cancelled":
+        case "canceled":
+            return { text: t("audits.events.cancel"), icon: faTrash, color: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" };
+        case "close":
+        case "closed":
+            return { text: t("audits.events.close"), icon: faInfo, color: "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300" };
+        case "login":
+            return { text: t("audits.events.login"), icon: faUser, color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" };
+        case "capital_repayment":
+            return { text: t("audits.events.capital_repayment"), icon: faPlus, color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" };
         default:
-            // Handle custom actions like "approve", "reject", "cancel"
-            let color = "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
-            let icon = faInfo;
-
-            const lower = event.toLowerCase();
-            if (lower.includes("approve")) {
-                color = "bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400";
-                icon = faFingerprint; // Using fingerprint as approval symbol
-            } else if (lower.includes("reject") || lower.includes("cancel")) {
-                color = "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400";
-                icon = faTrash;
-            }
-
             return {
-                text: event.charAt(0).toUpperCase() + event.slice(1),
-                icon: icon,
-                color: color
+                text: t("audits.events." + lower) || (event.charAt(0).toUpperCase() + event.slice(1)),
+                icon: faInfo,
+                color: "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
             };
     }
 };
@@ -118,7 +121,7 @@ function AuditTimelineItem({ audit, isLast }) {
                             <h4 className="text-gray-900 dark:text-white font-bold text-sm sm:text-base flex items-center gap-2 flex-wrap">
                                 <span>{eventInfo.text}</span>
                                 <span className="text-gray-400 dark:text-gray-500 font-normal">in</span>
-                                <span className="bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-lg text-xs font-semibold">{model}</span>
+                                <span className="bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-lg text-xs font-semibold">{t("audits.models." + model) || model}</span>
                                 <span className="text-gray-400 dark:text-gray-500 text-xs">#{itemId}</span>
                             </h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">

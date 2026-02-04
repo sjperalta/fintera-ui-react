@@ -867,44 +867,46 @@ const ContractDetailsModal = ({
                         </div>
                       </div>
 
-                      {/* Credit Score Visualization - Only visible for Admin */}
-                      {isAdmin && contract.applicant_credit_score !== undefined && (
-                        <div className="bg-white dark:bg-darkblack-500 rounded-3xl border border-gray-100 dark:border-darkblack-400 shadow-sm p-8 flex flex-col items-center justify-center text-center">
-                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-6">{t("contractDetailsModal.creditScore")}</p>
+                      {/* Credit Score Visualization (FICO 300–850) - Only visible for Admin */}
+                      {isAdmin && contract.applicant_credit_score !== undefined && (() => {
+                        const ficoMin = 300, ficoMax = 850, circumference = 283;
+                        const score = Math.round(Math.max(ficoMin, Math.min(ficoMax, contract.applicant_credit_score)));
+                        const fillLength = ((score - ficoMin) / (ficoMax - ficoMin)) * circumference;
+                        const isExcellent = score >= 750;
+                        const isGood = score >= 670 && score < 750;
+                        return (
+                          <div className="bg-white dark:bg-darkblack-500 rounded-3xl border border-gray-100 dark:border-darkblack-400 shadow-sm p-8 flex flex-col items-center justify-center text-center">
+                            <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-6">{t("contractDetailsModal.creditScore")}</p>
 
-                          <div className="relative w-40 h-40 mb-6">
-                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                              <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="10" fill="none" className="text-gray-100 dark:text-darkblack-400" />
-                              <motion.circle
-                                cx="50"
-                                cy="50"
-                                r="45"
-                                stroke="currentColor"
-                                strokeWidth="10"
-                                fill="none"
-                                strokeLinecap="round"
-                                initial={{ strokeDasharray: "0 283" }}
-                                animate={{ strokeDasharray: `${(contract.applicant_credit_score / 100) * 283} 283` }}
-                                transition={{ duration: 1.5, ease: "easeOut" }}
-                                className={`${contract.applicant_credit_score >= 80 ? "text-emerald-500" :
-                                  contract.applicant_credit_score >= 60 ? "text-amber-500" : "text-red-500"
-                                  }`}
-                              />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                              <span className="text-4xl font-black text-bgray-900 dark:text-white">{Math.round(contract.applicant_credit_score)}</span>
-                              <span className="text-xs font-bold text-bgray-400">/ 100</span>
+                            <div className="relative w-40 h-40 mb-6">
+                              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="10" fill="none" className="text-gray-100 dark:text-darkblack-400" />
+                                <motion.circle
+                                  cx="50"
+                                  cy="50"
+                                  r="45"
+                                  stroke="currentColor"
+                                  strokeWidth="10"
+                                  fill="none"
+                                  strokeLinecap="round"
+                                  initial={{ strokeDasharray: "0 283" }}
+                                  animate={{ strokeDasharray: `${fillLength} 283` }}
+                                  transition={{ duration: 1.5, ease: "easeOut" }}
+                                  className={`${isExcellent ? "text-emerald-500" : isGood ? "text-amber-500" : "text-red-500"}`}
+                                />
+                              </svg>
+                              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                <span className="text-4xl font-black text-bgray-900 dark:text-white">{score}</span>
+                                <span className="text-xs font-bold text-bgray-400">/ {ficoMax}</span>
+                              </div>
+                            </div>
+
+                            <div className={`px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest ${isExcellent ? "bg-emerald-50 text-emerald-600" : isGood ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-600"}`}>
+                              {isExcellent ? t("creditScore.excellent") : isGood ? t("creditScore.good") : t("creditScore.needsImprovement")}
                             </div>
                           </div>
-
-                          <div className={`px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest ${contract.applicant_credit_score >= 80 ? "bg-emerald-50 text-emerald-600" :
-                            contract.applicant_credit_score >= 60 ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-600"
-                            }`}>
-                            {contract.applicant_credit_score >= 80 ? t("creditScore.excellent") :
-                              contract.applicant_credit_score >= 60 ? t("creditScore.good") : t("creditScore.needsImprovement")}
-                          </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   </div>
                 )}

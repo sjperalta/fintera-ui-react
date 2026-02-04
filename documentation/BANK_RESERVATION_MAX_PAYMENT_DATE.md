@@ -10,9 +10,18 @@ When a customer selects **Bank** or **Cash (contado)** as financing type, the fl
 - **Reserve page** (`/projects/:id/lots/:lot_id/reserve`): When financing type is **"bank"** or **"cash"**, the form shows a required **Maximum payment date** field (date input). On submit, the value is sent as `contract[max_payment_date]` (YYYY-MM-DD).
 - **Contract details modal**: For bank and cash contracts, the overview shows **Balance due by** with the date, and the editable section includes **Maximum payment date** (included in PATCH when present).
 
-## Backend (required)
+## Backend (implemented)
 
-The backend should support the following so that bank and cash reservations work end-to-end.
+The backend supports the following for bank and cash reservations.
+
+### Payment schedule (bank/cash)
+
+When a contract with financing type **bank** or **cash** is **approved**, the payment schedule is generated as:
+
+1. **Reservation payment**: amount = `reserve_amount`, type = `reservation`, due in 7 days.
+2. **Balance payment**: amount = `amount - reserve_amount`, type = `full`, due on `max_payment_date` (description: "Saldo restante").
+
+No down-payment line or installments are created for bank/cash.
 
 ### POST Create contract
 
