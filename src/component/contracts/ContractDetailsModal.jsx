@@ -157,7 +157,7 @@ const ContractDetailsModal = ({
     return s === "pending" || s === "rejected" || s === "submitted";
   }, [contract?.status]);
 
-  // Sync local state from contract only when contract prop changes (e.g. open modal, or parent passed updated contract). Do not depend on paymentTerm/reserveAmount/downPayment or typing will reset the inputs.
+  // Sync local state from contract only when contract prop changes (e.g. open modal, or parent passed updated contract). Do not depend on full contract or typing will reset the inputs on every parent re-render.
   useEffect(() => {
     if (contract) {
       setPaymentTerm(contract.payment_term ?? "");
@@ -165,6 +165,7 @@ const ContractDetailsModal = ({
       setDownPayment(contract.down_payment ?? "");
       setMaxPaymentDate(contract.max_payment_date ? String(contract.max_payment_date).slice(0, 10) : "");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: only sync when these fields change to avoid resetting form while user types
   }, [contract?.id, contract?.payment_term, contract?.reserve_amount, contract?.down_payment, contract?.max_payment_date]);
 
   // Fetch full contract details (including payment schedule)
