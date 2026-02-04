@@ -93,6 +93,89 @@ export const OnboardingProvider = ({ children }) => {
                     }
                 }
             ],
+            sellerHome: [
+                {
+                    element: "#seller-dashboard-hero",
+                    popover: {
+                        title: t("onboarding.sellerHome.welcome.title") || "Welcome to Fintera!",
+                        description: t("onboarding.sellerHome.welcome.desc") || "This is your seller dashboard. Here you can see your sales performance, active leads, and commissions.",
+                        side: "bottom",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#seller-dashboard-stats",
+                    popover: {
+                        title: t("onboarding.sellerHome.stats.title") || "Key Metrics",
+                        description: t("onboarding.sellerHome.stats.desc") || "Your sales volume, active leads, estimated commission, and conversion rate at a glance.",
+                        side: "top",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#seller-new-sale-btn",
+                    popover: {
+                        title: t("onboarding.sellerHome.newSale.title") || "New Sale",
+                        description: t("onboarding.sellerHome.newSale.desc") || "Start a new sale by selecting a project and reserving a lot for your client.",
+                        side: "bottom",
+                        align: "center"
+                    }
+                },
+                {
+                    element: "#seller-add-lead-btn",
+                    popover: {
+                        title: t("onboarding.sellerHome.addLead.title") || "Add Lead",
+                        description: t("onboarding.sellerHome.addLead.desc") || "Register new leads (prospects) to track and follow up on potential sales.",
+                        side: "bottom",
+                        align: "center"
+                    }
+                },
+                {
+                    element: "#seller-performance-chart",
+                    popover: {
+                        title: t("onboarding.sellerHome.performanceChart.title") || "Performance Trend",
+                        description: t("onboarding.sellerHome.performanceChart.desc") || "See how your sales are trending over the selected month.",
+                        side: "top",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#seller-recent-customers",
+                    popover: {
+                        title: t("onboarding.sellerHome.recentCustomers.title") || "Recent Customers",
+                        description: t("onboarding.sellerHome.recentCustomers.desc") || "Quick view of your latest sales and customer activity.",
+                        side: "left",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#seller-view-commissions-btn",
+                    popover: {
+                        title: t("onboarding.sellerHome.viewCommissions.title") || "View Commissions",
+                        description: t("onboarding.sellerHome.viewCommissions.desc") || "Open your commissions report to track earnings and performance.",
+                        side: "top",
+                        align: "start"
+                    }
+                },
+                {
+                    element: "#sidebar-home",
+                    popover: {
+                        title: t("onboarding.sellerHome.sidebar.title") || "Dashboard",
+                        description: t("onboarding.sellerHome.sidebar.desc") || "Return here anytime to see your sales overview.",
+                        side: "right",
+                        align: "center"
+                    }
+                },
+                {
+                    element: "#profile-trigger",
+                    popover: {
+                        title: t("onboarding.profile.title") || "Your Profile",
+                        description: t("onboarding.profile.desc") || "Access your settings, change language, or restart this tour anytime from here.",
+                        side: "bottom",
+                        align: "end"
+                    }
+                }
+            ],
             projects: [
                 {
                     element: "#projects-filter-section",

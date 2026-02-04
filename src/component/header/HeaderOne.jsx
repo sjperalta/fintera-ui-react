@@ -83,6 +83,28 @@ function HeaderOne({ handleSidebar }) {
     }
   };
 
+  const handleMarkAsRead = async (id) => {
+    try {
+      const res = await fetch(
+        `${API_URL}/api/v1/notifications/${id}/mark_as_read`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Failed to mark notification as read");
+      }
+      // Remove the notification from the list (we only show unread)
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      console.error("Error marking notification as read:", err);
+    }
+  };
+
   const handlePopup = (name) => {
     setPopup((prevPopup) => ({
       [name]: !prevPopup?.[name],
@@ -190,6 +212,7 @@ function HeaderOne({ handleSidebar }) {
                   active={popup?.notification}
                   notifications={notifications}
                   onMarkAllAsRead={handleMarkAllAsRead}
+                  onMarkAsRead={handleMarkAsRead}
                   onClose={handleCloseNotification}
                 />
               </div>

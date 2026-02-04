@@ -7,6 +7,7 @@ function NotificationPopup({
   loading,
   notifications,
   onMarkAllAsRead,
+  onMarkAsRead,
   onClose,
 }) {
   const { t } = useLocale();
@@ -80,10 +81,10 @@ function NotificationPopup({
               notifications.map((n) => (
                 <li
                   key={n.id}
-                  className="border-b border-bgray-200 py-4 pl-6 pr-[50px] hover:bg-bgray-100 dark:border-darkblack-400 dark:hover:bg-darkblack-500 transition-colors duration-150"
+                  className="group/item border-b border-bgray-200 py-4 pl-6 pr-4 hover:bg-bgray-100 dark:border-darkblack-400 dark:hover:bg-darkblack-500 transition-colors duration-150 flex items-start gap-3"
                 >
-                  <Link to="#">
-                    <div className="noti-item">
+                  <div className="noti-item flex-1 min-w-0">
+                    <Link to="#" className="block">
                       {/* Show the title if present */}
                       {n.title && (
                         <strong className="text-bgray-900 dark:text-white block">
@@ -98,8 +99,31 @@ function NotificationPopup({
                           ? new Date(n.created_at).toLocaleString()
                           : ""}
                       </span>
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onMarkAsRead(n.id);
+                    }}
+                    className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-bgray-400 hover:text-success-300 hover:bg-success-50 dark:hover:bg-success-900/20 transition-colors duration-150 mt-0.5"
+                    aria-label={t("notifications.markAsRead")}
+                    title={t("notifications.markAsRead")}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 6L9 17L4 12" stroke="currentColor" />
+                    </svg>
+                  </button>
                 </li>
               ))}
           </ul>
@@ -150,6 +174,7 @@ NotificationPopup.propTypes = {
   loading: PropTypes.bool,
   notifications: PropTypes.array,
   onMarkAllAsRead: PropTypes.func.isRequired,
+  onMarkAsRead: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 
