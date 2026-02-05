@@ -10,8 +10,30 @@ import AuthContext from "../../context/AuthContext";
 import { useLocale } from "../../contexts/LocaleContext";
 import { useToast } from "../../contexts/ToastContext";
 
+// Normalize payment from API: user payments return flat shape (no nested contract); build a safe contract for display
+function normalizePayment(paymentData) {
+  const paidAmount = Number(paymentData.paid_amount ?? 0);
+  const contract = paymentData.contract ?? {
+    currency: paymentData.currency ?? "HNL",
+    lot: paymentData.lot_name
+      ? { name: paymentData.lot_name, address: paymentData.lot_address ?? null }
+      : null,
+  };
+  return { ...paymentData, contract, paidAmount };
+}
+
 function PaymentData({ paymentData, onPaymentSuccess }) {
-  const { id, contract, description, amount, due_date, status: initialStatus, interest_amount, paid_amount } = paymentData;
+  const normalized = normalizePayment(paymentData);
+  const {
+    id,
+    contract,
+    description,
+    amount,
+    due_date,
+    status: initialStatus,
+    interest_amount,
+    paidAmount,
+  } = normalized;
   const { token } = useContext(AuthContext);
   const { t } = useLocale();
   const { showToast } = useToast();
@@ -66,14 +88,15 @@ function PaymentData({ paymentData, onPaymentSuccess }) {
     }, 300);
   };
 
-  // Format currency function
+  // Format currency function (contract may be missing when API returns flat PaymentResponse)
+  const currency = contract?.currency ?? "HNL";
   const fmt = (v) =>
     v === null || v === undefined || v === ""
       ? "—"
       : Number(v).toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }) + " " + (contract.currency || "HNL");
+      }) + " " + currency;
 
   // Parse the due_date string into a Date object
   const dueDate = parseISO(due_date);
@@ -175,17 +198,22 @@ function PaymentData({ paymentData, onPaymentSuccess }) {
             <span className="text-sm font-medium text-bgray-700 dark:text-bgray-200">{t('payments.totalAmount')}</span>
           </div>
           <p className="text-xl font-bold text-bgray-900 dark:text-white">
-            {contract.currency} {Number(parseFloat(amount || 0) + parseFloat(interest_amount || 0)).toLocaleString()}
+            {currency} {Number(parseFloat(amount || 0) + parseFloat(interest_amount || 0)).toLocaleString()}
           </p>
-          {interest_amount > 0 && (
+          {Number(interest_amount || 0) > 0 && (
             <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-              {t('payments.lateInterest')}: {contract.currency} {Number(interest_amount).toLocaleString()}
+              {t('payments.lateInterest')}: {currency} {Number(interest_amount).toLocaleString()}
             </p>
           )}
-          {paid_amount > (Number(amount) + Number(interest_amount)) && (
+          {(initialStatus === "paid" && paidAmount > 0) && (
+            <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
+              {t('payments.amountReceived')}: {currency} {paidAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          )}
+          {paidAmount > (Number(amount || 0) + Number(interest_amount || 0)) && (
             <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-              {t('payments.extraAmount')}: {contract.currency} {Number(paid_amount - (Number(amount) + Number(interest_amount))).toLocaleString()}
+              {t('payments.extraAmount')}: {currency} {Number(paidAmount - (Number(amount || 0) + Number(interest_amount || 0))).toLocaleString()}
             </p>
           )}
         </div>
@@ -203,22 +231,22 @@ function PaymentData({ paymentData, onPaymentSuccess }) {
         </div>
       </div>
 
-      {/* Lot Information */}
-      {contract?.lot && (
+      {/* Lot Information (from nested contract or flat API: lot_name, lot_address) */}
+      {(contract?.lot || normalized.lot_name) && (
         <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800 mb-4">
           <div className="flex items-center space-x-2 mb-1">
             <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">{contract.lot.name || t('common.notAvailable')}</span>
+            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">{(contract?.lot?.name ?? normalized.lot_name) || t('common.notAvailable')}</span>
           </div>
-          {contract.lot.address && (
+          {(contract?.lot?.address ?? normalized.lot_address) && (
             <div className="flex items-center space-x-1 ml-6">
               <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span className="text-xs text-blue-700 dark:text-blue-300">{contract.lot.address}</span>
+              <span className="text-xs text-blue-700 dark:text-blue-300">{contract?.lot?.address ?? normalized.lot_address}</span>
             </div>
           )}
         </div>
@@ -390,18 +418,21 @@ PaymentData.propTypes = {
   paymentData: PropTypes.shape({
     id: PropTypes.number.isRequired,
     contract: PropTypes.shape({
-      currency: PropTypes.string.isRequired,
+      currency: PropTypes.string,
       lot: PropTypes.shape({
         id: PropTypes.number,
         name: PropTypes.string,
         address: PropTypes.string,
       }),
-    }).isRequired,
-    description: PropTypes.string.isRequired,
+    }),
+    description: PropTypes.string,
     amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    due_date: PropTypes.string.isRequired, // ISO date string
+    due_date: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     interest_amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    paid_amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    lot_name: PropTypes.string,
+    lot_address: PropTypes.string,
   }).isRequired,
   onPaymentSuccess: PropTypes.func,
 };
