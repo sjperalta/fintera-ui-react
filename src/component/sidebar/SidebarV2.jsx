@@ -19,6 +19,10 @@ function SidebarV2({ user, handleLogout }) {
   const isSeller = user.role === "seller";
   const isUser = user.role === "user";
 
+  // Dashboard path by role: admin/seller → home, regular user → financial summary
+  const dashboardPath =
+    isUser && user?.id ? `/financing/user/${user.id}` : "/";
+
   // Fetch users for seller on tablet (my_clients)
   useEffect(() => {
     if (!isSeller || !token) return;
@@ -52,7 +56,7 @@ function SidebarV2({ user, handleLogout }) {
     >
       <div className="sidebar-wrapper-collapse relative top-0 z-30 w-full">
         <div className="sidebar-header sticky top-0 z-20 flex h-[108px] w-full items-center justify-center border-b border-r border-b-[#F7F7F7] border-r-[#F7F7F7] bg-white dark:border-darkblack-500 dark:bg-darkblack-600">
-          <Link to="/">
+          <Link to={dashboardPath}>
             <img src={logo} className="block dark:hidden" alt="logo" />
             <img src={logoW} className="hidden dark:block" alt="logo" />
           </Link>
