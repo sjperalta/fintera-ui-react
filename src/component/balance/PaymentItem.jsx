@@ -138,14 +138,15 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
     }
   };
 
-  const handleReject = async (rejectionReason) => {
+  const handleReject = async (reason) => {
     setRejectLoading(true);
     setRejectResult(null);
     try {
+      const body = reason?.trim() ? { reason: reason.trim() } : {};
       const res = await fetch(`${API_URL}/api/v1/payments/${paymentInfo.id}/reject`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ rejection_reason: rejectionReason }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const errorData = await res.json();
@@ -595,15 +596,14 @@ function ApproveModal({
 }
 
 /**
- * Reject Payment Modal - Admin rejects a submitted payment with reason
+ * Reject Payment Modal - Admin rejects a submitted payment (optional reason)
  */
 function RejectPaymentModal({ paymentInfo, onClose, handleReject, rejectLoading, rejectResult, t }) {
   const [reason, setReason] = useState("");
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (!reason.trim()) return;
-    handleReject(reason.trim());
+    handleReject(reason.trim() || undefined);
   };
 
   return createPortal(
@@ -639,14 +639,13 @@ function RejectPaymentModal({ paymentInfo, onClose, handleReject, rejectLoading,
           </p>
           <div className="space-y-3">
             <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-              {t('payments.rejectionReasonLabel')} *
+              {t('payments.rejectionReasonLabelOptional')}
             </label>
             <textarea
               value={reason}
               onChange={e => setReason(e.target.value)}
               placeholder={t('payments.rejectionReasonPlaceholder')}
               className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/10 focus:border-rose-500 outline-none font-medium text-slate-900 dark:text-white min-h-[120px] resize-none text-sm"
-              required
               disabled={rejectLoading}
             />
           </div>
@@ -674,7 +673,7 @@ function RejectPaymentModal({ paymentInfo, onClose, handleReject, rejectLoading,
             </button>
             <button
               type="submit"
-              disabled={rejectLoading || !reason.trim()}
+              disabled={rejectLoading}
               className="flex-[2] py-4 rounded-2xl bg-rose-500 text-white font-bold uppercase tracking-wider text-[10px] shadow-lg hover:bg-rose-600 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
             >
               {rejectLoading ? (
