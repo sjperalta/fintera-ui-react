@@ -178,6 +178,7 @@
     "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
     "passwordUppercaseRequired": "La contraseña debe contener al menos una letra mayúscula",
     "passwordNumberRequired": "La contraseña debe contener al menos un número",
+    "invalidVerificationCode": "Código inválido o expirado. Por favor, intente de nuevo.",
     "sessionExpired": "Tu sesión ha expirado. Por favor inicia sesión nuevamente."
   },
   "dashboard": {
@@ -448,6 +449,7 @@
     "approveAmountHint": "Ajuste el monto o interés si el usuario pagó de más; el exceso se aplicará a pagos futuros.",
     "paidAmount": "Total Pagado",
     "overpayment": "Extra Pago",
+    "amountOverpaid": "Monto pagado de más",
     "clickToUploadReceipt": "Haz clic para subir el recibo",
     "acceptedFormats": "PDF, JPG, PNG",
     "approve": "Aprobar",
@@ -551,6 +553,7 @@
     "identityPlaceholder": "0999-1999-00999",
     "rtnPlaceholder": "0999-1999-00999-0",
     "addressOptional": "Dirección (opcional)",
+    "confirmationSent": "Confirmación enviada",
     "passwordStrength": "Contraseña: {label}",
     "chars": "caracteres",
     "passwordsMatch": "Las contraseñas coinciden",
@@ -1068,6 +1071,8 @@
     "applyPayment": "Aplicar Pago",
     "editMoratory": "Editar Mora",
     "undoPayment": "Deshacer Pago",
+    "undoSuccess": "Pago deshecho correctamente.",
+    "undoError": "Error al deshacer el pago.",
     "updateMoratoryInfo": "Ajuste el monto del interés moratorio para este pago.",
     "capitalPaymentDescription": "Realice un abono directo al capital del contrato.",
     "capitalPaymentInfo": "Los pagos a capital reducirán el saldo pendiente y reajustarán las cuotas futuras.",

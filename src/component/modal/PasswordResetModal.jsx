@@ -110,18 +110,18 @@ export const CodeVerify = ({
       newDigits[index] = value;
       setDigits(newDigits);
 
-      if (index < 4) {
+      if (index < 5) {
         inputs.current[index + 1].focus();
       }
     }
   };
 
   const handlePaste = (e) => {
-    const paste = e.clipboardData.getData('text').slice(0, 5);
-    if (/^\d{5}$/.test(paste)) {
+    const paste = e.clipboardData.getData('text').slice(0, 6);
+    if (/^\d{6}$/.test(paste)) {
       const newDigits = paste.split('');
       setDigits(newDigits);
-      inputs.current[4].focus();
+      inputs.current[5].focus();
     }
   };
 
@@ -289,7 +289,7 @@ function PasswordResetModal({ isActive, handleActive }) {
   const { t } = useLocale();
   const [step, setStep] = useState('reset');
   const [email, setEmail] = useState('');
-  const [digits, setDigits] = useState(Array(5).fill(''));
+  const [digits, setDigits] = useState(Array(6).fill(''));
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
@@ -299,7 +299,7 @@ function PasswordResetModal({ isActive, handleActive }) {
   const resetState = () => {
     setStep('reset');
     setEmail('');
-    setDigits(Array(5).fill(''));
+    setDigits(Array(6).fill(''));
     setPassword('');
     setConfirm('');
     setError('');
@@ -336,16 +336,26 @@ function PasswordResetModal({ isActive, handleActive }) {
     setError('');
 
     try {
-      const code = digits.join('');
+      const code = digits.join('').trim();
+      if (code.length !== 6) {
+        setError(t('auth.invalidVerificationCode'));
+        return;
+      }
       const response = await fetch(`${API_URL}/api/v1/users/verify_recovery_code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code }),
+        body: JSON.stringify({ email: email.trim(), code }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Invalid verification code');
+        throw new Error(data.error || t('auth.invalidVerificationCode'));
+      }
+
+      if (data.valid !== true) {
+        setError(data.error || t('auth.invalidVerificationCode'));
+        return;
       }
 
       setStep('newPass');
@@ -396,15 +406,15 @@ function PasswordResetModal({ isActive, handleActive }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email,
-          code: digits.join(''),
+          email: email.trim(),
+          code: digits.join('').trim(),
           new_password: password,
           new_password_confirmation: confirm
         }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.error || 'Password update failed');
       }
 

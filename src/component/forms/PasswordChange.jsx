@@ -50,7 +50,7 @@ const PasswordInputField = ({ label, value, onChange, show, onToggle, id, placeh
 function PasswordChange({ token, userId }) {
   const { t } = useLocale();
   const { showToast } = useToast();
-  const { user: currentUser } = useContext(AuthContext);
+  const { user: currentUser, setUser } = useContext(AuthContext);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -117,6 +117,18 @@ function PasswordChange({ token, userId }) {
         setNewPassword("");
         setConfirmPassword("");
         setPasswordStrength(0);
+        if (setUser && currentUser && String(currentUser?.id || currentUser?.ID) === String(userId)) {
+          setUser({ ...currentUser, must_change_password: false });
+          const stored = localStorage.getItem("user");
+          if (stored) {
+            try {
+              const parsed = JSON.parse(stored);
+              localStorage.setItem("user", JSON.stringify({ ...parsed, must_change_password: false }));
+            } catch {
+              // ignore
+            }
+          }
+        }
       } else {
         const msg = data.error || data.message || (data.errors ? data.errors.join(", ") : "Error updating password.");
         showToast(msg, "error");

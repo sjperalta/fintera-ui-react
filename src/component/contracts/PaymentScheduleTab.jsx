@@ -30,10 +30,8 @@ const PaymentScheduleTab = ({
   setApplyPaymentModal,
   setEditingMora,
   setMoratoryAmount,
-  setSchedule,
-  setCurrentContract,
-  onPaymentSuccess,
-  currentContract
+  onUndoPayment,
+  undoLoadingPaymentId
 }) => {
   const { t } = useLocale();
 
@@ -306,24 +304,16 @@ const PaymentScheduleTab = ({
                               <motion.button
                                 whileHover={{ scale: 1.1, backgroundColor: '#EF4444', color: '#fff' }}
                                 whileTap={{ scale: 0.9 }}
-                                onClick={() => {
-                                  const updatedSchedule = safeSchedule.map((payment, paymentIdx) =>
-                                    (payment.id === row.id || paymentIdx === idx)
-                                      ? { ...payment, status: "pending", paid_date: null, undo_date: new Date().toISOString().split('T')[0] }
-                                      : payment
-                                  );
-                                  setSchedule(updatedSchedule);
-                                  const paymentAmount = row.amount || 0;
-                                  setCurrentContract(prev => ({
-                                    ...(prev || {}),
-                                    balance: (prev?.balance || 0) + paymentAmount
-                                  }));
-                                  if (onPaymentSuccess) onPaymentSuccess({ payment: { ...row, status: "pending", contract: { id: currentContract?.id, balance: (currentContract?.balance || 0) + paymentAmount } } });
-                                }}
-                                className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center transition-colors"
+                                onClick={() => onUndoPayment?.(row.id)}
+                                disabled={undoLoadingPaymentId != null && undoLoadingPaymentId === row.id}
+                                className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 title={t('paymentSchedule.undoPayment')}
                               >
-                                <FontAwesomeIcon icon={faUndo} className="text-xs" />
+                                {undoLoadingPaymentId === row.id ? (
+                                  <motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="inline-block w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full" />
+                                ) : (
+                                  <FontAwesomeIcon icon={faUndo} className="text-xs" />
+                                )}
                               </motion.button>
                             )}
 
@@ -398,10 +388,8 @@ PaymentScheduleTab.propTypes = {
   setApplyPaymentModal: PropTypes.func.isRequired,
   setEditingMora: PropTypes.func.isRequired,
   setMoratoryAmount: PropTypes.func.isRequired,
-  setSchedule: PropTypes.func.isRequired,
-  setCurrentContract: PropTypes.func.isRequired,
-  onPaymentSuccess: PropTypes.func,
-  currentContract: PropTypes.object
+  onUndoPayment: PropTypes.func,
+  undoLoadingPaymentId: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 };
 
 export default PaymentScheduleTab;

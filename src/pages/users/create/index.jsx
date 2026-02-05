@@ -103,22 +103,24 @@ function CreateUser() {
       setError(t('users.invalidRTN'));
       return;
     }
-    if (formData.password.length < 8) {
-      setError(t('users.passwordMinLength'));
-      return;
-    }
-    if (!pwMatch) {
-      setError(t('users.passwordsDoNotMatch'));
-      return;
+    // Password optional: if empty, backend auto-generates 5-char temp and emails it
+    if (formData.password !== "") {
+      if (formData.password.length < 8) {
+        setError(t('users.passwordMinLength'));
+        return;
+      }
+      if (!pwMatch) {
+        setError(t('users.passwordsDoNotMatch'));
+        return;
+      }
     }
 
     try {
       const safeRole = creator?.role === 'admin' ? formData.role : 'user';
-      // Map to PascalCase for the backend validator
+      // Map to PascalCase for the backend validator (omit Password if empty - backend generates)
       const payload = {
         FullName: formData.full_name,
         Email: formData.email,
-        Password: formData.password,
         Phone: formData.phone,
         Identity: formData.identity.replace(/\D/g, ""),
         RTN: formData.rtn.replace(/\D/g, ""),
@@ -126,6 +128,9 @@ function CreateUser() {
         Role: safeRole,
         CreatedBy: creator?.id,
       };
+      if (formData.password !== "") {
+        payload.Password = formData.password;
+      }
 
       const response = await fetch(`${API_URL}/api/v1/users`, {
         method: "POST",
@@ -374,10 +379,11 @@ function CreateUser() {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Password */}
+                  {/* Password - optional: leave empty to auto-generate and email */}
                   <motion.div variants={itemVariants} className="flex flex-col gap-2 md:col-span-2">
                     <label htmlFor="password" className="text-sm font-bold text-bgray-700 dark:text-bgray-300">
                       {t('users.password')}
+                      <span className="text-bgray-500 font-normal ml-1">({t('users.optional') || 'opcional - dejar vacío para generar y enviar por email'})</span>
                     </label>
                     <input
                       type="password"
@@ -385,7 +391,6 @@ function CreateUser() {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      required
                       className="bg-bgray-50/50 dark:bg-darkblack-500/50 backdrop-blur-sm p-4 rounded-xl border border-bgray-200 dark:border-darkblack-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:text-white transition-all outline-none"
                     />
 

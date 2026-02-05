@@ -3,8 +3,10 @@ import { useContext } from "react";
 import AuthContext from "../../contexts/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
-  const { token, loading } = useContext(AuthContext);
+  const { token, user, loading } = useContext(AuthContext);
   const location = useLocation();
+  const pathname = location.pathname || "";
+  const isSecurityPage = /^\/settings\/user\/\d+\/security$/.test(pathname);
 
   // Show loading state while checking authentication
   if (loading) {
@@ -21,6 +23,11 @@ const ProtectedRoute = ({ children }) => {
   // Redirect to signin if not authenticated
   if (!token) {
     return <Navigate to="/signin" state={{ from: location }} replace />;
+  }
+
+  // First-time login: must change password before accessing other pages
+  if (user?.must_change_password && !isSecurityPage && user?.id) {
+    return <Navigate to={`/settings/user/${user.id}/security`} replace />;
   }
 
   return children;

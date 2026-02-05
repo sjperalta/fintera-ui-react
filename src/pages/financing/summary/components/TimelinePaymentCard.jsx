@@ -16,7 +16,7 @@ function TimelinePaymentCard({ payment, onPaymentSuccess, cardId }) {
     const [selectedFile, setSelectedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
-    const { id, amount, due_date, status, interest_amount, contract, description, project_name, lot_name, rejection_reason, rejection_reason_notes, reason } = payment;
+    const { id, amount, due_date, status, interest_amount, paid_amount, is_overpayment, contract, description, project_name, lot_name, rejection_reason, rejection_reason_notes, reason } = payment;
     const statusLower = (status || '').toLowerCase();
     const dueDate = parseISO(due_date);
     const isOverdue = isBefore(dueDate, startOfDay(new Date())) && statusLower !== 'paid' && statusLower !== 'rejected';
@@ -29,6 +29,9 @@ function TimelinePaymentCard({ payment, onPaymentSuccess, cardId }) {
 
     const interest = Number(interest_amount || 0);
     const totalDue = Number(amount || 0) + interest;
+    const paidAmount = Number(paid_amount ?? 0);
+    const showOverpayment = statusLower === 'paid' && (is_overpayment === true || (paidAmount > totalDue && totalDue > 0));
+    const overpaymentAmount = showOverpayment ? paidAmount - totalDue : 0;
 
     const formatCurrency = (val) => new Intl.NumberFormat(locale === 'es' ? 'es-HN' : 'en-US', {
         style: 'currency',
@@ -128,7 +131,25 @@ function TimelinePaymentCard({ payment, onPaymentSuccess, cardId }) {
                                     <span className="text-rose-500 font-medium">{t('payments.interest')}: {formatCurrency(interest)}</span>
                                 </>
                             )}
+                            {statusLower === 'paid' && paidAmount > 0 && (
+                                <>
+                                    <span className="w-1 h-1 rounded-full bg-bgray-300"></span>
+                                    <span>{t('payments.totalPaid')}: {formatCurrency(paidAmount)}</span>
+                                </>
+                            )}
+                            {showOverpayment && overpaymentAmount > 0 && (
+                                <>
+                                    <span className="w-1 h-1 rounded-full bg-bgray-300"></span>
+                                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">{t('payments.amountOverpaid')}: +{formatCurrency(overpaymentAmount)} ({t('payments.overpayment')})</span>
+                                </>
+                            )}
                         </div>
+                        {showOverpayment && overpaymentAmount > 0 && (
+                            <div className="mt-2 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
+                                <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">{t('payments.amountOverpaid')}</p>
+                                <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">{formatCurrency(overpaymentAmount)}</p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-3 self-end md:self-center">

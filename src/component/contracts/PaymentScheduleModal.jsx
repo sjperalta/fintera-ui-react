@@ -43,6 +43,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   const [editableInterest, setEditableInterest] = useState("");
   const [editableTotal, setEditableTotal] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [undoLoadingPaymentId, setUndoLoadingPaymentId] = useState(null);
   const [currentContract, setCurrentContract] = useState(() => contract || null);
   const [activeTab, setActiveTab] = useState('overview');
   const [ledgerEntries, setLedgerEntries] = useState([]); // Ensure ledgerEntries is always initialized as an array
@@ -128,6 +129,35 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
       onPaymentSuccess(paymentResponse);
     }
   };
+
+  const handleUndoPayment = useCallback(async (paymentId) => {
+    if (!paymentId || !token) return;
+    setUndoLoadingPaymentId(paymentId);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/v1/payments/${paymentId}/undo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || response.statusText);
+      }
+      await loadContractData();
+      if (onPaymentSuccess) onPaymentSuccess({ payment: { id: paymentId }, type: "undo" });
+      showToast(t("paymentSchedule.undoSuccess") || "Payment undone.", "success");
+    } catch (error) {
+      console.error("Error undoing payment:", error);
+      showToast(error.message || t("paymentSchedule.undoError") || "Failed to undo payment.", "error");
+    } finally {
+      setUndoLoadingPaymentId(null);
+    }
+  }, [token, loadContractData, onPaymentSuccess, showToast, t]);
 
   useEffect(() => {
     if (!open || !contract?.id) {
@@ -573,6 +603,8 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
               setSchedule={setSchedule}
               setCurrentContract={setCurrentContract}
               onPaymentSuccess={onPaymentSuccess}
+              onUndoPayment={handleUndoPayment}
+              undoLoadingPaymentId={undoLoadingPaymentId}
               currentContract={currentContract}
             />
           ) : activeTab === 'ledger' ? (
