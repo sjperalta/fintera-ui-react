@@ -1,18 +1,55 @@
-import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLocale } from "../../contexts/LocaleContext";
+import AuthContext from "../../contexts/AuthContext";
+import { API_URL } from "../../../config";
 import logo from "../../assets/images/logo/logo-short.svg";
 import logoW from "../../assets/images/logo/logo-short-white.svg";
 
 function SidebarV2({ user, handleLogout }) {
   const { pathname: location } = useLocation();
+  const navigate = useNavigate();
   const { t } = useLocale();
+  const { token } = useContext(AuthContext);
+
+  const [sidebarUsers, setSidebarUsers] = useState([]);
+  const [sidebarUsersLoading, setSidebarUsersLoading] = useState(false);
 
   const isAdmin = user.role === "admin";
   const isSeller = user.role === "seller";
   const isUser = user.role === "user";
 
+  // Fetch users for seller on tablet (my_clients)
+  useEffect(() => {
+    if (!isSeller || !token) return;
+    const controller = new AbortController();
+    const fetchUsers = async () => {
+      setSidebarUsersLoading(true);
+      try {
+        const res = await fetch(
+          `${API_URL}/api/v1/users?my_clients=1&role=user&per_page=25&sort=created_at-desc`,
+          {
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            signal: controller.signal,
+          }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        setSidebarUsers(data.users || []);
+      } catch {
+        setSidebarUsers([]);
+      } finally {
+        setSidebarUsersLoading(false);
+      }
+    };
+    fetchUsers();
+    return () => controller.abort();
+  }, [isSeller, token]);
+
   return (
-    <aside className="relative hidden w-[96px] bg-white  dark:bg-darkblack-600 sm:block">
+    <aside
+      className={`relative hidden bg-white dark:bg-darkblack-600 sm:block w-[96px] ${isSeller ? "md:w-[280px] lg:w-[96px]" : ""}`}
+    >
       <div className="sidebar-wrapper-collapse relative top-0 z-30 w-full">
         <div className="sidebar-header sticky top-0 z-20 flex h-[108px] w-full items-center justify-center border-b border-r border-b-[#F7F7F7] border-r-[#F7F7F7] bg-white dark:border-darkblack-500 dark:bg-darkblack-600">
           <Link to="/">
@@ -251,12 +288,12 @@ function SidebarV2({ user, handleLogout }) {
                     </li>
                   )}
 
-                  {/* Users: Only Admin */}
-                  {isAdmin && (
+                  {/* Users: Admin or Seller */}
+                  {(isAdmin || isSeller) && (
                     <li className="item px-[43px] py-[11px]">
                       <Link
-                        to="/users"
-                        className={`${location === "/users" ? "nav-active" : ""}`}
+                        to={isSeller ? "/users?my_clients=1" : "/users"}
+                        className={`${location === "/users" || location.startsWith("/users?") ? "nav-active" : ""}`}
                       >
                         <span className="item-ico">
                           <svg
@@ -333,6 +370,45 @@ function SidebarV2({ user, handleLogout }) {
                   )}
                 </ul>
               </div>
+
+              {/* Seller: users list on tablet only (md, hidden on lg) */}
+              {isSeller && (
+                <div className="hidden md:block lg:hidden item-wrapper mb-4 w-full px-3 border-t border-bgray-200 dark:border-darkblack-400 pt-4">
+                  <h4 className="text-xs font-medium leading-7 text-bgray-700 dark:text-bgray-50 mb-2">
+                    {t("users.title")}
+                  </h4>
+                  <div className="max-h-[240px] overflow-y-auto custom-scrollbar space-y-0.5">
+                    {sidebarUsersLoading ? (
+                      <div className="flex items-center justify-center py-4">
+                        <span className="text-xs text-bgray-500 dark:text-bgray-400">{t("users.loadingUsers")}</span>
+                      </div>
+                    ) : sidebarUsers.length === 0 ? (
+                      <p className="text-xs text-bgray-500 dark:text-bgray-400 py-2">{t("users.noUsersFound")}</p>
+                    ) : (
+                      sidebarUsers.map((u) => (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() =>
+                            navigate("/users", {
+                              state: {
+                                selectedUserId: u.id,
+                                selectedUserName: u.full_name,
+                                selectedUserPhone: u.phone,
+                                selectedUserCreditScore: u.credit_score,
+                              },
+                            })
+                          }
+                          className="w-full text-left px-3 py-2 rounded-lg text-sm text-bgray-800 dark:text-bgray-200 hover:bg-bgray-100 dark:hover:bg-darkblack-500 truncate"
+                        >
+                          {u.full_name || u.email || `#${u.id}`}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="item-wrapper mb-5">
                 <ul className="mt-2.5 flex flex-col items-center justify-center">
                   <li className="item px-[43px] py-[11px]">

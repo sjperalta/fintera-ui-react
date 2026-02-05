@@ -252,7 +252,7 @@ function ContractItem({
 
         {/* Top-Right Menu & Actions */}
         <div className="absolute top-4 right-4 flex items-center gap-1.5 z-10">
-          {["approved", "closed"].includes(contract.status?.toLowerCase()) && (
+          {userRole !== "seller" && ["approved", "closed"].includes(contract.status?.toLowerCase()) && (
             <button
               onClick={(e) => { e.stopPropagation(); setShowSchedule(true); }}
               id="contract-schedule-btn"
@@ -433,7 +433,7 @@ function ContractItem({
 
         {/* Modals */}
         {
-          showSchedule && createPortal(
+          showSchedule && userRole !== "seller" && createPortal(
             <PaymentScheduleModal
               contract={contract}
               open={showSchedule}
@@ -576,7 +576,7 @@ function ContractItem({
             </button>
           )}
 
-          {["approved", "closed"].includes(contract.status?.toLowerCase()) && (
+          {userRole !== "seller" && ["approved", "closed"].includes(contract.status?.toLowerCase()) && (
             <button
               onClick={(e) => { e.stopPropagation(); setShowSchedule(true); }}
               title={t("contracts.paymentSchedule")}
@@ -598,7 +598,7 @@ function ContractItem({
       </td>
 
       {/* Modals are handled inside GenericList but for now keeping them here if needed */}
-      {showSchedule && createPortal(
+      {showSchedule && userRole !== "seller" && createPortal(
         <PaymentScheduleModal
           contract={contract}
           open={showSchedule}

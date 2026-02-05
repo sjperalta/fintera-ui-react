@@ -195,6 +195,7 @@
     "passwordMinLength": "Password must be at least 8 characters",
     "passwordUppercaseRequired": "Password must contain at least one uppercase letter",
     "passwordNumberRequired": "Password must contain at least one number",
+    "invalidVerificationCode": "Invalid or expired code. Please try again.",
     "sessionExpired": "Your session has expired. Please sign in again."
   },
   "dashboard": {
@@ -1057,6 +1058,8 @@
     "applyPayment": "Apply Payment",
     "editMoratory": "Edit Penalty",
     "undoPayment": "Undo Payment",
+    "undoSuccess": "Payment undone successfully.",
+    "undoError": "Failed to undo payment.",
     "updateMoratoryInfo": "Adjust the moratory interest amount for this payment.",
     "capitalPaymentDescription": "Made a direct payment to the contract's capital.",
     "capitalPaymentInfo": "Capital payments will reduce the outstanding balance and readjust future installments.",

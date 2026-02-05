@@ -46,10 +46,14 @@ function SignIn() {
 
     const result = await login(email, password);
     if (result?.success) {
-      var user = result.user;
-      if (user.role === 'admin' || user.role === 'seller')
+      const user = result.user;
+      if (user.must_change_password) {
+        navigate(`/settings/user/${user.id}/security`);
+        return;
+      }
+      if (user.role === 'admin' || user.role === 'seller') {
         navigate("/");
-      else {
+      } else {
         navigate(`/financing/user/${user.id}`);
       }
     }
