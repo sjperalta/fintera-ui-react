@@ -16,12 +16,12 @@ function TimelinePaymentCard({ payment, onPaymentSuccess, cardId }) {
     const [selectedFile, setSelectedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
-    const { id, amount, due_date, status, interest_amount, contract, description, project_name, lot_name, rejection_reason, rejection_reason_notes } = payment;
+    const { id, amount, due_date, status, interest_amount, contract, description, project_name, lot_name, rejection_reason, rejection_reason_notes, reason } = payment;
     const statusLower = (status || '').toLowerCase();
     const dueDate = parseISO(due_date);
     const isOverdue = isBefore(dueDate, startOfDay(new Date())) && statusLower !== 'paid' && statusLower !== 'rejected';
     const isRejected = statusLower === 'rejected';
-    const rejectionReason = rejection_reason || rejection_reason_notes;
+    const rejectionReason = rejection_reason || rejection_reason_notes || reason || payment.rejection_note;
     const currency = contract?.currency || 'HNL';
     const displayProject = project_name || contract?.lot?.project?.name || '';
     const displayLot = lot_name || contract?.lot?.name || '';

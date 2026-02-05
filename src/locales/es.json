@@ -456,6 +456,7 @@
     "confirmRejection": "Confirmar Rechazo",
     "rejectionReasonLong": "Indique una razón clara para rechazar este envío de pago.",
     "rejectionReasonLabel": "Razón del rechazo",
+    "rejectionReasonLabelOptional": "Razón (opcional)",
     "rejectionReasonPlaceholder": "Indique por qué este pago no puede ser aceptado...",
     "subtitle": "Administra y supervisa los pagos de tus clientes",
     "totalApplied": "Total Recibido",
@@ -1224,7 +1225,8 @@
       "cancel": "Cancelar",
       "close": "Cerrar",
       "login": "Inicio de sesión",
-      "capital_repayment": "Abono a capital"
+      "capital_repayment": "Abono a capital",
+      "toggle_status": "Cambiar Estado"
     },
     "models": {
       "Contract": "Contrato",

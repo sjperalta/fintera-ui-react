@@ -455,6 +455,7 @@
     "confirmRejection": "Confirm Rejection",
     "rejectionReasonLong": "Provide a clear reason for rejecting this payment submission.",
     "rejectionReasonLabel": "Reason for rejection",
+    "rejectionReasonLabelOptional": "Reason (optional)",
     "rejectionReasonPlaceholder": "Enter why this payment cannot be accepted...",
     "subtitle": "Manage and monitor your clients' payments",
     "totalApplied": "Total Received",
@@ -1210,7 +1211,8 @@
       "cancel": "Cancel",
       "close": "Close",
       "login": "Login",
-      "capital_repayment": "Capital Repayment"
+      "capital_repayment": "Capital Repayment",
+      "toggle_status": "Toggle Status"
     },
     "models": {
       "Contract": "Contract",
