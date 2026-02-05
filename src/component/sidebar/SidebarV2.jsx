@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
+import { useLocale } from "../../contexts/LocaleContext";
 import logo from "../../assets/images/logo/logo-short.svg";
 import logoW from "../../assets/images/logo/logo-short-white.svg";
 
 function SidebarV2({ user, handleLogout }) {
   const { pathname: location } = useLocation();
+  const { t } = useLocale();
 
   const isAdmin = user.role === "admin";
   const isSeller = user.role === "seller";
@@ -60,11 +62,12 @@ function SidebarV2({ user, handleLogout }) {
                     </li>
                   )}
 
-                  {/* Balance: Only for User */}
+                  {/* Financial Dashboard: Only for User */}
                   {isUser && (
                     <li className="item px-[43px] py-[11px]">
                       <Link
                         to={`/financing/user/${user.id}`}
+                        title={t("dashboard.financialDashboard")}
                         className={`${location.includes("/financing/user") ? "nav-active" : ""}`}
                       >
                         <div className="flex items-center space-x-2.5 text-bgray-600 dark:text-white">

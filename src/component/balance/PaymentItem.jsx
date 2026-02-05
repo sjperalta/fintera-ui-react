@@ -55,6 +55,9 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
 
   const totalAmount = Number(paymentInfo.amount || 0) + Number(paymentInfo.interest_amount || 0);
   const statusLower = (paymentInfo.status || "").toLowerCase();
+  const paidAmount = Number(paymentInfo.paid_amount ?? 0);
+  const isOverpayment = statusLower === "paid" && paidAmount > totalAmount && totalAmount > 0;
+  const overpaymentAmount = isOverpayment ? paidAmount - totalAmount : 0;
 
   const getStatusConfig = () => {
     switch (statusLower) {
@@ -115,11 +118,12 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
         }
       }
 
-      // Step 2: Approve Payment
+      // Step 2: Approve Payment — only send paid_amount (amount admin confirms). Payment's amount/interest stay as defined; editing in the modal changes only what we record as paid.
+      const paidAmount = (Number(editAmount) || 0) + (Number(editInterest) || 0);
       const res = await fetch(`${API_URL}/api/v1/payments/${paymentInfo.id}/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ amount: editAmount, interest_amount: editInterest }),
+        body: JSON.stringify({ paid_amount: paidAmount }),
       });
       if (!res.ok) {
         const errorData = await res.json();
@@ -205,9 +209,16 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
 
         <div className="space-y-6 relative z-10">
           <div className="flex justify-between items-center mb-4">
-            <div className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase flex items-center gap-1.5 border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot} animate-pulse`} />
-              {statusLabel}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase flex items-center gap-1.5 border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot} animate-pulse`} />
+                {statusLabel}
+              </div>
+              {isOverpayment && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  {t('payments.overpayment')}
+                </span>
+              )}
             </div>
             <div className="flex flex-col items-end">
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{t('payments.dueDate')}</span>
@@ -235,11 +246,17 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
 
           <div className="flex items-end justify-between pt-6 border-t border-slate-50 dark:border-white/5">
             <div>
-              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Grand Total</span>
-              <div className="flex items-baseline gap-1.5">
+              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t('payments.totalAmount')}</span>
+              <div className="flex flex-col gap-0.5">
                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
                   {formatCurrency(totalAmount, paymentInfo.contract?.currency)}
                 </span>
+                {isOverpayment && (
+                  <>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(overpaymentAmount)} {t('payments.overpayment')}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">{t('payments.totalPaid')}: {formatCurrency(paidAmount, paymentInfo.contract?.currency)}</span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -336,6 +353,12 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
             </span>
           </div>
           {paymentInfo.interest_amount > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase mt-0.5">+{formatCurrency(paymentInfo.interest_amount)} ACCRUED</span>}
+          {isOverpayment && (
+            <div className="mt-1.5 space-y-0.5 text-right">
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase block">+{formatCurrency(overpaymentAmount)} {t('payments.overpayment')}</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block">{t('payments.totalPaid')}: {formatCurrency(paidAmount, paymentInfo.contract?.currency)}</span>
+            </div>
+          )}
         </div>
       </td>
       <td className="px-6 py-4">
@@ -345,9 +368,11 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
         </div>
       </td>
       <td className="px-6 py-4">
-        <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border} shadow-sm shadow-black/5`}>
-          <span className={`w-1.5 h-1.5 rounded-full mr-2 ${statusConfig.dot} animate-pulse`} />
-          {statusLabel}
+        <div className="flex flex-col gap-1.5">
+          <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border} shadow-sm shadow-black/5`}>
+            <span className={`w-1.5 h-1.5 rounded-full mr-2 ${statusConfig.dot} animate-pulse`} />
+            {statusLabel}
+          </div>
         </div>
       </td>
       <td className="px-6 py-4">
@@ -534,7 +559,11 @@ function ApproveModal({
                   <div className="relative group">
                     <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg pr-2 border-r border-gray-100 dark:border-white/10 uppercase">{paymentInfo.contract?.currency}</span>
                     <input
-                      type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)}
+                      type="number"
+                      step="any"
+                      min="0"
+                      value={editAmount}
+                      onChange={e => setEditAmount(e.target.value)}
                       className="w-full pl-24 pr-10 py-5 bg-slate-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/10 focus:border-emerald-500 rounded-2xl outline-none font-bold text-2xl dark:text-white transition-all shadow-sm"
                     />
                   </div>
@@ -544,19 +573,26 @@ function ApproveModal({
                   <div className="relative group">
                     <span className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-300/50 font-black italic text-xl pr-2 border-r border-white/10">{paymentInfo.contract?.currency}</span>
                     <input
-                      type="number" value={editInterest} onChange={e => setEditInterest(e.target.value)}
+                      type="number"
+                      step="any"
+                      min="0"
+                      value={editInterest}
+                      onChange={e => setEditInterest(e.target.value)}
                       className="w-full pl-28 pr-12 py-7 bg-slate-50 dark:bg-white/[0.03] border-4 border-transparent focus:border-emerald-500/30 rounded-[32px] outline-none font-black text-3xl dark:text-white transition-all shadow-inner"
                     />
                   </div>
                 </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                  {t('payments.approveAmountHint')}
+                </p>
               </div>
             </div>
 
             <div className="mt-12 space-y-8">
               <div className="flex flex-col items-end">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 pr-1">{t('payments.totalReceivableValue')}</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 pr-1">{t('payments.amountToApprove')}</span>
                 <div className="text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
-                  {(Number(editAmount) + Number(editInterest)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {((Number(editAmount) || 0) + (Number(editInterest) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   <span className="text-lg font-medium ml-2 opacity-30 uppercase tracking-widest">{paymentInfo.contract?.currency}</span>
                 </div>
               </div>
@@ -712,6 +748,9 @@ export function PaymentDetailModal({ payment, onClose }) {
 
   const statusLower = (payment.status || "").toLowerCase();
   const totalAmount = Number(payment.amount || 0) + Number(payment.interest_amount || 0);
+  const paidAmountDetail = Number(payment.paid_amount ?? 0);
+  const isOverpaymentDetail = statusLower === "paid" && paidAmountDetail > totalAmount && totalAmount > 0;
+  const overpaymentAmountDetail = isOverpaymentDetail ? paidAmountDetail - totalAmount : 0;
 
   const getStatusConfig = () => {
     switch (statusLower) {
@@ -810,6 +849,22 @@ export function PaymentDetailModal({ payment, onClose }) {
                   </div>
                 )}
               </div>
+              {isOverpaymentDetail && (
+                <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-6">
+                  <div>
+                    <span className="text-[9px] font-bold text-white/40 uppercase block mb-1">{t('payments.totalAmount')}</span>
+                    <span className="font-bold">{formatCurrency(totalAmount, payment.contract?.currency)}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold text-emerald-400 uppercase block mb-1">{t('payments.overpayment')}</span>
+                    <span className="font-bold text-emerald-300">+{formatCurrency(overpaymentAmountDetail, payment.contract?.currency)}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold text-emerald-400 uppercase block mb-1">{t('payments.totalPaid')}</span>
+                    <span className="font-bold text-emerald-300">{formatCurrency(paidAmountDetail, payment.contract?.currency)}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Timestamps */}
