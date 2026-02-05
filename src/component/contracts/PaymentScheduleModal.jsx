@@ -228,6 +228,17 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   // Check if contract is closed (read-only mode)
   const isReadOnly = currentContract?.status?.toLowerCase() === 'closed';
 
+  // Balance from ledger (sum of all ledger entry amounts) — single source of truth when ledger is loaded.
+  // After a payment is reverted, the API may return updated ledger_entries but stale contract.balance;
+  // using the ledger sum keeps Overview "Saldo" in sync with Libro mayor.
+  const ledgerBalance = useMemo(() => {
+    const entries = Array.isArray(ledgerEntries) ? ledgerEntries : [];
+    return entries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+  }, [ledgerEntries]);
+
+  const displayBalance =
+    ledgerEntries.length > 0 ? ledgerBalance : (currentContract?.balance ?? 0);
+
   if (!open) return null;
 
   if (!contract) {
@@ -263,11 +274,11 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
     return Math.max(0, diffDays);
   };
 
-  // Calculate paid amount and progress for the overview tab
+  // Calculate paid amount and progress for the overview tab (use displayBalance so it matches ledger after undo)
   const paidAmount = currentContract?.total_paid ?? (
-    Number(currentContract?.balance || 0) > 0
-      ? (Number(summary?.price || 0) - Number(currentContract?.balance || 0))
-      : (Number(summary?.price || 0) + Number(currentContract?.balance || 0))
+    Number(displayBalance) > 0
+      ? (Number(summary?.price || 0) - Number(displayBalance))
+      : (Number(summary?.price || 0) + Number(displayBalance))
   );
   const progressPercent = Math.min(100, Math.max(0, (paidAmount / (summary?.price || 1)) * 100));
 
@@ -378,7 +389,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <div className="space-y-1 text-right">
                         <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">{t('contracts.balance')}</p>
                         <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
-                          {fmt(currentContract?.balance)}
+                          {fmt(displayBalance)}
                         </p>
                       </div>
                     </div>
