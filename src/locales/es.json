@@ -1071,6 +1071,8 @@
     "applyPayment": "Aplicar Pago",
     "editMoratory": "Editar Mora",
     "undoPayment": "Deshacer Pago",
+    "undoConfirmTitle": "Confirmar reversión",
+    "undoConfirmMessage": "¿Está seguro de que desea revertir este pago? El pago volverá a estado \"enviado\" y el saldo del contrato se actualizará.",
     "undoSuccess": "Pago deshecho correctamente.",
     "undoError": "Error al deshacer el pago.",
     "updateMoratoryInfo": "Ajuste el monto del interés moratorio para este pago.",

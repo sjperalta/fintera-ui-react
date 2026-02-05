@@ -1058,6 +1058,8 @@
     "applyPayment": "Apply Payment",
     "editMoratory": "Edit Penalty",
     "undoPayment": "Undo Payment",
+    "undoConfirmTitle": "Confirm reversal",
+    "undoConfirmMessage": "Are you sure you want to revert this payment? The payment will return to \"submitted\" status and the contract balance will be updated.",
     "undoSuccess": "Payment undone successfully.",
     "undoError": "Failed to undo payment.",
     "updateMoratoryInfo": "Adjust the moratory interest amount for this payment.",
