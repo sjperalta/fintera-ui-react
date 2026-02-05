@@ -16,11 +16,15 @@ function Sidebar({ handleActive, user, handleLogout }) {
   const isSeller = user.role === "seller";
   const isUser = user.role === "user";
 
+  // Dashboard path by role: admin/seller → home, regular user → financial summary
+  const dashboardPath =
+    isUser && user?.id ? `/financing/user/${user.id}` : "/";
+
   return (
     <aside className="sidebar-wrapper fixed top-0 z-50 block h-full w-[280px] sm:w-[308px] bg-white dark:bg-darkblack-600 sm:hidden lg:block">
       {/* Header */}
       <div className="sidebar-header relative z-30 flex h-[80px] sm:h-[108px] w-full items-center border-b border-r border-b-[#F7F7F7] border-r-[#F7F7F7] pl-[30px] sm:pl-[50px] dark:border-darkblack-400">
-        <Link to="/" className="flex items-center">
+        <Link to={dashboardPath} className="flex items-center">
           <img
             src={logo}
             className="block dark:hidden h-8 sm:h-auto"
