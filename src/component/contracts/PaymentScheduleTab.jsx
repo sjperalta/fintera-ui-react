@@ -30,12 +30,8 @@ const PaymentScheduleTab = ({
   setApplyPaymentModal,
   setEditingMora,
   setMoratoryAmount,
-  setSchedule,
-  setCurrentContract,
-  onPaymentSuccess,
   onUndoPayment,
-  undoLoadingPaymentId,
-  currentContract
+  undoLoadingPaymentId
 }) => {
   const { t } = useLocale();
 
@@ -392,12 +388,8 @@ PaymentScheduleTab.propTypes = {
   setApplyPaymentModal: PropTypes.func.isRequired,
   setEditingMora: PropTypes.func.isRequired,
   setMoratoryAmount: PropTypes.func.isRequired,
-  setSchedule: PropTypes.func.isRequired,
-  setCurrentContract: PropTypes.func.isRequired,
-  onPaymentSuccess: PropTypes.func,
   onUndoPayment: PropTypes.func,
-  undoLoadingPaymentId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  currentContract: PropTypes.object
+  undoLoadingPaymentId: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 };
 
 export default PaymentScheduleTab;

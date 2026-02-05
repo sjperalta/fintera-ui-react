@@ -124,7 +124,9 @@ function PasswordChange({ token, userId }) {
             try {
               const parsed = JSON.parse(stored);
               localStorage.setItem("user", JSON.stringify({ ...parsed, must_change_password: false }));
-            } catch (_) {}
+            } catch {
+              // ignore
+            }
           }
         }
       } else {
