@@ -179,7 +179,12 @@
     "passwordUppercaseRequired": "La contraseña debe contener al menos una letra mayúscula",
     "passwordNumberRequired": "La contraseña debe contener al menos un número",
     "invalidVerificationCode": "Código inválido o expirado. Por favor, intente de nuevo.",
-    "sessionExpired": "Tu sesión ha expirado. Por favor inicia sesión nuevamente."
+    "sessionExpired": "Tu sesión ha expirado. Por favor inicia sesión nuevamente.",
+    "termsTitle": "Términos y Condiciones",
+    "termsIntro": "Al iniciar sesión, aceptas nuestros Términos y Condiciones y reconoces lo siguiente.",
+    "termsEmailsTitle": "Comunicaciones por correo electrónico",
+    "termsEmailsBody": "Te enviaremos correos electrónicos a la dirección asociada a tu cuenta. Estos pueden incluir: confirmaciones de transacciones, actualizaciones de cuenta y seguridad, enlaces para restablecer contraseña, avisos importantes sobre la plataforma e información ocasional sobre el servicio o productos. Puedes gestionar las preferencias de notificaciones en la configuración de tu cuenta.",
+    "termsFullLink": "Ver Términos y Condiciones completos"
   },
   "dashboard": {
     "welcome": "Bienvenido",

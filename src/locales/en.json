@@ -196,7 +196,12 @@
     "passwordUppercaseRequired": "Password must contain at least one uppercase letter",
     "passwordNumberRequired": "Password must contain at least one number",
     "invalidVerificationCode": "Invalid or expired code. Please try again.",
-    "sessionExpired": "Your session has expired. Please sign in again."
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "termsTitle": "Terms and Conditions",
+    "termsIntro": "By signing in, you agree to our Terms and Conditions and acknowledge the following.",
+    "termsEmailsTitle": "Email communications",
+    "termsEmailsBody": "We will send you emails to the address associated with your account. These may include: transaction confirmations, account and security updates, password reset links, important notices about the platform, and occasional service or product information. You can manage notification preferences in your account settings.",
+    "termsFullLink": "View full Terms and Conditions"
   },
   "dashboard": {
     "welcome": "Welcome",
