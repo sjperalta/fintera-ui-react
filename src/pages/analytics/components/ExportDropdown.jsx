@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { memo, useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocale } from "../../../contexts/LocaleContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { API_URL } from "../../../../config";
 import { getToken } from "../../../../auth";
 
-const ExportDropdown = ({ startDate, endDate, onExportBase }) => {
+const ExportDropdown = memo(function ExportDropdown({ startDate, endDate, onExportBase }) {
     const { t } = useLocale();
     const { showToast } = useToast();
     const [isOpen, setIsOpen] = useState(false);
@@ -243,6 +243,6 @@ const ExportDropdown = ({ startDate, endDate, onExportBase }) => {
             </AnimatePresence>
         </div>
     );
-};
+});
 
 export default ExportDropdown;

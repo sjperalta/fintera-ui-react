@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { useLocale } from '../../contexts/LocaleContext';
 import { motion } from 'framer-motion';
@@ -8,7 +8,7 @@ const FICO_MIN = 300;
 const FICO_MAX = 850;
 const FICO_RANGE = FICO_MAX - FICO_MIN;
 
-export default function CreditScoreCard({ creditScore }) {
+function CreditScoreCard({ creditScore }) {
   const { t } = useLocale();
   const raw = creditScore ?? 0;
   const score = Math.round(Math.max(FICO_MIN, Math.min(FICO_MAX, raw)));
@@ -80,3 +80,5 @@ export default function CreditScoreCard({ creditScore }) {
 CreditScoreCard.propTypes = {
   creditScore: PropTypes.number,
 };
+
+export default memo(CreditScoreCard);

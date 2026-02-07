@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { API_URL } from '../../../config';
 import { getToken } from '../../../auth';
@@ -6,7 +6,7 @@ import MessageEditor from '../editor/MessageEditor';
 import { useToast } from '../../contexts/ToastContext';
 import { useLocale } from '../../contexts/LocaleContext';
 
-export default function ContractNotesTab({ currentContract, onContractUpdate }) {
+function ContractNotesTab({ currentContract, onContractUpdate }) {
   const [editingNotes, setEditingNotes] = useState(false);
   const [editedNotes, setEditedNotes] = useState('');
   const [saving, setSaving] = useState(false);
@@ -214,3 +214,5 @@ ContractNotesTab.propTypes = {
   currentContract: PropTypes.object,
   onContractUpdate: PropTypes.func,
 };
+
+export default memo(ContractNotesTab);

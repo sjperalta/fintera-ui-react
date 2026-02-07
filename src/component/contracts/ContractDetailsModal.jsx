@@ -1,6 +1,6 @@
 // src/component/contracts/ContractDetailsModal.jsx
 import { createPortal } from "react-dom";
-import { useState, useContext, useEffect, useMemo } from "react";
+import { useState, useContext, useEffect, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -119,13 +119,13 @@ const getStatusTheme = (status) => {
 };
 
 // Contract Details Modal Component
-const ContractDetailsModal = ({
+const ContractDetailsModal = memo(function ContractDetailsModal({
   isOpen,
   onClose,
   contract,
   onContractUpdate,
   onContractDeleted,
-}) => {
+}) {
   const { t } = useLocale();
   const { user, token } = useContext(AuthContext);
   const isAdmin = user?.role === "admin";
@@ -443,6 +443,12 @@ const ContractDetailsModal = ({
               <p className="text-sm font-medium text-bgray-500 dark:text-bgray-400">
                 {t("contracts.created")} {new Date(contract.created_at).toLocaleDateString()}
               </p>
+              {(displayContract?.created_by) && (
+                <p className="text-sm font-medium text-bgray-500 dark:text-bgray-400 mt-1 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faUser} className="text-bgray-400" />
+                  {t("contractDetailsModal.reservedBy") || t("lotsTable.reservedBy")}: <span className="font-semibold text-bgray-700 dark:text-bgray-300">{displayContract.created_by}</span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -1067,6 +1073,6 @@ const ContractDetailsModal = ({
     </div >,
     document.body
   );
-};
+});
 
 export default ContractDetailsModal;

@@ -1,3 +1,4 @@
+import "quill/dist/quill.snow.css";
 import Quill from "quill";
 import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 

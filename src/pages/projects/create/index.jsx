@@ -28,7 +28,9 @@ function CreateProject() {
   const [pricePerSquareUnit, setPricePerSquareUnit] = useState(0);
   const [measurementUnit, setMeasurementUnit] = useState("m2");
   const [interestRate, setInterestRate] = useState(0);
-  const [commissionRate, setCommissionRate] = useState(0);
+  const [commissionRateDirect, setCommissionRateDirect] = useState(4);
+  const [commissionRateBank, setCommissionRateBank] = useState(6);
+  const [commissionRateCash, setCommissionRateCash] = useState(7);
   const [deliveryDate, setDeliveryDate] = useState("");
   const [projectType, setProjectType] = useState("residential");
   const [loading, setLoading] = useState(false);
@@ -56,7 +58,9 @@ function CreateProject() {
             price_per_square_unit: Number(pricePerSquareUnit),
             measurement_unit: measurementUnit,
             interest_rate: Number(interestRate),
-            commission_rate: Number(commissionRate),
+            commission_rate_direct: Number(commissionRateDirect),
+            commission_rate_bank: Number(commissionRateBank),
+            commission_rate_cash: Number(commissionRateCash),
             delivery_date: deliveryDate || null,
             project_type: projectType,
           }
@@ -310,9 +314,12 @@ function CreateProject() {
                     />
                   </div>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-bgray-700 dark:text-bgray-300 mb-2">
-                    {t('projects.commissionRate')}
+                    {t('projects.commissionRateDirect') || 'Commission (Direct)'} (%)
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-bgray-400">
@@ -321,21 +328,57 @@ function CreateProject() {
                     <input
                       type="number"
                       step="0.01"
-                      value={commissionRate}
-                      onChange={(e) => setCommissionRate(e.target.value)}
+                      value={commissionRateDirect}
+                      onChange={(e) => setCommissionRateDirect(e.target.value)}
                       required
                       className="w-full h-12 pl-12 pr-4 bg-bgray-50 dark:bg-darkblack-500 border border-bgray-200 dark:border-darkblack-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:text-white"
                     />
                   </div>
                 </div>
-
-                <div className="pt-4">
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20">
-                    <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start">
-                      <FontAwesomeIcon icon={faCheckCircle} className="mt-0.5 mr-2" />
-                      {t('reservations.calculationNote') || 'These rates will be applied to all new contracts within this project.'}
-                    </p>
+                <div>
+                  <label className="block text-sm font-semibold text-bgray-700 dark:text-bgray-300 mb-2">
+                    {t('projects.commissionRateBank') || 'Commission (Bank)'} (%)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-bgray-400">
+                      <FontAwesomeIcon icon={faPercentage} />
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={commissionRateBank}
+                      onChange={(e) => setCommissionRateBank(e.target.value)}
+                      required
+                      className="w-full h-12 pl-12 pr-4 bg-bgray-50 dark:bg-darkblack-500 border border-bgray-200 dark:border-darkblack-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:text-white"
+                    />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-bgray-700 dark:text-bgray-300 mb-2">
+                    {t('projects.commissionRateCash') || 'Commission (Cash)'} (%)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-bgray-400">
+                      <FontAwesomeIcon icon={faPercentage} />
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={commissionRateCash}
+                      onChange={(e) => setCommissionRateCash(e.target.value)}
+                      required
+                      className="w-full h-12 pl-12 pr-4 bg-bgray-50 dark:bg-darkblack-500 border border-bgray-200 dark:border-darkblack-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20">
+                  <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start">
+                    <FontAwesomeIcon icon={faCheckCircle} className="mt-0.5 mr-2" />
+                    {t('reservations.calculationNote') || 'These rates will be applied to all new contracts within this project.'}
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -375,9 +418,9 @@ function CreateProject() {
               )}
             </button>
           </motion.div>
-        </form>
-      </motion.div>
-    </main>
+        </form >
+      </motion.div >
+    </main >
   );
 }
 

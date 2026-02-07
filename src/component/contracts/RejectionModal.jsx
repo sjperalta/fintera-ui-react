@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -102,4 +102,4 @@ const RejectionModal = ({ isOpen, onClose, onSubmit, loading }) => {
   );
 };
 
-export default RejectionModal;
+export default memo(RejectionModal);

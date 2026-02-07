@@ -1,5 +1,3 @@
-import AOS from "aos";
-import "aos/dist/aos.css";
 import { useEffect } from "react";
 import Router from "./Router";
 import { LocaleProvider } from "./contexts/LocaleContext";
@@ -10,8 +8,11 @@ import ErrorBoundary from "./component/error/ErrorBoundary";
 
 function App() {
   useEffect(() => {
-    AOS.init();
-    AOS.refresh();
+    // Lazy-load AOS (and its CSS) to reduce initial bundle egress
+    Promise.all([import("aos"), import("aos/dist/aos.css")]).then(([AOS]) => {
+      AOS.default.init();
+      AOS.default.refresh();
+    });
   }, []);
   return (
     <>

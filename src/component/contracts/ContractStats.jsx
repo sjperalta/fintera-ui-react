@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { memo } from "react";
 import { useLocale } from "../../contexts/LocaleContext";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,7 +35,7 @@ StatCard.propTypes = {
     delay: PropTypes.number.isRequired,
 };
 
-function ContractStats({ stats }) {
+const ContractStats = memo(function ContractStats({ stats }) {
     const { t } = useLocale();
 
     const cards = [
@@ -75,7 +76,7 @@ function ContractStats({ stats }) {
             ))}
         </div>
     );
-}
+});
 
 ContractStats.propTypes = {
     stats: PropTypes.shape({

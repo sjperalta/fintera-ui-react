@@ -35,6 +35,26 @@ ChartJS.register(
     Filler
 );
 
+// Static animation config (stable reference)
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.1 },
+    },
+};
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+        y: 0,
+        opacity: 1,
+        transition: { type: "spring", stiffness: 100, damping: 12 },
+    },
+};
+
+const GROWTH_BAR_COLORS = ["bg-blue-500", "bg-purple-500", "bg-green-500", "bg-orange-500", "bg-indigo-500", "bg-rose-500"];
+
 const Analytics = () => {
     const { t } = useLocale();
     const { token } = useContext(AuthContext);
@@ -57,6 +77,7 @@ const Analytics = () => {
     const [overviewData, setOverviewData] = useState(null);
     const [distribution, setDistribution] = useState(null);
     const [performance, setPerformance] = useState(null);
+    const [sellersPerformance, setSellersPerformance] = useState([]);
 
 
     // Fetch projects for filter
@@ -106,7 +127,7 @@ const Analytics = () => {
             queryParams.append("start_date", startStr);
             queryParams.append("end_date", endStr);
 
-            const [overviewRes, distributionRes, performanceRes] = await Promise.all([
+            const [overviewRes, distributionRes, performanceRes, sellersRes] = await Promise.all([
                 fetch(`${API_URL}/api/v1/analytics/overview?${queryParams.toString()}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 }),
@@ -115,22 +136,27 @@ const Analytics = () => {
                 }),
                 fetch(`${API_URL}/api/v1/analytics/performance?${queryParams.toString()}`, {
                     headers: { Authorization: `Bearer ${token}` }
+                }),
+                fetch(`${API_URL}/api/v1/analytics/sellers?${queryParams.toString()}`, {
+                    headers: { Authorization: `Bearer ${token}` }
                 })
             ]);
 
-            if (!overviewRes.ok || !distributionRes.ok || !performanceRes.ok) {
+            if (!overviewRes.ok || !distributionRes.ok || !performanceRes.ok || !sellersRes.ok) {
                 throw new Error("Failed to fetch main analytics data");
             }
 
-            const [ovData, distData, perfData] = await Promise.all([
+            const [ovData, distData, perfData, sellData] = await Promise.all([
                 overviewRes.json(),
                 distributionRes.json(),
-                performanceRes.json()
+                performanceRes.json(),
+                sellersRes.json()
             ]);
 
             setOverviewData(ovData);
             setDistribution(distData);
             setPerformance(perfData);
+            setSellersPerformance(sellData || []);
         } catch (err) {
             console.error("Main analytics fetch error:", err);
             showToast(t("analytics.errorFetchingData"), "error");
@@ -172,57 +198,63 @@ const Analytics = () => {
         fetchTrendData();
     }, [fetchTrendData]);
 
-    const handleFilterChange = (val) => {
+    const handleFilterChange = useCallback((val) => {
         setFilterValue(val);
-    };
+    }, []);
 
-    const formatCurrency = (val) => {
-        if (val === undefined || val === null) return `${overviewData?.currency_symbol || "L"}0`;
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD', // Keep USD for formatting logic but replace symbol
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(val).replace("$", overviewData?.currency_symbol || "L");
-    };
+    const currencySymbol = overviewData?.currency_symbol || "L";
+    const formatCurrency = useCallback(
+        (val) => {
+            if (val === undefined || val === null) return `${currencySymbol}0`;
+            return new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            })
+                .format(val)
+                .replace("$", currencySymbol);
+        },
+        [currencySymbol]
+    );
 
-    const formatPercent = (val) => {
+    const formatPercent = useCallback((val) => {
         if (val === undefined || val === null) return "0%";
         return `${Number(val).toFixed(1)}%`;
-    };
+    }, []);
 
-    const handleExport = async (format) => {
-        try {
-            const queryParams = new URLSearchParams();
-            if (filterValue !== "All") queryParams.append("project_id", filterValue);
+    const handleExport = useCallback(
+        async (format) => {
+            try {
+                const queryParams = new URLSearchParams();
+                if (filterValue !== "All") queryParams.append("project_id", filterValue);
+                const startStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split("T")[0];
+                const endStr = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split("T")[0];
+                queryParams.append("start_date", startStr);
+                queryParams.append("end_date", endStr);
+                queryParams.append("format", format);
 
-            const startStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
-            const endStr = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0];
+                const response = await fetch(`${API_URL}/api/v1/analytics/export?${queryParams.toString()}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!response.ok) throw new Error("Export failed");
 
-            queryParams.append("start_date", startStr);
-            queryParams.append("end_date", endStr);
-            queryParams.append("format", format);
-
-            const response = await fetch(`${API_URL}/api/v1/analytics/export?${queryParams.toString()}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            if (!response.ok) throw new Error("Export failed");
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `analytics-report-${new Date().toISOString().split('T')[0]}.${format}`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            showToast(t("common.downloadSuccess"), "success");
-        } catch (err) {
-            console.error("Export error:", err);
-            showToast(t("common.downloadError"), "error");
-        }
-    };
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `analytics-report-${startStr}.${format}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                showToast(t("common.downloadSuccess"), "success");
+            } catch (err) {
+                console.error("Export error:", err);
+                showToast(t("common.downloadError"), "error");
+            }
+        },
+        [token, filterValue, currentDate, t, showToast]
+    );
 
     // Prepare chart data based on API response
     const revenueData = useMemo(() => {
@@ -321,96 +353,186 @@ const Analytics = () => {
         };
     }, [performance, t]);
 
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: "bottom",
-                labels: {
-                    usePointStyle: true,
-                    padding: 20,
-                    color: "currentColor", // Wraps to text color (switches in dark mode)
-                    font: {
-                        family: "'Urbanist', sans-serif",
-                        size: 12
-                    }
+    const sellerPerformanceChartData = useMemo(() => {
+        if (!sellersPerformance || sellersPerformance.length === 0) return { labels: [], datasets: [] };
+
+        const labels = sellersPerformance.map(s => s.seller_name);
+        const salesData = sellersPerformance.map(s => s.total_sales);
+        const contractsData = sellersPerformance.map(s => s.active_contracts);
+
+        return {
+            labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: t("analytics.totalSales"),
+                    data: salesData,
+                    backgroundColor: "rgba(59, 130, 246, 0.8)",
+                    borderColor: "rgb(59, 130, 246)",
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    yAxisID: 'y',
+                },
+                {
+                    type: 'line',
+                    label: t("analytics.contractsSold"),
+                    data: contractsData,
+                    borderColor: "rgb(147, 51, 234)",
+                    backgroundColor: "rgba(147, 51, 234, 0.2)",
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    fill: false,
+                    tension: 0.4,
+                    yAxisID: 'y1',
+                }
+            ],
+        };
+    }, [sellersPerformance, t]);
+
+    const chartOptions = useMemo(
+        () => ({
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        color: "currentColor",
+                        font: { family: "'Urbanist', sans-serif", size: 12 },
+                    },
+                },
+                tooltip: {
+                    backgroundColor: "rgba(17, 24, 39, 0.95)",
+                    padding: 12,
+                    cornerRadius: 12,
+                    titleColor: "#fff",
+                    bodyColor: "#cbd5e1",
+                    borderColor: "rgba(255,255,255,0.1)",
+                    borderWidth: 1,
+                    displayColors: true,
+                    boxPadding: 4,
                 },
             },
-            tooltip: {
-                backgroundColor: "rgba(17, 24, 39, 0.95)", // Darker, more opaque
-                padding: 12,
-                cornerRadius: 12,
-                titleColor: "#fff",
-                bodyColor: "#cbd5e1", // Slate-300
-                borderColor: "rgba(255,255,255,0.1)",
-                borderWidth: 1,
-                displayColors: true,
-                boxPadding: 4
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: "currentColor", opacity: 0.7, font: { family: "'Urbanist', sans-serif" } },
+                    border: { display: false },
+                },
+                y: {
+                    grid: { color: "rgba(156, 163, 175, 0.1)", drawBorder: false },
+                    ticks: { color: "currentColor", opacity: 0.7, padding: 10, font: { family: "'Urbanist', sans-serif" } },
+                    border: { display: false },
+                },
             },
-        },
+            interaction: { mode: "index", intersect: false },
+        }),
+        []
+    );
+
+    const sellerChartOptions = useMemo(() => ({
+        ...chartOptions,
         scales: {
-            x: {
-                grid: {
-                    display: false,
-                },
-                ticks: {
-                    color: "currentColor",
-                    opacity: 0.7,
-                    font: {
-                        family: "'Urbanist', sans-serif",
-                    }
-                },
-                border: {
-                    display: false
-                }
-            },
+            ...chartOptions.scales,
             y: {
-                grid: {
-                    color: "rgba(156, 163, 175, 0.1)", // Subtle grid
-                    drawBorder: false,
-                },
-                ticks: {
+                ...chartOptions.scales.y,
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: t("analytics.totalSales"),
                     color: "currentColor",
-                    opacity: 0.7,
-                    padding: 10,
-                    font: {
-                        family: "'Urbanist', sans-serif",
-                    }
-                },
-                border: {
-                    display: false
+                    font: { family: "'Urbanist', sans-serif", weight: 'bold' }
                 }
             },
-        },
-        interaction: {
-            mode: 'index',
-            intersect: false,
-        },
-    };
+            y1: {
+                ...chartOptions.scales.y,
+                type: 'linear',
+                display: true,
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                title: {
+                    display: true,
+                    text: t("analytics.contractsSold"),
+                    color: "currentColor",
+                    font: { family: "'Urbanist', sans-serif", weight: 'bold' }
+                }
+            }
+        }
+    }), [chartOptions, t]);
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1,
-            },
-        },
-    };
+    const dateRangeForExport = useMemo(
+        () => ({
+            startDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split("T")[0],
+            endDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split("T")[0],
+        }),
+        [currentDate]
+    );
 
-    const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: {
-                type: "spring",
-                stiffness: 100,
-                damping: 12,
+    const monthLabel = useMemo(
+        () =>
+            [
+                t("months.january"),
+                t("months.february"),
+                t("months.march"),
+                t("months.april"),
+                t("months.may"),
+                t("months.june"),
+                t("months.july"),
+                t("months.august"),
+                t("months.september"),
+                t("months.october"),
+                t("months.november"),
+                t("months.december"),
+            ][currentDate.getMonth()],
+        [t, currentDate]
+    );
+
+    const statsForGrid = useMemo(() => {
+        const ov = overviewData;
+        return [
+            {
+                label: t("analytics.totalRevenue"),
+                value: formatCurrency(ov?.total_revenue),
+                change: ov?.revenue_change_percentage != null ? `${ov.revenue_change_percentage > 0 ? "+" : ""}${ov.revenue_change_percentage}%` : "0%",
+                color: "text-blue-600 dark:text-blue-400",
             },
-        },
-    };
+            {
+                label: t("analytics.activeContracts"),
+                value: ov?.active_contracts ?? "0",
+                change: ov?.contracts_change_percentage != null ? `${ov.contracts_change_percentage > 0 ? "+" : ""}${ov.contracts_change_percentage}%` : "0%",
+                color: "text-purple-600 dark:text-purple-400",
+            },
+            {
+                label: t("analytics.averagePayment"),
+                value: formatCurrency(ov?.average_payment),
+                change: ov?.payment_change_percentage != null ? `${ov.payment_change_percentage > 0 ? "+" : ""}${ov.payment_change_percentage}%` : "0%",
+                color: "text-orange-600 dark:text-orange-400",
+            },
+            {
+                label: t("analytics.occupancyRate"),
+                value: formatPercent(ov?.occupancy_rate),
+                change: ov?.occupancy_change_percentage != null ? `${ov.occupancy_change_percentage > 0 ? "+" : ""}${ov.occupancy_change_percentage}%` : "0%",
+                color: "text-green-600 dark:text-green-400",
+            },
+        ];
+    }, [overviewData, t, formatCurrency, formatPercent]);
+
+    const doughnutOptions = useMemo(
+        () => ({
+            ...chartOptions,
+            cutout: "75%",
+            plugins: {
+                ...chartOptions.plugins,
+                legend: { position: "bottom" },
+            },
+        }),
+        [chartOptions]
+    );
 
     return (
         <main className="w-full px-3 sm:px-6 pb-6 pt-[80px] xs:pt-[90px] sm:pt-[100px] md:pt-[120px] lg:pt-[156px] xl:px-12 xl:pb-12 2xl:px-16">
@@ -425,8 +547,8 @@ const Analytics = () => {
                     <div id="analytics-header" className="flex flex-col md:flex-row md:items-end md:justify-end gap-4">
                         <motion.div id="analytics-export-dropdown" variants={itemVariants} className="flex items-end">
                             <ExportDropdown
-                                startDate={new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0]}
-                                endDate={new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0]}
+                                startDate={dateRangeForExport.startDate}
+                                endDate={dateRangeForExport.endDate}
                                 onExportBase={handleExport}
                             />
                         </motion.div>
@@ -464,11 +586,7 @@ const Analytics = () => {
                                     {currentDate.getFullYear()}
                                 </span>
                                 <span className="text-lg font-black text-gray-900 dark:text-white leading-tight">
-                                    {[
-                                        t("months.january"), t("months.february"), t("months.march"), t("months.april"),
-                                        t("months.may"), t("months.june"), t("months.july"), t("months.august"),
-                                        t("months.september"), t("months.october"), t("months.november"), t("months.december")
-                                    ][currentDate.getMonth()]}
+                                    {monthLabel}
                                 </span>
                             </div>
 
@@ -510,12 +628,7 @@ const Analytics = () => {
                     <div className={`space-y-8 transition-all duration-300 ${isFiltering ? "blur-[2px] opacity-60 scale-[0.99]" : ""}`}>
                         {/* Stats Grid */}
                         <section id="analytics-stats" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {[
-                                { label: t("analytics.totalRevenue"), value: formatCurrency(overviewData?.total_revenue), change: overviewData?.revenue_change_percentage ? `${overviewData.revenue_change_percentage > 0 ? "+" : ""}${overviewData.revenue_change_percentage}%` : "0%", color: "text-blue-600 dark:text-blue-400" },
-                                { label: t("analytics.activeContracts"), value: overviewData?.active_contracts || "0", change: overviewData?.contracts_change_percentage ? `${overviewData.contracts_change_percentage > 0 ? "+" : ""}${overviewData.contracts_change_percentage}%` : "0%", color: "text-purple-600 dark:text-purple-400" },
-                                { label: t("analytics.averagePayment"), value: formatCurrency(overviewData?.average_payment), change: overviewData?.payment_change_percentage ? `${overviewData.payment_change_percentage > 0 ? "+" : ""}${overviewData.payment_change_percentage}%` : "0%", color: "text-orange-600 dark:text-orange-400" },
-                                { label: t("analytics.occupancyRate"), value: formatPercent(overviewData?.occupancy_rate), change: overviewData?.occupancy_change_percentage ? `${overviewData.occupancy_change_percentage > 0 ? "+" : ""}${overviewData.occupancy_change_percentage}%` : "0%", color: "text-green-600 dark:text-green-400" },
-                            ].map((stat, idx) => (
+                            {statsForGrid.map((stat, idx) => (
                                 <motion.div
                                     key={idx}
                                     variants={itemVariants}
@@ -633,14 +746,7 @@ const Analytics = () => {
                                     <span>{t("analytics.lotsAvailability")}</span>
                                 </h3>
                                 <div className="h-[300px] relative">
-                                    <Doughnut data={distributionData} options={{
-                                        ...chartOptions,
-                                        cutout: "75%",
-                                        plugins: {
-                                            ...chartOptions.plugins,
-                                            legend: { position: "bottom" }
-                                        }
-                                    }} />
+                                    <Doughnut data={distributionData} options={doughnutOptions} />
                                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                         <span className="text-3xl font-bold text-gray-900 dark:text-white">
                                             {distribution?.total_lots || 0}
@@ -694,10 +800,9 @@ const Analytics = () => {
                                 </h3>
                                 <div className="space-y-6">
                                     {(Array.isArray(performance) ? performance : []).map((project, idx) => {
-                                        const colors = ["bg-blue-500", "bg-purple-500", "bg-green-500", "bg-orange-500", "bg-indigo-500", "bg-rose-500"];
-                                        const color = colors[idx % colors.length];
+                                        const color = GROWTH_BAR_COLORS[idx % GROWTH_BAR_COLORS.length];
                                         return (
-                                            <div key={idx} className="space-y-2">
+                                            <div key={project.project_name ?? idx} className="space-y-2">
                                                 <div className="flex justify-between text-sm">
                                                     <span className="font-medium text-gray-700 dark:text-gray-200">{project.project_name}</span>
                                                     <span className="text-gray-400 font-bold">{project.growth_percentage.toFixed(1)}%</span>
@@ -719,6 +824,60 @@ const Analytics = () => {
                                 <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
                             </motion.div>
                         </section>
+
+                        {/* Seller Performance Section */}
+                        <motion.section
+                            id="seller-performance-section"
+                            variants={itemVariants}
+                            className="bg-white/80 dark:bg-darkblack-600/80 backdrop-blur p-8 rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-darkblack-500/50 overflow-hidden relative"
+                        >
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+                                <div>
+                                    <h3 className="text-2xl font-black flex items-center gap-3 text-gray-900 dark:text-white">
+                                        <div className="w-3 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full shadow-lg shadow-blue-500/20"></div>
+                                        <span>{t("analytics.sellerPerformance")}</span>
+                                    </h3>
+                                    <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium ml-6">
+                                        {t("analytics.salesBySeller")}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tighter">{t("analytics.totalSales")}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                        <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-tighter">{t("analytics.contractsSold")}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="h-[450px] w-full relative group">
+                                <Bar data={sellerPerformanceChartData} options={sellerChartOptions} />
+
+                                {/* Background glow decoration */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none -z-10 blur-3xl"></div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+                                {sellersPerformance.slice(0, 3).map((seller, idx) => (
+                                    <div key={seller.seller_id} className="p-4 rounded-2xl bg-slate-50 dark:bg-darkblack-700/50 border border-slate-100 dark:border-darkblack-500/50 flex items-center gap-4 transition-all hover:scale-[1.02]">
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-black text-white bg-gradient-to-br ${idx === 0 ? "from-yellow-400 to-orange-500 shadow-orange-500/20" : idx === 1 ? "from-slate-300 to-slate-500 shadow-slate-500/20" : "from-amber-600 to-amber-800 shadow-amber-800/20"} shadow-lg`}>
+                                            {idx + 1}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{seller.seller_name}</h4>
+                                            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                                <span>{formatCurrency(seller.total_sales)}</span>
+                                                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                                <span>{seller.active_contracts} {t("dashboard.contracts").toLowerCase()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.section>
                     </div>
                 </div>
             </motion.div>

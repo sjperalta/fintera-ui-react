@@ -25,6 +25,7 @@ function Contract() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [itemPatch, setItemPatch] = useState(null); // Updated contract (e.g. after payment) for optimistic list update
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "table"
   const [stats, setStats] = useState({
     total: 0,
@@ -39,22 +40,19 @@ function Contract() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/v1/contracts?per_page=100`, {
+        const response = await fetch(`${API_URL}/api/v1/contracts/stats`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if (response.ok) {
-          const data = await response.json();
-          const items = data.contracts || data.items || [];
-
-          const newStats = {
-            total: data.pagination?.total_items || items.length,
-            pending: items.filter(i => i.status?.toLowerCase() === "pending").length,
-            approved: items.filter(i => i.status?.toLowerCase() === "approved").length,
-            rejected: items.filter(i => i.status?.toLowerCase() === "rejected").length,
-          };
-          setStats(newStats);
+          const stats = await response.json();
+          setStats({
+            total: stats.total,
+            pending: stats.pending,
+            approved: stats.approved,
+            rejected: stats.rejected,
+          });
         }
       } catch (error) {
         console.error("Error fetching contract stats:", error);
@@ -113,7 +111,10 @@ function Contract() {
     [t]
   );
 
-  const refreshContracts = useCallback(() => {
+  const refreshContracts = useCallback((updatedContract) => {
+    if (updatedContract?.id) {
+      setItemPatch((prev) => (prev?.id === updatedContract.id ? { ...prev, ...updatedContract } : updatedContract));
+    }
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
@@ -224,6 +225,7 @@ function Contract() {
                 showMobileCards={true}
                 showDesktopTable={viewMode === "table"}
                 refreshTrigger={refreshTrigger}
+                itemPatch={itemPatch}
               />
             </motion.div>
           </AnimatePresence>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useContext, useCallback } from "react";
+import { useEffect, useMemo, useState, useContext, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import { API_URL } from "../../../config";
@@ -111,23 +111,28 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
     }
   }, [contract?.id, fetchContractDetails]);
 
-  // Handle payment response and update contract balance
+  // Handle payment response and update contract balance / total_paid
   const handlePaymentResponse = (paymentResponse) => {
-
-    // Update the contract balance if included in the response
-    if (paymentResponse?.payment?.contract?.balance !== undefined) {
-      setCurrentContract(prev => ({
+    // API may return contract at paymentResponse.contract or paymentResponse.payment.contract
+    const updatedContract = paymentResponse?.contract ?? paymentResponse?.payment?.contract;
+    if (updatedContract && (updatedContract.balance !== undefined || updatedContract.total_paid !== undefined)) {
+      setCurrentContract((prev) => ({
         ...(prev || {}),
-        balance: paymentResponse.payment.contract.balance
+        ...(updatedContract.balance !== undefined && { balance: updatedContract.balance }),
+        ...(updatedContract.total_paid !== undefined && { total_paid: updatedContract.total_paid }),
       }));
     }
 
     // Reload contract data to refresh payment schedule and ledger
     loadContractData();
 
-    // Call the original callback if provided
+    // Notify parent so list can refresh or patch (pass updated contract for optimistic UI)
     if (onPaymentSuccess) {
-      onPaymentSuccess(paymentResponse);
+      const contractForList =
+        updatedContract?.id != null
+          ? { id: updatedContract.id, balance: updatedContract.balance, total_paid: updatedContract.total_paid, ...updatedContract }
+          : paymentResponse?.payment?.contract;
+      onPaymentSuccess(contractForList ?? paymentResponse);
     }
   };
 
@@ -741,9 +746,12 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={editableAmount}
                         onChange={(e) => {
                           const newAmount = e.target.value;
+                          const num = parseFloat(newAmount);
+                          if (newAmount !== "" && !isNaN(num) && num < 0) return;
                           setEditableAmount(newAmount);
                           if (!selectedPayment?.isCapitalPayment) {
                             const amount = parseFloat(newAmount) || 0;
@@ -770,9 +778,12 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                           <input
                             type="number"
                             step="0.01"
+                            min="0"
                             value={editableInterest}
                             onChange={(e) => {
                               const newInterest = e.target.value;
+                              const num = parseFloat(newInterest);
+                              if (newInterest !== "" && !isNaN(num) && num < 0) return;
                               setEditableInterest(newInterest);
                               const amount = parseFloat(editableAmount) || 0;
                               const interest = parseFloat(newInterest) || 0;
@@ -930,6 +941,19 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                           }
 
                           const data = await response.json();
+
+                          // Ensure response has contract data for list/progress update (backend may omit it)
+                          const contractFromApi = data.contract ?? data.payment?.contract;
+                          if (!contractFromApi?.id && currentContract?.id) {
+                            const prevBalance = Number(currentContract.balance) ?? Number(currentContract.amount);
+                            const prevPaid = Number(currentContract.total_paid) ?? (Number(currentContract.amount) - prevBalance);
+                            data.contract = {
+                              id: currentContract.id,
+                              balance: (prevBalance - paidAmount),
+                              total_paid: prevPaid + paidAmount,
+                              amount: currentContract.amount,
+                            };
+                          }
 
                           // Update the payment in the local schedule
                           const safeSchedule = Array.isArray(schedule) ? schedule : [];
@@ -1089,8 +1113,14 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={moratoryAmount}
-                        onChange={(e) => setMoratoryAmount(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const num = parseFloat(val);
+                          if (val !== "" && !isNaN(num) && num < 0) return;
+                          setMoratoryAmount(val);
+                        }}
                         className="w-full pl-10 pr-4 py-4 bg-gray-50 dark:bg-darkblack-500 border-2 border-transparent focus:border-amber-500/50 rounded-2xl dark:text-white font-bold transition-all outline-none"
                       />
                     </div>
@@ -1176,4 +1206,4 @@ PaymentScheduleModal.propTypes = {
   onPaymentSuccess: PropTypes.func,
 };
 
-export default PaymentScheduleModal;
+export default memo(PaymentScheduleModal);

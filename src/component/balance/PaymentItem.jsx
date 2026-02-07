@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, memo } from "react";
 import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
 import { format, parseISO, isBefore, startOfDay } from "date-fns";
@@ -469,27 +469,27 @@ function ApproveModal({
   return createPortal(
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-slate-900/50 backdrop-blur-[12px] flex items-center justify-center z-[9999] p-6" onClick={onClose}
+      className="fixed inset-0 bg-slate-900/50 backdrop-blur-[12px] flex items-center justify-center z-[9999] p-3 sm:p-4 md:p-6" onClick={onClose}
     >
       <motion.div
         initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
-        className="bg-white dark:bg-darkblack-600 rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden border border-gray-100 dark:border-white/10"
+        className="bg-white dark:bg-darkblack-600 rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden border border-gray-100 dark:border-white/10 max-h-[95vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        <div className="relative flex flex-col lg:flex-row h-full max-h-[90vh]">
+        <div className="relative flex flex-col lg:flex-row min-h-0 flex-1 overflow-hidden">
           {/* Left Side: Receipt Preview */}
-          <div className="lg:w-1/2 p-2 hidden lg:block">
+          <div className="lg:w-2/5 min-h-[180px] lg:min-h-0 p-2 hidden lg:flex flex-col">
             {hasReceipt || previewUrl ? (
-              <div className="h-full w-full rounded-[40px] overflow-hidden bg-slate-50 dark:bg-darkblack-500 relative group">
+              <div className="flex-1 min-h-0 w-full rounded-xl overflow-hidden bg-slate-50 dark:bg-darkblack-500 relative group">
                 {previewUrl ? (
                   selectedFile?.type === "application/pdf" ? (
-                    <iframe src={previewUrl} title="Preview" className="w-full h-full border-0" />
+                    <iframe src={previewUrl} title="Preview" className="w-full h-full border-0 min-h-[200px]" />
                   ) : (
                     <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                   )
                 ) : (
                   paymentInfo.document_url?.toLowerCase().endsWith('.pdf') ? (
-                    <iframe src={`${API_URL}/api/v1/payments/${paymentInfo.id}/download_receipt?token=${token}`} title="PDF" className="w-full h-full border-0" />
+                    <iframe src={`${API_URL}/api/v1/payments/${paymentInfo.id}/download_receipt?token=${token}`} title="PDF" className="w-full h-full border-0 min-h-[200px]" />
                   ) : (
                     <img src={`${API_URL}/api/v1/payments/${paymentInfo.id}/download_receipt?token=${token}`} alt="Receipt" className="w-full h-full object-cover" />
                   )
@@ -499,14 +499,14 @@ function ApproveModal({
                 {previewUrl ? (
                   <button
                     onClick={clearFile}
-                    className="absolute top-4 right-4 bg-rose-500 text-white p-3 rounded-full shadow-lg hover:bg-rose-600 transition-all z-10"
+                    className="absolute top-2 right-2 bg-rose-500 text-white p-2 rounded-full shadow-lg hover:bg-rose-600 transition-all z-10"
                   >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 ) : (
                   <button
                     onClick={handleDownloadReceipt}
-                    className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-6 py-3 rounded-xl font-bold uppercase text-xs tracking-wider shadow-lg hover:bg-slate-50 transition-all"
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-4 py-2 rounded-lg font-bold uppercase text-[10px] tracking-wider shadow-lg hover:bg-slate-50 transition-all"
                   >
                     {t('payments.downloadReceipt')}
                   </button>
@@ -515,7 +515,7 @@ function ApproveModal({
             ) : (
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="h-full w-full rounded-[40px] border-4 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center text-slate-300 space-y-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 transition-all group"
+                className="flex-1 min-h-0 w-full rounded-xl border-2 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center text-slate-300 space-y-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 transition-all group py-6"
               >
                 <input
                   type="file"
@@ -524,82 +524,92 @@ function ApproveModal({
                   accept=".pdf,.jpg,.jpeg,.png"
                   className="hidden"
                 />
-                <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <svg className="w-8 h-8 text-slate-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                 </div>
-                <span className="text-xs font-black uppercase tracking-[0.2em] opacity-50 group-hover:opacity-100 transition-opacity text-center px-4">
+                <span className="text-[10px] font-bold uppercase tracking-wider opacity-50 group-hover:opacity-100 transition-opacity text-center px-3">
                   {t('payments.clickToUploadReceipt')}
                 </span>
-                <span className="text-[10px] font-medium uppercase tracking-wider opacity-30">{t('payments.acceptedFormats')}</span>
+                <span className="text-[9px] font-medium uppercase tracking-wider opacity-30">{t('payments.acceptedFormats')}</span>
               </div>
             )}
           </div>
 
           {/* Right Side: Controls */}
-          <div className="flex-1 p-10 lg:p-14 flex flex-col justify-between">
-            <div className="space-y-12">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="inline-flex px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-4">
+          <div className="flex-1 p-4 sm:p-6 lg:p-6 flex flex-col justify-between min-h-0 overflow-y-auto">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex justify-between items-start gap-2">
+                <div className="min-w-0">
+                  <div className="inline-flex px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold uppercase tracking-wider mb-2">
                     {t('payments.paymentVerification')}
                   </div>
-                  <h3 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {t('payments.approve')} <span className="text-emerald-500 font-normal">.</span>
                   </h3>
-                  <p className="text-slate-400 font-medium mt-2 uppercase text-[10px] tracking-wider max-w-[300px]">{paymentInfo.description}</p>
+                  <p className="text-slate-400 font-medium mt-1 uppercase text-[9px] tracking-wider max-w-[260px] truncate">{paymentInfo.description}</p>
                 </div>
-                <button onClick={onClose} className="p-4 rounded-full bg-slate-100 dark:bg-white/5 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-sm">
-                  <svg className="w-6 h-6 border-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                <button onClick={onClose} className="p-2 sm:p-2.5 rounded-full bg-slate-100 dark:bg-white/5 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-sm flex-shrink-0" aria-label="Close">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 gap-10">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">{t('payments.amount')}</label>
+              <div className="grid grid-cols-1 gap-4 sm:gap-5">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">{t('payments.amount')}</label>
                   <div className="relative group">
-                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg pr-2 border-r border-gray-100 dark:border-white/10 uppercase">{paymentInfo.contract?.currency}</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm pr-2 border-r border-gray-100 dark:border-white/10 uppercase">{paymentInfo.contract?.currency}</span>
                     <input
                       type="number"
                       step="any"
                       min="0"
                       value={editAmount}
-                      onChange={e => setEditAmount(e.target.value)}
-                      className="w-full pl-24 pr-10 py-5 bg-slate-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/10 focus:border-emerald-500 rounded-2xl outline-none font-bold text-2xl dark:text-white transition-all shadow-sm"
+                      onChange={e => {
+                        const val = e.target.value;
+                        const num = parseFloat(val);
+                        if (val !== "" && !isNaN(num) && num < 0) return;
+                        setEditAmount(val);
+                      }}
+                      className="w-full pl-16 sm:pl-20 pr-6 py-3 bg-slate-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/10 focus:border-emerald-500 rounded-xl outline-none font-bold text-lg dark:text-white transition-all shadow-sm"
                     />
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-4">{t('payments.lateInterest')}</label>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider ml-1">{t('payments.lateInterest')}</label>
                   <div className="relative group">
-                    <span className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-300/50 font-black italic text-xl pr-2 border-r border-white/10">{paymentInfo.contract?.currency}</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300/50 font-bold text-sm pr-2 border-r border-white/10 uppercase">{paymentInfo.contract?.currency}</span>
                     <input
                       type="number"
                       step="any"
                       min="0"
                       value={editInterest}
-                      onChange={e => setEditInterest(e.target.value)}
-                      className="w-full pl-28 pr-12 py-7 bg-slate-50 dark:bg-white/[0.03] border-4 border-transparent focus:border-emerald-500/30 rounded-[32px] outline-none font-black text-3xl dark:text-white transition-all shadow-inner"
+                      onChange={e => {
+                        const val = e.target.value;
+                        const num = parseFloat(val);
+                        if (val !== "" && !isNaN(num) && num < 0) return;
+                        setEditInterest(val);
+                      }}
+                      className="w-full pl-16 sm:pl-20 pr-6 py-3 bg-slate-50 dark:bg-white/[0.03] border border-transparent focus:border-emerald-500/30 rounded-xl outline-none font-bold text-lg dark:text-white transition-all shadow-inner"
                     />
                   </div>
                 </div>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-[9px] text-slate-500 dark:text-slate-400">
                   {t('payments.approveAmountHint')}
                 </p>
               </div>
             </div>
 
-            <div className="mt-12 space-y-8">
+            <div className="mt-4 sm:mt-6 space-y-4">
               <div className="flex flex-col items-end">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 pr-1">{t('payments.amountToApprove')}</span>
-                <div className="text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 pr-1">{t('payments.amountToApprove')}</span>
+                <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
                   {((Number(editAmount) || 0) + (Number(editInterest) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  <span className="text-lg font-medium ml-2 opacity-30 uppercase tracking-widest">{paymentInfo.contract?.currency}</span>
+                  <span className="text-sm font-medium ml-1.5 opacity-30 uppercase tracking-wider">{paymentInfo.contract?.currency}</span>
                 </div>
               </div>
 
               <AnimatePresence>
                 {approvalResult && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`p-5 rounded-2xl text-center text-[10px] font-bold uppercase tracking-wider shadow-sm ${approvalResult.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`p-3 rounded-xl text-center text-[9px] font-bold uppercase tracking-wider shadow-sm ${approvalResult.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
                     {approvalResult.message}
                   </motion.div>
                 )}
@@ -607,16 +617,16 @@ function ApproveModal({
 
               {!approvalResult?.type && (
                 <motion.button
-                  whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}
+                  whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }}
                   onClick={onApproveClick} disabled={approveLoading}
-                  className="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-3"
+                  className="w-full py-3.5 sm:py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                 >
                   {approveLoading ? (
-                    <span className="animate-spin block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                    <span className="animate-spin block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full" />
                   ) : (
                     <>
                       {t('payments.authorizeTransaction')}
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                     </>
                   )}
                 </motion.button>
@@ -626,7 +636,7 @@ function ApproveModal({
         </div>
       </motion.div>
 
-    </motion.div >,
+    </motion.div>,
     document.body
   );
 }
@@ -949,4 +959,4 @@ PaymentDetailModal.propTypes = {
   onClose: PropTypes.func.isRequired
 };
 
-export default PaymentItem;
+export default memo(PaymentItem);
