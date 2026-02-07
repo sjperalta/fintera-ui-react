@@ -7,7 +7,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { API_URL } from "../../../config";
 import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
 
-function UserData({ userInfo, index, token, onClick, showStatusToggle = true, showEditButton = true }) {
+function UserData({ userInfo, index, token, onClick, showStatusToggle = true, showEditButton = true, showDeleteButton = false, onDelete }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const { id, full_name, phone, email, status: initialStatus, role, created_at, creator } = userInfo;
@@ -55,6 +55,34 @@ function UserData({ userInfo, index, token, onClick, showStatusToggle = true, sh
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm(t('users.confirmDelete', { name: full_name }))) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/v1/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 409 || errorData.error === "cannot delete user with active contracts") {
+          throw new Error(t('users.deleteActiveContractsError'));
+        }
+        throw new Error(errorData.error || t('users.deleteError'));
+      }
+
+      showToast(t('users.deleteSuccess'), 'success');
+      if (onDelete) onDelete(id);
+    } catch (error) {
+      console.error('Error:', error);
+      showToast(error.message, 'error');
+    }
+  };
+
   const formattedDate = created_at
     ? new Date(created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
     : "-";
@@ -97,10 +125,19 @@ function UserData({ userInfo, index, token, onClick, showStatusToggle = true, sh
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className={`w-14 h-14 rounded-2xl ${getAvatarColor(full_name)} flex items-center justify-center shadow-lg ring-2 ring-white/50 dark:ring-white/10 group-hover:scale-105 transition-transform duration-300`}>
-                <span className="text-white font-bold text-xl tracking-tight">
-                  {getInitials(full_name)}
-                </span>
+              <div className={`w-14 h-14 rounded-2xl ${getAvatarColor(full_name)} flex items-center justify-center shadow-lg ring-2 ring-white/50 dark:ring-white/10 group-hover:scale-105 transition-transform duration-300 overflow-hidden`}>
+                {userInfo.profile_picture_thumb ? (
+                  <img
+                    src={`${API_URL}${userInfo.profile_picture_thumb}`}
+                    alt={full_name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                ) : (
+                  <span className="text-white font-bold text-xl tracking-tight">
+                    {getInitials(full_name)}
+                  </span>
+                )}
               </div>
               <motion.div
                 animate={{ scale: status === "active" ? [1, 1.2, 1] : 1 }}
@@ -181,18 +218,18 @@ function UserData({ userInfo, index, token, onClick, showStatusToggle = true, sh
           </div>
         </div>
 
-        <div className="flex gap-2.5">
+        <div className="flex items-center gap-2">
           {showEditButton && (
             <Link
               to={`/settings/user/${id}`}
               id={index === 0 ? "user-edit-btn" : undefined}
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl transition-all duration-300 font-bold text-xs"
+              title={t('common.edit')}
+              className="inline-flex items-center justify-center w-10 h-10 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl transition-all duration-300"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              {t('common.edit')}
             </Link>
           )}
           <button
@@ -201,13 +238,27 @@ function UserData({ userInfo, index, token, onClick, showStatusToggle = true, sh
               e.stopPropagation();
               resendConfirmation();
             }}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl transition-all duration-300 font-bold text-xs"
+            title={t('users.invite')}
+            className="inline-flex items-center justify-center w-10 h-10 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl transition-all duration-300"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
             </svg>
-            {t('users.invite')}
           </button>
+          {showDeleteButton && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+              title={t('users.delete')}
+              className="inline-flex items-center justify-center w-10 h-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl transition-all duration-300"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -224,6 +275,8 @@ UserData.propTypes = {
   onClick: PropTypes.func,
   showStatusToggle: PropTypes.bool,
   showEditButton: PropTypes.bool,
+  showDeleteButton: PropTypes.bool,
+  onDelete: PropTypes.func,
 };
 
 export default UserData;

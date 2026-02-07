@@ -14,6 +14,7 @@ function Users() {
   const [role, setRole] = useState("");
   const [filterStatus, setFilterStatus] = useState("active");
   const [selectedUser, setSelectedUser] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
@@ -52,6 +53,8 @@ function Users() {
         onClick={handleClick}
         showStatusToggle={currentUser?.role !== "seller"}
         showEditButton={currentUser?.role !== "seller"}
+        showDeleteButton={currentUser?.role === 'admin'}
+        onDelete={() => setRefreshTrigger(prev => prev + 1)}
       />
     );
   };
@@ -156,6 +159,7 @@ function Users() {
             loadingMessage={t('users.loadingUsers')}
             entityName="users"
             showDesktopTable={false}
+            refreshTrigger={refreshTrigger}
           />
         </div>
 

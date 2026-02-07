@@ -90,7 +90,7 @@ function SearchFilterBar({
   }, [filterValue, filterOptions]);
 
   return (
-    <div id={id} className={customClass || "bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex"}>
+    <div id={id} className={customClass || "bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex flex-wrap gap-2"}>
       {/* Search Input */}
       <div className="flex items-center flex-1 pl-4">
         <span>
@@ -199,7 +199,7 @@ function SearchFilterBar({
 
       {/* Action Buttons */}
       {actions.map((action, index) => (
-        <div key={index} className="pl-10 md:block hidden">
+        <div key={index} className="pl-4 md:pl-10 flex items-center">
           <button
             aria-label={action.label}
             className={
