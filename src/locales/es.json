@@ -575,7 +575,12 @@
     "statusUpdatedTo_inactive": "Estado de usuario actualizado a inactivo",
     "showTotal": "Mostrar Total",
     "showActiveOnly": "Solo Activos",
-    "showAll": "Mostrar Todos"
+    "showAll": "Mostrar Todos",
+    "delete": "Eliminar Usuario",
+    "deleteSuccess": "Usuario eliminado exitosamente",
+    "deleteError": "Error al eliminar usuario",
+    "deleteActiveContractsError": "No se puede eliminar un usuario con contratos activos",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar permanentemente a {name}? Esta acción no se puede deshacer."
   },
   "settings": {
     "personal": "Personal",

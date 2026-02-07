@@ -389,8 +389,7 @@ function Reserve() {
       numericReserve: reserveNum,
       numericDownPayment: downNum,
       financedAmount: financed,
-      numericDownPayment: downNum,
-      financedAmount: financed,
+
       monthlyPayment: monthly,
       estimatedCommission: lot && !isNaN(lot) ? lot * ((
         financingType === "direct" ? projectCommissionRateDirect :
