@@ -945,8 +945,8 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                           // Ensure response has contract data for list/progress update (backend may omit it)
                           const contractFromApi = data.contract ?? data.payment?.contract;
                           if (!contractFromApi?.id && currentContract?.id) {
-                            const prevBalance = Number(currentContract.balance) ?? Number(currentContract.amount);
-                            const prevPaid = Number(currentContract.total_paid) ?? (Number(currentContract.amount) - prevBalance);
+                            const prevBalance = Number(currentContract.balance ?? currentContract.amount);
+                            const prevPaid = Number(currentContract.total_paid ?? (Number(currentContract.amount) - prevBalance));
                             data.contract = {
                               id: currentContract.id,
                               balance: (prevBalance - paidAmount),
