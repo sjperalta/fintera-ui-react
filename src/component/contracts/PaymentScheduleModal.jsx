@@ -111,23 +111,28 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
     }
   }, [contract?.id, fetchContractDetails]);
 
-  // Handle payment response and update contract balance
+  // Handle payment response and update contract balance / total_paid
   const handlePaymentResponse = (paymentResponse) => {
-
-    // Update the contract balance if included in the response
-    if (paymentResponse?.payment?.contract?.balance !== undefined) {
-      setCurrentContract(prev => ({
+    // API may return contract at paymentResponse.contract or paymentResponse.payment.contract
+    const updatedContract = paymentResponse?.contract ?? paymentResponse?.payment?.contract;
+    if (updatedContract && (updatedContract.balance !== undefined || updatedContract.total_paid !== undefined)) {
+      setCurrentContract((prev) => ({
         ...(prev || {}),
-        balance: paymentResponse.payment.contract.balance
+        ...(updatedContract.balance !== undefined && { balance: updatedContract.balance }),
+        ...(updatedContract.total_paid !== undefined && { total_paid: updatedContract.total_paid }),
       }));
     }
 
     // Reload contract data to refresh payment schedule and ledger
     loadContractData();
 
-    // Call the original callback if provided
+    // Notify parent so list can refresh or patch (pass updated contract for optimistic UI)
     if (onPaymentSuccess) {
-      onPaymentSuccess(paymentResponse);
+      const contractForList =
+        updatedContract?.id != null
+          ? { id: updatedContract.id, balance: updatedContract.balance, total_paid: updatedContract.total_paid, ...updatedContract }
+          : paymentResponse?.payment?.contract;
+      onPaymentSuccess(contractForList ?? paymentResponse);
     }
   };
 
@@ -936,6 +941,19 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                           }
 
                           const data = await response.json();
+
+                          // Ensure response has contract data for list/progress update (backend may omit it)
+                          const contractFromApi = data.contract ?? data.payment?.contract;
+                          if (!contractFromApi?.id && currentContract?.id) {
+                            const prevBalance = Number(currentContract.balance) ?? Number(currentContract.amount);
+                            const prevPaid = Number(currentContract.total_paid) ?? (Number(currentContract.amount) - prevBalance);
+                            data.contract = {
+                              id: currentContract.id,
+                              balance: (prevBalance - paidAmount),
+                              total_paid: prevPaid + paidAmount,
+                              amount: currentContract.amount,
+                            };
+                          }
 
                           // Update the payment in the local schedule
                           const safeSchedule = Array.isArray(schedule) ? schedule : [];

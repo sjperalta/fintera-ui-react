@@ -57,6 +57,9 @@ function Reserve() {
   const [projectType, setProjectType] = useState("");
   const [projectAddress, setProjectAddress] = useState("");
   const [projectDeliveryDate, setProjectDeliveryDate] = useState(null);
+  const [projectCommissionRateDirect, setProjectCommissionRateDirect] = useState(0);
+  const [projectCommissionRateBank, setProjectCommissionRateBank] = useState(0);
+  const [projectCommissionRateCash, setProjectCommissionRateCash] = useState(0);
   const [headerLoading, setHeaderLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -121,7 +124,11 @@ function Reserve() {
         setProjectInterestRate(projData.interest_rate);
         setProjectType(projData.project_type || "");
         setProjectAddress(projData.address || "");
+        setProjectAddress(projData.address || "");
         setProjectDeliveryDate(projData.delivery_date);
+        setProjectCommissionRateDirect(Number(projData.commission_rate_direct) || 0);
+        setProjectCommissionRateBank(Number(projData.commission_rate_bank) || 0);
+        setProjectCommissionRateCash(Number(projData.commission_rate_cash) || 0);
       } catch (e) {
         // silently keep old minimal header if failure
         console.error(e);
@@ -365,6 +372,7 @@ function Reserve() {
     numericDownPayment,
     financedAmount,
     monthlyPayment,
+    estimatedCommission,
   } = useMemo(() => {
     const lot = typeof lotPrice === "number" ? lotPrice : parseFloat(lotPrice);
     const reserveNum = parseFloat(reserveAmount) || 0;
@@ -381,9 +389,16 @@ function Reserve() {
       numericReserve: reserveNum,
       numericDownPayment: downNum,
       financedAmount: financed,
+      numericDownPayment: downNum,
+      financedAmount: financed,
       monthlyPayment: monthly,
+      estimatedCommission: lot && !isNaN(lot) ? lot * ((
+        financingType === "direct" ? projectCommissionRateDirect :
+          financingType === "bank" ? projectCommissionRateBank :
+            financingType === "cash" ? projectCommissionRateCash : 0
+      ) / 100) : 0,
     };
-  }, [lotPrice, reserveAmount, downPayment, paymentTerm]);
+  }, [lotPrice, reserveAmount, downPayment, paymentTerm, financingType, projectCommissionRateDirect, projectCommissionRateBank, projectCommissionRateCash]);
 
   const formatCurrency = (v) => {
     if (v === null || v === undefined || isNaN(v)) return "—";
@@ -799,6 +814,13 @@ function Reserve() {
                           </div>
                         )}
                       </div>
+
+                      <div className="w-full pt-4 mt-4 border-t border-white/10 flex justify-between items-center text-xs text-bgray-400">
+                        <span>{t('reservations.estimatedCommission') || 'Commission (Est.)'}</span>
+                        <span className="font-mono text-bgray-300">
+                          {formatCurrency(estimatedCommission)}
+                        </span>
+                      </div>
                     </div>
                   </motion.div>
                 </div>
@@ -893,14 +915,14 @@ function Reserve() {
                                         const isExcellent = fico >= 750;
                                         const isGood = fico >= 670 && fico < 750;
                                         return (
-                                        <div className="flex flex-col items-end">
-                                          <div className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${isExcellent ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : isGood ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-rose-50 text-rose-600 border border-rose-100"}`}>
-                                            FICO: {fico}
+                                          <div className="flex flex-col items-end">
+                                            <div className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${isExcellent ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : isGood ? "bg-amber-50 text-amber-600 border border-amber-100" : "bg-rose-50 text-rose-600 border border-rose-100"}`}>
+                                              FICO: {fico}
+                                            </div>
+                                            <p className={`text-[8px] font-bold uppercase mt-0.5 ${isExcellent ? "text-emerald-500" : isGood ? "text-amber-500" : "text-rose-500"}`}>
+                                              {isExcellent ? t('creditScore.excellent') : isGood ? t('creditScore.good') : t('creditScore.needsImprovement')}
+                                            </p>
                                           </div>
-                                          <p className={`text-[8px] font-bold uppercase mt-0.5 ${isExcellent ? "text-emerald-500" : isGood ? "text-amber-500" : "text-rose-500"}`}>
-                                            {isExcellent ? t('creditScore.excellent') : isGood ? t('creditScore.good') : t('creditScore.needsImprovement')}
-                                          </p>
-                                        </div>
                                         );
                                       })()}
                                     </div>

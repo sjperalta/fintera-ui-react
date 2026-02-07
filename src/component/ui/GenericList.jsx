@@ -39,11 +39,22 @@ function GenericList({
   refreshTrigger = 0,
   onSortChange,
   gridClassName,
+  itemPatch = null,
 }) {
   const { t } = useLocale();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Optimistic update: merge patched item (e.g. contract balance/total_paid after payment) into list
+  useEffect(() => {
+    if (!itemPatch?.id || items.length === 0) return;
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === itemPatch.id ? { ...item, ...itemPatch } : item
+      )
+    );
+  }, [itemPatch, items.length]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -191,20 +202,26 @@ function GenericList({
         if (!signal.aborted) {
           setItems(Array.isArray(itemsArray) ? itemsArray : []);
 
-          // Handle pagination metadata
-          if (data.pagination) {
-            const apiPage = parseInt(data.pagination.page || 1, 10);
-            let apiPages = parseInt(data.pagination.pages || data.pagination.total_pages || 0, 10);
-            const apiCount = parseInt(data.pagination.count || data.pagination.total_items || 0, 10);
-
-            // Fallback if pages is missing but count is present
-            if (apiPages === 0 && apiCount > 0) {
-              apiPages = Math.ceil(apiCount / itemsPerPage);
-            }
-
-            // Only update pagination state if it differs, to avoid loops (though usually safe here)
+          // Handle pagination metadata (support multiple API response shapes)
+          let apiPage = currentPage;
+          let apiPages = 0;
+          let apiCount = 0;
+          const pagination = data.pagination || data.meta?.pagination;
+          if (pagination) {
+            apiPage = parseInt(pagination.page || 1, 10);
+            apiPages = parseInt(pagination.pages || pagination.total_pages || 0, 10);
+            apiCount = parseInt(pagination.count || pagination.total_items || pagination.total || 0, 10);
+          }
+          // Fallback: top-level total / total_count (e.g. lots endpoint)
+          if (apiCount === 0 && (data.total != null || data.total_count != null)) {
+            apiCount = parseInt(data.total ?? data.total_count, 10) || 0;
+          }
+          if (apiPages === 0 && apiCount > 0) {
+            apiPages = Math.ceil(apiCount / itemsPerPage);
+          }
+          if (apiPages > 0) {
             if (currentPage !== apiPage) setCurrentPage(apiPage);
-            setTotalPages(apiPages > 0 ? apiPages : 1);
+            setTotalPages(apiPages);
           } else {
             setTotalPages(1);
           }
@@ -523,6 +540,7 @@ GenericList.propTypes = {
   refreshTrigger: PropTypes.number,
   onSortChange: PropTypes.func,
   gridClassName: PropTypes.string,
+  itemPatch: PropTypes.object,
 };
 
 export default GenericList;

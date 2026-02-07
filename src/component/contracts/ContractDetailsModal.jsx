@@ -443,6 +443,12 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
               <p className="text-sm font-medium text-bgray-500 dark:text-bgray-400">
                 {t("contracts.created")} {new Date(contract.created_at).toLocaleDateString()}
               </p>
+              {(displayContract?.created_by) && (
+                <p className="text-sm font-medium text-bgray-500 dark:text-bgray-400 mt-1 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faUser} className="text-bgray-400" />
+                  {t("contractDetailsModal.reservedBy") || t("lotsTable.reservedBy")}: <span className="font-semibold text-bgray-700 dark:text-bgray-300">{displayContract.created_by}</span>
+                </p>
+              )}
             </div>
           </div>
 
