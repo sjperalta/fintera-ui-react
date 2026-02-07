@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -15,7 +16,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocale } from '../../contexts/LocaleContext';
 
-const PaymentScheduleTab = ({
+const PaymentScheduleTab = memo(function PaymentScheduleTab({
   loading,
   schedule,
   totals,
@@ -32,7 +33,7 @@ const PaymentScheduleTab = ({
   setMoratoryAmount,
   onUndoPayment,
   undoLoadingPaymentId
-}) => {
+}) {
   const { t } = useLocale();
 
   if (loading) {
@@ -371,7 +372,7 @@ const PaymentScheduleTab = ({
       </motion.div>
     </div>
   );
-};
+});
 
 PaymentScheduleTab.propTypes = {
   loading: PropTypes.bool,

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useContext, useCallback } from "react";
+import { useEffect, useMemo, useState, useContext, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import { API_URL } from "../../../config";
@@ -741,9 +741,12 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={editableAmount}
                         onChange={(e) => {
                           const newAmount = e.target.value;
+                          const num = parseFloat(newAmount);
+                          if (newAmount !== "" && !isNaN(num) && num < 0) return;
                           setEditableAmount(newAmount);
                           if (!selectedPayment?.isCapitalPayment) {
                             const amount = parseFloat(newAmount) || 0;
@@ -770,9 +773,12 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                           <input
                             type="number"
                             step="0.01"
+                            min="0"
                             value={editableInterest}
                             onChange={(e) => {
                               const newInterest = e.target.value;
+                              const num = parseFloat(newInterest);
+                              if (newInterest !== "" && !isNaN(num) && num < 0) return;
                               setEditableInterest(newInterest);
                               const amount = parseFloat(editableAmount) || 0;
                               const interest = parseFloat(newInterest) || 0;
@@ -1089,8 +1095,14 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={moratoryAmount}
-                        onChange={(e) => setMoratoryAmount(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const num = parseFloat(val);
+                          if (val !== "" && !isNaN(num) && num < 0) return;
+                          setMoratoryAmount(val);
+                        }}
                         className="w-full pl-10 pr-4 py-4 bg-gray-50 dark:bg-darkblack-500 border-2 border-transparent focus:border-amber-500/50 rounded-2xl dark:text-white font-bold transition-all outline-none"
                       />
                     </div>
@@ -1176,4 +1188,4 @@ PaymentScheduleModal.propTypes = {
   onPaymentSuccess: PropTypes.func,
 };
 
-export default PaymentScheduleModal;
+export default memo(PaymentScheduleModal);

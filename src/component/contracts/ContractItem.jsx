@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -642,4 +642,4 @@ ContractItem.propTypes = {
   isMobileCard: PropTypes.bool,
 };
 
-export default ContractItem;
+export default memo(ContractItem);

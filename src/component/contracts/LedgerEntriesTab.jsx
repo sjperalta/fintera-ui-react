@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -11,7 +12,7 @@ import {
 import { useLocale } from '../../contexts/LocaleContext';
 import { formatStatus } from '../../utils/formatStatus';
 
-const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries }) => {
+const LedgerEntriesTab = memo(function LedgerEntriesTab({ ledgerLoading, ledgerEntries }) {
   const { t } = useLocale();
 
   // Calculate totals
@@ -230,7 +231,7 @@ const LedgerEntriesTab = ({ ledgerLoading, ledgerEntries }) => {
       </div>
     </div>
   );
-};
+});
 
 LedgerEntriesTab.propTypes = {
   ledgerLoading: PropTypes.bool,

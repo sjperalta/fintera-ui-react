@@ -1,3 +1,4 @@
+import { memo } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useLocale } from "../../contexts/LocaleContext";
@@ -9,12 +10,13 @@ import { motion } from "framer-motion";
  * 
  * Renders a single lot in either mobile card or desktop table row format.
  * Supports dual rendering via isMobileCard prop.
- * 
+ * Memoized to avoid re-renders when sibling items or unrelated parent state change.
+ *
  * @param {Object} lot - The lot object with all lot data
  * @param {string} userRole - Current user's role (admin, seller, etc.)
  * @param {boolean} isHighlighted - If true, applies highlighting styles (from contract navigation)
  */
-function LotItem({ lot, userRole, index = 0, isHighlighted = false }) {
+const LotItem = memo(function LotItem({ lot, userRole, index = 0, isHighlighted = false }) {
   const { t } = useLocale();
   const {
     id,
@@ -254,7 +256,7 @@ function LotItem({ lot, userRole, index = 0, isHighlighted = false }) {
       </div>
     </motion.div>
   );
-}
+});
 
 LotItem.propTypes = {
   lot: PropTypes.shape({

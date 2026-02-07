@@ -1,6 +1,6 @@
 // src/component/contracts/ContractDetailsModal.jsx
 import { createPortal } from "react-dom";
-import { useState, useContext, useEffect, useMemo } from "react";
+import { useState, useContext, useEffect, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -119,13 +119,13 @@ const getStatusTheme = (status) => {
 };
 
 // Contract Details Modal Component
-const ContractDetailsModal = ({
+const ContractDetailsModal = memo(function ContractDetailsModal({
   isOpen,
   onClose,
   contract,
   onContractUpdate,
   onContractDeleted,
-}) => {
+}) {
   const { t } = useLocale();
   const { user, token } = useContext(AuthContext);
   const isAdmin = user?.role === "admin";
@@ -1067,6 +1067,6 @@ const ContractDetailsModal = ({
     </div >,
     document.body
   );
-};
+});
 
 export default ContractDetailsModal;

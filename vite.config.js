@@ -7,13 +7,24 @@ const pwaConfig = {
   registerType: "autoUpdate",
   includeAssets: ["logo-color.svg"],
   workbox: {
-    globPatterns: ["**/*.{js,css,html,png,jpg,gif,svg}"], // Include your asset types
-    navigateFallback: "/", // The fallback for client-side routing
-    navigateFallbackAllowlist: [/^(?!\/__).*/], // Allowlist for navigateFallback
+    globPatterns: ["**/*.{js,css,html,png,jpg,gif,svg}"],
+    navigateFallback: "/",
+    navigateFallbackAllowlist: [/^(?!\/__).*/],
     runtimeCaching: [
       {
-        urlPattern: /\.(png|jpg|gif|svg)$/, // Define the regex pattern for your assets
-        handler: "StaleWhileRevalidate", // Caching strategy
+        urlPattern: /\.(png|jpg|gif|svg)$/,
+        handler: "StaleWhileRevalidate",
+      },
+      // Cache GET API responses briefly to reduce Railway egress on repeat visits
+      {
+        urlPattern: /^https?:\/\/[^/]+\/api\/v1\//,
+        handler: "NetworkFirst",
+        options: {
+          networkTimeoutSeconds: 8,
+          cacheName: "api-cache",
+          expiration: { maxEntries: 64, maxAgeSeconds: 60 },
+          cacheableResponse: { statuses: [0, 200] },
+        },
       },
     ],
   },
@@ -58,5 +69,27 @@ export default defineConfig({
   plugins: [react(), VitePWA(pwaConfig)],
   optimizeDeps: {
     include: ['jwt-decode']
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes("node_modules")) {
+            if (id.includes("react-dom") || id.includes("react-router-dom")) return "vendor";
+            if (id.includes("react/")) return "vendor";
+            if (id.includes("chart.js") || id.includes("react-chartjs-2")) return "charts";
+            if (id.includes("framer-motion")) return "motion";
+            if (id.includes("date-fns")) return "date-fns";
+            if (id.includes("@sentry")) return "sentry";
+            if (id.includes("quill")) return "quill";
+            if (id.includes("swiper")) return "swiper";
+          }
+        },
+        chunkFileNames: "assets/[name]-[hash].js",
+        entryFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash][extname]",
+      }
+    },
+    chunkSizeWarningLimit: 600,
   }
 });

@@ -1,11 +1,10 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useLocale } from "../../contexts/LocaleContext";
 import logo from "../../assets/images/logo/logo-short.svg";
 import logoW from "../../assets/images/logo/logo-short-white.svg";
 
 function SidebarV2({ user, handleLogout }) {
   const { pathname: location } = useLocation();
-  const navigate = useNavigate();
   const { t } = useLocale();
 
   const isAdmin = user.role === "admin";

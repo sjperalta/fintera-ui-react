@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -31,7 +32,7 @@ const SummaryCard = ({ title, value, icon, color, delay }) => (
   </motion.div>
 );
 
-const ContractSummaryCards = ({ summary, currentContract, fmt }) => {
+const ContractSummaryCards = memo(function ContractSummaryCards({ summary, currentContract, fmt }) {
   const { t } = useLocale();
 
   if (!summary) return null;
@@ -64,7 +65,7 @@ const ContractSummaryCards = ({ summary, currentContract, fmt }) => {
       </div>
     </div>
   );
-};
+});
 
 ContractSummaryCards.propTypes = {
   summary: PropTypes.object,

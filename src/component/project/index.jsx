@@ -1,3 +1,4 @@
+import { memo } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { API_URL } from "../../../config";
@@ -13,7 +14,7 @@ import {
   faArrowRight
 } from "@fortawesome/free-solid-svg-icons";
 
-function Project({ project, user, onDeleted }) {
+const Project = memo(function Project({ project, user, onDeleted }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const {
@@ -203,7 +204,7 @@ function Project({ project, user, onDeleted }) {
       </div>
     </div>
   );
-}
+});
 
 Project.propTypes = {
   project: PropTypes.shape({

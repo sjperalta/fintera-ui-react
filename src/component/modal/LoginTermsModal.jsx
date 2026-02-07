@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import PropTypes from "prop-types";
 import { useLocale } from "../../contexts/LocaleContext";
 import enTranslations from "../../locales/en.json";
@@ -6,17 +6,15 @@ import esTranslations from "../../locales/es.json";
 
 function LoginTermsModal({ isActive, onClose }) {
   const { t, locale } = useLocale();
-  const [currentDate, setCurrentDate] = useState("");
-
-  useEffect(() => {
-    const today = new Date();
-    const formattedDate = today.toLocaleDateString(locale === "es" ? "es" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    setCurrentDate(formattedDate);
-  }, [locale]);
+  const currentDate = useMemo(
+    () =>
+      new Date().toLocaleDateString(locale === "es" ? "es" : "en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+    [locale]
+  );
 
   const getTranslationArray = (key) => {
     const keys = key.split(".");
