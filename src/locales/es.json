@@ -841,6 +841,10 @@
     "growthAnalysis": "Análisis de Crecimiento",
     "topProjects": "Proyectos Principales",
     "performanceDetails": "Detalles de Rendimiento",
+    "sellerPerformance": "Rendimiento de Vendedores",
+    "salesBySeller": "Ventas por Vendedor",
+    "totalSales": "Ventas Totales",
+    "contractsSold": "Contratos Vendidos",
     "errorFetchingData": "Error al obtener datos de análisis",
     "previousYear": "Año Anterior",
     "nextYear": "Año Siguiente"
