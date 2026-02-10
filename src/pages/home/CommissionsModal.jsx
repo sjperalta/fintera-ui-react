@@ -163,6 +163,7 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
                                             <th className="px-6 py-4">{t("commissions.date") || "Date"}</th>
                                             <th className="px-6 py-4">{t("commissions.customer") || "Customer"}</th>
                                             <th className="px-6 py-4">{t("commissions.project") || "Project"}</th>
+                                            <th className="px-6 py-4">{t("commissions.financingType") || "Financing Type"}</th>
                                             <th className="px-6 py-4 text-right">{t("commissions.saleValue") || "Sale Value"}</th>
                                             <th className="px-6 py-4 text-right">{t("commissions.amount") || "Commission"}</th>
                                         </tr>
@@ -178,6 +179,9 @@ const CommissionsModal = ({ isActive, handleClose, initialDate }) => {
                                                 <td className="px-6 py-4">
                                                     <div className="text-sm text-gray-900 dark:text-white">{item.project}</div>
                                                     <div className="text-xs text-indigo-500">{item.lot}</div>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                                                    {item.financing_type}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-right text-gray-600 dark:text-gray-300 font-mono">
                                                     {formatCurrency(item.amount)}

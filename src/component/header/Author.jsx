@@ -1,5 +1,6 @@
 import ProtoTypes from "prop-types";
-import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
+import { getInitials, getAvatarColor } from "@/utils/avatarUtils";
+import { API_URL } from "@config";
 
 function Author({ showProfile, user }) {
   return (
@@ -8,8 +9,16 @@ function Author({ showProfile, user }) {
       id="profile-trigger"
       className="flex cursor-pointer space-x-0 lg:space-x-3 z-30"
     >
-      <div className={`h-[52px] w-[52px] rounded-xl border border-bgray-300 ${getAvatarColor(user.full_name)} flex items-center justify-center`}>
-        <span className="text-white font-bold text-xl">
+      <div className={`h-[52px] w-[52px] rounded-xl border border-bgray-300 ${(!user.profile_picture && !user.profile_picture_thumb) ? getAvatarColor(user.full_name) : ''} flex items-center justify-center overflow-hidden bg-white dark:bg-darkblack-500`}>
+        {(user.profile_picture || user.profile_picture_thumb) ? (
+          <img
+            src={`${API_URL}${user.profile_picture_thumb || user.profile_picture}`}
+            alt={user.full_name}
+            className="w-full h-full object-cover"
+            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+          />
+        ) : null}
+        <span className="text-white font-bold text-xl" style={{ display: (user.profile_picture || user.profile_picture_thumb) ? 'none' : 'block' }}>
           {getInitials(user.full_name)}
         </span>
       </div>

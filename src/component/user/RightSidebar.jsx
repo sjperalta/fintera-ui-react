@@ -132,9 +132,17 @@ function RightSidebar({ user, onClose }) {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", damping: 15 }}
-            className={`w-32 h-32 rounded-[2rem] ${getAvatarColor(user.full_name)} flex items-center justify-center shadow-2xl ring-4 ring-white/50 dark:ring-white/10 mb-6`}
+            className={`w-32 h-32 rounded-[2rem] ${(!user.profile_picture && !user.profile_picture_thumb) ? getAvatarColor(user.full_name) : ''} flex items-center justify-center shadow-2xl ring-4 ring-white/50 dark:ring-white/10 mb-6 overflow-hidden bg-white dark:bg-darkblack-500`}
           >
-            <span className="text-white font-bold text-5xl tracking-tighter">
+            {(user.profile_picture || user.profile_picture_thumb) ? (
+              <img
+                src={`${API_URL}${user.profile_picture || user.profile_picture_thumb}`}
+                alt={user.full_name}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+              />
+            ) : null}
+            <span className="text-white font-bold text-5xl tracking-tighter" style={{ display: (user.profile_picture || user.profile_picture_thumb) ? 'none' : 'block' }}>
               {getInitials(user.full_name)}
             </span>
           </motion.div>
