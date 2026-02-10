@@ -193,6 +193,9 @@ function PersonalInfoForm({ userId }) {
         throw new Error(msg);
       }
 
+      const returned = await response.json().catch(() => ({}));
+      let finalUser = returned?.user || returned;
+
       // Upload image if selected
       if (imageFile) {
         const formDataImage = new FormData();
@@ -209,12 +212,15 @@ function PersonalInfoForm({ userId }) {
         if (!imageResponse.ok) {
           console.error("Failed to upload profile picture");
           showToast(t("errors.imageUploadFailed") || "Failed to upload profile picture", "error");
+        } else {
+          const imageData = await imageResponse.json();
+          if (imageData.user) {
+            finalUser = { ...finalUser, ...imageData.user };
+          }
         }
       }
 
-      const returned = await response.json().catch(() => ({}));
-      const returnedUser = returned?.user || returned;
-      if (returnedUser) {
+      if (finalUser) {
         // Refetch to get updated image URLs if needed, or just update local state
         // Simplest is to rely on the fact that image upload is separate.
         // If image upload succeeded, we might want to refresh the user data completely or manually update the thumb URL if api returned it.
@@ -222,15 +228,15 @@ function PersonalInfoForm({ userId }) {
 
         setUser((u) => ({
           ...u,
-          ...returnedUser,
-          identity: formatCedula(returnedUser.identity),
-          rtn: formatRTN(returnedUser.rtn),
+          ...finalUser,
+          identity: formatCedula(finalUser.identity),
+          rtn: formatRTN(finalUser.rtn),
         }));
 
         try {
           const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-          if (storedUser && storedUser.id === returnedUser.id) {
-            const merged = { ...storedUser, ...returnedUser };
+          if (storedUser && Number(storedUser.id) === Number(finalUser.id)) {
+            const merged = { ...storedUser, ...finalUser };
             // If we uploaded an image, we can't easily guess the new URL without response from image upload endpoint.
             // But main update response might not have it if it ran before image upload finished?
             // Actually we await image upload.
@@ -247,7 +253,7 @@ function PersonalInfoForm({ userId }) {
           // ignore localStorage issues
         }
 
-        if (returnedUser.locale) setLocale(returnedUser.locale);
+        if (finalUser.locale) setLocale(finalUser.locale);
       }
 
       showToast(t("errors.profileUpdated"), "success");

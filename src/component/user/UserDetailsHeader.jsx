@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
-import { useLocale } from "../../contexts/LocaleContext";
+import { getInitials, getAvatarColor } from "@/utils/avatarUtils";
+import { useLocale } from "@/contexts/LocaleContext";
+import { API_URL } from "@config";
 
 function UserDetailsHeader({ user, toggleStatus, onEdit, showActions = true, showToggleStatus = false }) {
     const { t } = useLocale();
     // Safe-check if user is undefined
-    const { full_name, role, status, id, email } = user || {};
+    const { full_name, role, status, id, email, profile_picture_thumb, profile_picture } = user || {};
 
     return (
         <motion.div
@@ -22,8 +23,16 @@ function UserDetailsHeader({ user, toggleStatus, onEdit, showActions = true, sho
                 {/* User Profile Section */}
                 <div className="flex items-center gap-6">
                     <div className="relative">
-                        <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl ${getAvatarColor(full_name)} flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-white/5`}>
-                            <span className="text-white font-bold text-3xl md:text-4xl tracking-tight">
+                        <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl ${!profile_picture && !profile_picture_thumb ? getAvatarColor(full_name) : ''} flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-white/5 overflow-hidden bg-white dark:bg-darkblack-500`}>
+                            {profile_picture || profile_picture_thumb ? (
+                                <img
+                                    src={`${API_URL}${profile_picture || profile_picture_thumb}`}
+                                    alt={full_name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+                                />
+                            ) : null}
+                            <span className="text-white font-bold text-3xl md:text-4xl tracking-tight" style={{ display: profile_picture || profile_picture_thumb ? 'none' : 'block' }}>
                                 {getInitials(full_name)}
                             </span>
                         </div>

@@ -580,7 +580,8 @@
     "deleteSuccess": "Usuario eliminado exitosamente",
     "deleteError": "Error al eliminar usuario",
     "deleteActiveContractsError": "No se puede eliminar un usuario con contratos activos",
-    "confirmDelete": "¿Estás seguro de que deseas eliminar permanentemente a {name}? Esta acción no se puede deshacer."
+    "confirmDelete": "¿Estás seguro de que deseas eliminar permanentemente a {name}? Esta acción no se puede deshacer.",
+    "changePhoto": "Cambiar Foto"
   },
   "settings": {
     "personal": "Personal",
@@ -852,8 +853,8 @@
     "performanceDetails": "Detalles de Rendimiento",
     "sellerPerformance": "Rendimiento de Vendedores",
     "salesBySeller": "Ventas por Vendedor",
-    "totalSales": "Ventas Totales",
-    "contractsSold": "Contratos Vendidos",
+    "totalSales": "Suma de Contratos Totales",
+    "contractsSold": "Contratos Aprobados",
     "errorFetchingData": "Error al obtener datos de análisis",
     "previousYear": "Año Anterior",
     "nextYear": "Año Siguiente"
@@ -892,6 +893,7 @@
     "date": "Fecha",
     "customer": "Cliente",
     "project": "Proyecto",
+    "financingType": "Tipo Financiamiento",
     "saleValue": "Valor Venta",
     "amount": "Comisión",
     "noData": "No se encontraron comisiones para este periodo",

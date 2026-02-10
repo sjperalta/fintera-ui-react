@@ -567,7 +567,8 @@
     "errorCreatingUser": "Error creating user",
     "showTotal": "Show Total",
     "showActiveOnly": "Active Only",
-    "showAll": "Show All"
+    "showAll": "Show All",
+    "changePhoto": "Change Photo"
   },
   "settings": {
     "personal": "Personal",
@@ -837,6 +838,10 @@
     "growthAnalysis": "Growth Analysis",
     "topProjects": "Top Projects",
     "performanceDetails": "Performance Details",
+    "sellerPerformance": "Seller Performance",
+    "salesBySeller": "Sales by Seller",
+    "totalSales": "Sum of Total Contracts",
+    "contractsSold": "Approved Contracts",
     "errorFetchingData": "Error fetching analytics data",
     "previousYear": "Previous Year",
     "nextYear": "Next Year"
@@ -845,7 +850,7 @@
     "welcomeBack": "Welcome back",
     "heroSubtitle": "Here is what's happening with your sales today.",
     "activeLeads": "Active Leads",
-    "totalSalesValue": "Sales Volume",
+    "totalSalesValue": "Sum of Total Contracts",
     "pendingCommission": "Estimated Commission",
     "conversionRate": "Conversion Rate",
     "newSale": "New Sale",
@@ -857,7 +862,7 @@
     "noCustomers": "No recent customers found",
     "viewAllCustomers": "View All Customers",
     "stats": {
-      "sales": "Total Sales",
+      "sales": "Sum of Total Contracts",
       "leads": "New Leads",
       "growth": "Growth",
       "thisMonth": "This Month",
