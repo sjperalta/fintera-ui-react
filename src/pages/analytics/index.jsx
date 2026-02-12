@@ -16,10 +16,15 @@ import {
     Legend,
     Filler,
 } from "chart.js";
-import { Line, Bar, Doughnut } from "react-chartjs-2";
+// import { Line, Bar, Doughnut } from "react-chartjs-2"; // Removed
 import { useLocale } from "../../contexts/LocaleContext";
 import GenericFilter from "../../component/forms/GenericFilter";
 import ExportDropdown from "./components/ExportDropdown";
+import StatsGrid from "./components/StatsGrid";
+import RevenueTrendChart from "./components/RevenueTrendChart";
+import DistributionChart from "./components/DistributionChart";
+import MonthlyPerformance from "./components/MonthlyPerformance";
+import SellerPerformance from "./components/SellerPerformance";
 
 // Register Chart.js components
 ChartJS.register(
@@ -53,7 +58,7 @@ const itemVariants = {
     },
 };
 
-const GROWTH_BAR_COLORS = ["bg-blue-500", "bg-purple-500", "bg-green-500", "bg-orange-500", "bg-indigo-500", "bg-rose-500"];
+
 
 const Analytics = () => {
     const { t } = useLocale();
@@ -257,138 +262,12 @@ const Analytics = () => {
     );
 
     // Prepare chart data based on API response
-    const revenueData = useMemo(() => {
-        if (!trendData || trendData.length === 0) {
-            return { labels: [], datasets: [] };
-        }
 
-        // Sort data chronologically
-        const monthOrder = {
-            "Jan": 0, "Feb": 1, "Mar": 2, "Apr": 3, "May": 4, "Jun": 5,
-            "Jul": 6, "Aug": 7, "Sep": 8, "Oct": 9, "Nov": 10, "Dec": 11
-        };
 
-        const sortedData = [...trendData].sort((a, b) => {
-            return (monthOrder[a.label] ?? 99) - (monthOrder[b.label] ?? 99);
-        });
 
-        const labels = sortedData.map(point => point.label);
-        const realData = sortedData.map(point => point.real);
-        const projectedData = sortedData.map(point => point.projected);
 
-        return {
-            labels: labels,
-            datasets: [
-                {
-                    label: t("analytics.realData"),
-                    data: realData,
-                    borderColor: "rgb(59, 130, 246)",
-                    backgroundColor: "rgba(59, 130, 246, 0.1)",
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                },
-                {
-                    label: t("analytics.projections"),
-                    data: projectedData,
-                    borderColor: "rgb(13, 148, 136)", // Teal-600
-                    borderDash: [5, 5],
-                    backgroundColor: "transparent",
-                    fill: false,
-                    tension: 0.4,
-                },
-            ],
-        };
-    }, [trendData, t]);
 
-    const distributionData = useMemo(() => {
-        if (!distribution) return { labels: [], datasets: [] };
 
-        return {
-            labels: [t("analytics.financed"), t("analytics.reserved"), t("analytics.available"), t("analytics.fully_paid")],
-            datasets: [
-                {
-                    data: [
-                        distribution.financed || 0,
-                        distribution.reserved || 0,
-                        distribution.available || 0,
-                        distribution.fully_paid || 0
-                    ],
-                    backgroundColor: [
-                        "rgba(99, 102, 241, 0.8)",  // Financed (Indigo)
-                        "rgba(251, 146, 60, 0.8)", // Reserved
-                        "rgba(34, 197, 94, 0.2)",  // Available (Faded Green)
-                        "rgba(59, 130, 246, 0.8)", // Fully Paid (Blue)
-                    ],
-                    borderColor: [
-                        "rgb(99, 102, 241)",
-                        "rgb(251, 146, 60)",
-                        "rgba(34, 197, 94, 0.4)",
-                        "rgb(59, 130, 246)",
-                    ],
-                    borderWidth: 1,
-                },
-            ],
-        };
-    }, [distribution, t]);
-
-    const monthlyPerformanceData = useMemo(() => {
-        if (!performance || performance.length === 0) return { labels: [], datasets: [] };
-
-        // Ensure we are using real project data if performance is an array of projects
-        const labels = Array.isArray(performance) ? performance.map(p => p.project_name) : (performance.weekly_labels || ["W1", "W2", "W3", "W4"]);
-        const data = Array.isArray(performance) ? performance.map(p => p.growth_percentage) : (performance.weekly_performance || []);
-
-        return {
-            labels: labels,
-            datasets: [
-                {
-                    label: t("analytics.growthAnalysis"),
-                    data: data,
-                    backgroundColor: "rgba(59, 130, 246, 0.6)",
-                    borderRadius: 8,
-                },
-            ],
-        };
-    }, [performance, t]);
-
-    const sellerPerformanceChartData = useMemo(() => {
-        if (!sellersPerformance || sellersPerformance.length === 0) return { labels: [], datasets: [] };
-
-        const labels = sellersPerformance.map(s => s.seller_name);
-        const salesData = sellersPerformance.map(s => s.total_sales);
-        const contractsData = sellersPerformance.map(s => s.active_contracts);
-
-        return {
-            labels,
-            datasets: [
-                {
-                    type: 'bar',
-                    label: t("analytics.totalSales"),
-                    data: salesData,
-                    backgroundColor: "rgba(59, 130, 246, 0.8)",
-                    borderColor: "rgb(59, 130, 246)",
-                    borderWidth: 1,
-                    borderRadius: 8,
-                    yAxisID: 'y',
-                },
-                {
-                    type: 'line',
-                    label: t("analytics.contractsSold"),
-                    data: contractsData,
-                    borderColor: "rgb(13, 148, 136)", // Teal-600
-                    backgroundColor: "rgba(13, 148, 136, 0.2)",
-                    borderWidth: 3,
-                    pointRadius: 5,
-                    pointHoverRadius: 8,
-                    fill: false,
-                    tension: 0.4,
-                    yAxisID: 'y1',
-                }
-            ],
-        };
-    }, [sellersPerformance, t]);
 
     const chartOptions = useMemo(
         () => ({
@@ -627,257 +506,46 @@ const Analytics = () => {
 
                     <div className={`space-y-8 transition-all duration-300 ${isFiltering ? "blur-[2px] opacity-60 scale-[0.99]" : ""}`}>
                         {/* Stats Grid */}
-                        <section id="analytics-stats" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {statsForGrid.map((stat, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    variants={itemVariants}
-                                    whileHover={{ y: -5 }}
-                                    className="bg-white dark:bg-darkblack-600 p-6 rounded-2xl shadow-xl border border-gray-100 dark:border-darkblack-500"
-                                >
-                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
-                                    <div className="mt-2 flex items-baseline justify-between">
-                                        <h2 className={`text-2xl font-bold ${stat.color}`}>{stat.value}</h2>
-                                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${stat.change.startsWith("+")
-                                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                            }`}>
-                                            {stat.change}
-                                        </span>
-                                    </div>
-                                    <p className="mt-2 text-xs text-gray-400">{t("analytics.comparedToLastMonth")}</p>
-                                </motion.div>
-                            ))}
-                        </section>
+                        <StatsGrid stats={statsForGrid} t={t} />
 
                         {/* Charts Row 1 */}
                         <section className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                             {/* Main Trend Chart */}
-                            <motion.div
-                                id="revenue-chart"
-                                variants={itemVariants}
-                                className="xl:col-span-2 bg-white/80 dark:bg-darkblack-600/80 backdrop-blur p-6 rounded-3xl shadow-2xl border border-gray-100 dark:border-darkblack-500 overflow-hidden text-gray-900 dark:text-white"
-                            >
-                                <div className="flex items-center justify-between mb-8">
-                                    <h3 className="text-xl font-bold flex items-center space-x-2 text-gray-900 dark:text-white">
-                                        <span className="w-2 h-6 bg-blue-600 rounded-full"></span>
-                                        <span>{t("analytics.revenueTrend")}</span>
-                                    </h3>
-                                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                                        <div className="relative group/select">
-                                            <select
-                                                value={trendProjectId}
-                                                onChange={(e) => setTrendProjectId(e.target.value)}
-                                                className="appearance-none bg-slate-900/5 dark:bg-slate-900/40 px-4 py-2 pr-10 rounded-xl backdrop-blur-sm border border-black/5 dark:border-white/5 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer hover:bg-black/10 dark:hover:bg-white/10"
-                                            >
-                                                {projectOptions.map(opt => (
-                                                    <option key={opt.value} value={opt.value} className="bg-white dark:bg-darkblack-600">
-                                                        {opt.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover/select:text-slate-600 dark:group-hover/select:text-slate-200 transition-colors">
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-4 bg-slate-900/5 dark:bg-slate-900/40 px-3 py-2 rounded-xl backdrop-blur-sm border border-black/5 dark:border-white/5">
-                                            <button
-                                                onClick={() => setSelectedYear(y => y - 1)}
-                                                className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 p-1 rounded-lg transition-all"
-                                                title={t("analytics.previousYear")}
-                                            >
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                                </svg>
-                                            </button>
-
-                                            <AnimatePresence mode="wait">
-                                                <motion.span
-                                                    key={selectedYear}
-                                                    initial={{ opacity: 0, scale: 0.9, y: 5 }}
-                                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                    exit={{ opacity: 0, scale: 0.9, y: -5 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    className="text-sm font-bold text-gray-900 dark:text-white min-w-[3.5rem] text-center"
-                                                >
-                                                    {selectedYear}
-                                                </motion.span>
-                                            </AnimatePresence>
-
-                                            <button
-                                                onClick={() => setSelectedYear(y => y + 1)}
-                                                className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 p-1 rounded-lg transition-all"
-                                                title={t("analytics.nextYear")}
-                                            >
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="h-[400px] relative">
-                                    <AnimatePresence>
-                                        {isFilteringTrend && (
-                                            <motion.div
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                exit={{ opacity: 0 }}
-                                                className="absolute inset-0 z-10 bg-white/20 dark:bg-darkblack-600/20 backdrop-blur-[1px] flex items-center justify-center rounded-2xl"
-                                            >
-                                                <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                    <Line data={revenueData} options={chartOptions} />
-                                </div>
-                            </motion.div>
+                            <RevenueTrendChart
+                                trendData={trendData}
+                                trendProjectId={trendProjectId}
+                                setTrendProjectId={setTrendProjectId}
+                                projectOptions={projectOptions}
+                                selectedYear={selectedYear}
+                                setSelectedYear={setSelectedYear}
+                                isFiltering={isFilteringTrend}
+                                t={t}
+                                chartOptions={chartOptions}
+                            />
 
                             {/* Distribution Chart (Lots Availability) */}
-                            <motion.div
-                                variants={itemVariants}
-                                className="bg-white dark:bg-darkblack-600 p-6 rounded-3xl shadow-2xl border border-gray-100 dark:border-darkblack-500 text-gray-900 dark:text-white"
-                            >
-                                <h3 className="text-xl font-bold mb-8 flex items-center space-x-2 text-gray-900 dark:text-white">
-                                    <span className="w-2 h-6 bg-purple-600 rounded-full"></span>
-                                    <span>{t("analytics.lotsAvailability")}</span>
-                                </h3>
-                                <div className="h-[300px] relative">
-                                    <Doughnut data={distributionData} options={doughnutOptions} />
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                        <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                                            {distribution?.total_lots || 0}
-                                        </span>
-                                        <span className="text-sm text-gray-400">{t("projects.lots")}</span>
-                                    </div>
-                                </div>
-                                <div className="mt-8 space-y-3">
-                                    {[
-                                        { label: t("analytics.financed") || "Financed", value: formatPercent(distribution?.financed_percentage), color: "bg-indigo-500" },
-                                        { label: t("analytics.reserved"), value: formatPercent(distribution?.reserved_percentage), color: "bg-orange-500" },
-                                        { label: t("analytics.available"), value: formatPercent(distribution?.available_percentage), color: "bg-green-500/40" },
-                                        { label: t("analytics.fully_paid") || "Fully Paid", value: formatPercent(distribution?.fully_paid_percentage), color: "bg-blue-500" },
-                                    ].map((item, idx) => (
-                                        <div key={idx} className="flex items-center justify-between text-sm">
-                                            <div className="flex items-center space-x-2">
-                                                <span className={`w-3 h-3 rounded-full ${item.color}`}></span>
-                                                <span className="text-gray-600 dark:text-gray-300 font-medium">{item.label}</span>
-                                            </div>
-                                            <span className="font-bold text-gray-900 dark:text-white">{item.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </motion.div>
+                            <DistributionChart
+                                distribution={distribution}
+                                doughnutOptions={doughnutOptions}
+                                t={t}
+                                formatPercent={formatPercent}
+                            />
                         </section>
 
-                        {/* Charts Row 2 */}
-                        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {/* Monthly Performance */}
-                            <motion.div
-                                variants={itemVariants}
-                                className="bg-white dark:bg-darkblack-600 p-6 rounded-3xl shadow-2xl border border-gray-100 dark:border-darkblack-500 text-gray-900 dark:text-white"
-                            >
-                                <h3 className="text-xl font-bold mb-8 flex items-center space-x-2 text-gray-900 dark:text-white">
-                                    <span className="w-2 h-6 bg-orange-600 rounded-full"></span>
-                                    <span>{t("analytics.monthlyPerformance")}</span>
-                                </h3>
-                                <div className="h-[300px]">
-                                    <Bar data={monthlyPerformanceData} options={chartOptions} />
-                                </div>
-                            </motion.div>
+                        {/* Charts Row 2 - Monthly Performance */}
+                        <MonthlyPerformance
+                            performance={performance}
+                            chartOptions={chartOptions}
+                            t={t}
+                        />
 
-                            {/* Growth Analysis */}
-                            <motion.div
-                                variants={itemVariants}
-                                className="bg-white dark:bg-darkblack-600 p-6 rounded-3xl shadow-2xl border border-gray-100 dark:border-darkblack-500 overflow-hidden relative text-gray-900 dark:text-white"
-                            >
-                                <h3 className="text-xl font-bold mb-8 flex items-center space-x-2 text-gray-900 dark:text-white">
-                                    <span className="w-2 h-6 bg-green-600 rounded-full"></span>
-                                    <span>{t("analytics.growthAnalysis")}</span>
-                                </h3>
-                                <div className="space-y-6">
-                                    {(Array.isArray(performance) ? performance : []).map((project, idx) => {
-                                        const color = GROWTH_BAR_COLORS[idx % GROWTH_BAR_COLORS.length];
-                                        return (
-                                            <div key={project.project_name ?? idx} className="space-y-2">
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="font-medium text-gray-700 dark:text-gray-200">{project.project_name}</span>
-                                                    <span className="text-gray-400 font-bold">{project.growth_percentage.toFixed(1)}%</span>
-                                                </div>
-                                                <div className="h-2 bg-gray-100 dark:bg-darkblack-500 rounded-full overflow-hidden">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${project.growth_percentage}%` }}
-                                                        transition={{ duration: 1, delay: 0.2 + idx * 0.1 }}
-                                                        className={`h-full ${color}`}
-                                                    />
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
 
-                                {/* Decorative background element */}
-                                <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
-                            </motion.div>
-                        </section>
-
-                        {/* Seller Performance Section */}
-                        <motion.section
-                            id="seller-performance-section"
-                            variants={itemVariants}
-                            className="bg-white/80 dark:bg-darkblack-600/80 backdrop-blur p-8 rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-darkblack-500/50 overflow-hidden relative"
-                        >
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-                                <div>
-                                    <h3 className="text-2xl font-black flex items-center gap-3 text-gray-900 dark:text-white">
-                                        <div className="w-3 h-8 bg-gradient-to-b from-blue-500 to-teal-600 rounded-full shadow-lg shadow-blue-500/20"></div>
-                                        <span>{t("analytics.sellerPerformance")}</span>
-                                    </h3>
-                                    <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium ml-6">
-                                        {t("analytics.salesBySeller")}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tighter">{t("analytics.totalSales")}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 px-4 py-2 bg-teal-500/10 rounded-xl border border-teal-500/20">
-                                        <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
-                                        <span className="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-tighter">{t("analytics.contractsSold")}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="h-[450px] w-full relative group">
-                                <Bar data={sellerPerformanceChartData} options={sellerChartOptions} />
-
-                                {/* Background glow decoration */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-tr from-blue-500/5 via-transparent to-teal-500/5 pointer-events-none -z-10 blur-3xl"></div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-                                {[...sellersPerformance].sort((a, b) => b.total_sales - a.total_sales).slice(0, 3).map((seller, idx) => (
-                                    <div key={seller.seller_id} className="p-4 rounded-2xl bg-slate-50 dark:bg-darkblack-700/50 border border-slate-100 dark:border-darkblack-500/50 flex items-center gap-4 transition-all hover:scale-[1.02]">
-                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-black text-white bg-gradient-to-br ${idx === 0 ? "from-yellow-400 to-orange-500 shadow-orange-500/20" : idx === 1 ? "from-slate-300 to-slate-500 shadow-slate-500/20" : "from-amber-600 to-amber-800 shadow-amber-800/20"} shadow-lg`}>
-                                            {idx + 1}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{seller.seller_name}</h4>
-                                            <div className="flex items-center gap-2 text-xs font-semibold mt-0.5">
-                                                <span className="text-blue-600 dark:text-blue-400 font-bold">{formatCurrency(seller.total_sales)}</span>
-                                                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                                <span className="text-teal-600 dark:text-teal-400 font-bold">{seller.active_contracts} {t("analytics.contractsSold")}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </motion.section>
+                        <SellerPerformance
+                            sellersPerformance={sellersPerformance}
+                            sellerChartOptions={sellerChartOptions}
+                            t={t}
+                            formatCurrency={formatCurrency}
+                        />
                     </div>
                 </div>
             </motion.div>
