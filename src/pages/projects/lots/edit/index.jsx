@@ -62,7 +62,6 @@ function EditLot() {
         if (!res.ok) throw new Error("Error loading lot");
 
         const rawData = await res.json();
-        console.log("Lot Edit Data:", rawData); // Debugging
         // Handle wrapped responses (e.g. { lot: ... } or { data: ... })
         const data = rawData.lot || rawData.data || rawData;
 
