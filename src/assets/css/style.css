@@ -636,8 +636,16 @@ button.fc-button.fc-button-primary.fc-prev-button {
   fill: #16a34a;
 }
 @media (max-width: 1536px) {
+  .fc .fc-view-harness {
+    width: 100% !important;
+    height: 720px !important;
+  }
 }
 @media (max-width: 1280px) {
+  .fc .fc-view-harness {
+    width: 100% !important;
+    height: 680px !important;
+  }
 }
 @media (max-width: 1024px) {
   .fc .fc-view-harness {
