@@ -111,6 +111,8 @@ const SellerPerformance = memo(({ sellersPerformance, sellerChartOptions, t, for
     );
 });
 
+SellerPerformance.displayName = "SellerPerformance";
+
 SellerPerformance.propTypes = {
     sellersPerformance: PropTypes.array,
     sellerChartOptions: PropTypes.object.isRequired,

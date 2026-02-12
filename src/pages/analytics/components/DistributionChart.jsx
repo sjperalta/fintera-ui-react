@@ -84,6 +84,8 @@ const DistributionChart = memo(({ distribution, doughnutOptions, t, formatPercen
     );
 });
 
+DistributionChart.displayName = "DistributionChart";
+
 DistributionChart.propTypes = {
     distribution: PropTypes.object,
     doughnutOptions: PropTypes.object.isRequired,

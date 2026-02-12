@@ -89,6 +89,8 @@ const MonthlyPerformance = memo(({ performance, chartOptions, t }) => {
     );
 });
 
+MonthlyPerformance.displayName = "MonthlyPerformance";
+
 MonthlyPerformance.propTypes = {
     performance: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     chartOptions: PropTypes.object.isRequired,

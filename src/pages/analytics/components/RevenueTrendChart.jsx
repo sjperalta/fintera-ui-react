@@ -164,6 +164,8 @@ const RevenueTrendChart = memo(({
     );
 });
 
+RevenueTrendChart.displayName = "RevenueTrendChart";
+
 RevenueTrendChart.propTypes = {
     trendData: PropTypes.array,
     trendProjectId: PropTypes.string.isRequired,

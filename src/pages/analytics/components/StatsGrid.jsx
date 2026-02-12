@@ -38,6 +38,8 @@ const StatsGrid = memo(({ stats, t }) => {
     );
 });
 
+StatsGrid.displayName = "StatsGrid";
+
 StatsGrid.propTypes = {
     stats: PropTypes.arrayOf(
         PropTypes.shape({
