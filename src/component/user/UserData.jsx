@@ -132,6 +132,7 @@ function UserData({ userInfo, index, token, onClick, showStatusToggle = true, sh
                     alt={full_name}
                     className="w-full h-full object-cover"
                     onError={(e) => { e.target.style.display = 'none'; }}
+                    loading="lazy"
                   />
                 ) : (
                   <span className="text-white font-bold text-xl tracking-tight">
