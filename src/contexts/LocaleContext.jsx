@@ -26,7 +26,7 @@ const getNestedValue = (obj, path) => {
 
 const replaceParams = (template, params) => {
   return Object.entries(params).reduce((str, [key, value]) => {
-    return str.replace(new RegExp(`{${key}}`, 'g'), String(value));
+    return str.replaceAll(`{${key}}`, String(value));
   }, template);
 };
 
@@ -50,7 +50,7 @@ export const useLocale = () => {
           // Simple fallback translation: return key, optionally replace params
           if (Object.keys(params).length > 0) {
             return Object.entries(params).reduce((str, [key, value]) =>
-              str.replace(new RegExp(`{${key}}`, 'g'), String(value)), key);
+              str.replaceAll(`{${key}}`, String(value)), key);
           }
           return key;
         },
