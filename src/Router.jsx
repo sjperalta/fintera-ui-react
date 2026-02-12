@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import ProtectedRoute from "./component/protectedRoute";
 import Home from "./pages/home";
 import Contracts from "./pages/contract";
@@ -23,12 +24,19 @@ import CreateLot from "./pages/projects/lots/create";
 import EditLot from "./pages/projects/lots/edit";
 import Reserve from "./pages/projects/reserve";
 import CreateUser from "./pages/users/create";
-import Financing from "./pages/financing";
 import Upload from "./pages/financing/upload";
 import Summary from "./pages/financing/summary";
 import AdminOrOwnerRoute from "./component/protectedRoute/AdminOrOwnerRoute";
-import Audits from "./pages/audits";
-import Analytics from "./pages/analytics";
+
+const Audits = lazy(() => import("./pages/audits"));
+const Analytics = lazy(() => import("./pages/analytics"));
+const Financing = lazy(() => import("./pages/financing"));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center w-full h-[calc(100vh-64px)]">
+    <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 const router = createBrowserRouter(
   [
@@ -113,7 +121,9 @@ const router = createBrowserRouter(
           path: "/audits",
           element: (
             <ProtectedRoute>
-              <Audits />
+              <Suspense fallback={<PageLoader />}>
+                <Audits />
+              </Suspense>
             </ProtectedRoute>
           ),
         },
@@ -129,7 +139,9 @@ const router = createBrowserRouter(
           path: "/financing/user/:userId",
           element: (
             <AdminOrOwnerRoute>
-              <Financing />
+              <Suspense fallback={<PageLoader />}>
+                <Financing />
+              </Suspense>
             </AdminOrOwnerRoute>
           ),
           children: [
@@ -185,7 +197,9 @@ const router = createBrowserRouter(
           path: "/analytics",
           element: (
             <ProtectedRoute>
-              <Analytics />
+              <Suspense fallback={<PageLoader />}>
+                <Analytics />
+              </Suspense>
             </ProtectedRoute>
           ),
         },

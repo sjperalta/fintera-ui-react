@@ -5,88 +5,88 @@ import { useToast } from "../../../contexts/ToastContext";
 import { API_URL } from "../../../../config";
 import { getToken } from "../../../../auth";
 
+const REPORT_TYPES = [
+    {
+        id: "commissions_csv",
+        titleKey: "reports.commissionsCsv",
+        type: "report",
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <polyline points="16 11 18 13 22 9" />
+            </svg>
+        ),
+        color: "text-emerald-500",
+        bgColor: "bg-emerald-500/10",
+    },
+    {
+        id: "total_revenue_csv",
+        titleKey: "reports.revenueFlowCsv",
+        type: "report",
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+        ),
+        color: "text-blue-500",
+        bgColor: "bg-blue-500/10",
+    },
+    {
+        id: "overdue_payments_csv",
+        titleKey: "reports.overduePaymentsCsv",
+        type: "report",
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        ),
+        color: "text-rose-500",
+        bgColor: "bg-rose-500/10",
+    }
+];
+
+const EXPORT_FORMATS = [
+    {
+        id: "csv",
+        label: "CSV",
+        type: "base",
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <polyline points="9 15 12 18 15 15" />
+            </svg>
+        ),
+        color: "text-amber-500",
+        bgColor: "bg-amber-500/10",
+    },
+    {
+        id: "xlsx",
+        label: "Excel",
+        type: "base",
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <path d="M8 13h2l2 2 2-2h2" />
+                <path d="M8 17h2l2-2 2 2h2" />
+            </svg>
+        ),
+        color: "text-green-500",
+        bgColor: "bg-green-500/10",
+    }
+];
+
 const ExportDropdown = memo(function ExportDropdown({ startDate, endDate, onExportBase }) {
     const { t } = useLocale();
     const { showToast } = useToast();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
-
-    const REPORT_TYPES = [
-        {
-            id: "commissions_csv",
-            titleKey: "reports.commissionsCsv",
-            type: "report",
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <polyline points="16 11 18 13 22 9" />
-                </svg>
-            ),
-            color: "text-emerald-500",
-            bgColor: "bg-emerald-500/10",
-        },
-        {
-            id: "total_revenue_csv",
-            titleKey: "reports.revenueFlowCsv",
-            type: "report",
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="1" x2="12" y2="23" />
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-            ),
-            color: "text-blue-500",
-            bgColor: "bg-blue-500/10",
-        },
-        {
-            id: "overdue_payments_csv",
-            titleKey: "reports.overduePaymentsCsv",
-            type: "report",
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-            ),
-            color: "text-rose-500",
-            bgColor: "bg-rose-500/10",
-        }
-    ];
-
-    const EXPORT_FORMATS = [
-        {
-            id: "csv",
-            label: "CSV",
-            type: "base",
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="12" y1="18" x2="12" y2="12" />
-                    <polyline points="9 15 12 18 15 15" />
-                </svg>
-            ),
-            color: "text-amber-500",
-            bgColor: "bg-amber-500/10",
-        },
-        {
-            id: "xlsx",
-            label: "Excel",
-            type: "base",
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <path d="M8 13h2l2 2 2-2h2" />
-                    <path d="M8 17h2l2-2 2 2h2" />
-                </svg>
-            ),
-            color: "text-green-500",
-            bgColor: "bg-green-500/10",
-        }
-    ];
 
     useEffect(() => {
         const handleClickOutside = (event) => {
