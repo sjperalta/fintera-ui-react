@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchFilterBar from "../../component/ui/SearchFilterBar";
@@ -44,7 +44,7 @@ function Users() {
   const roleOptions = getRoleFilterOptions();
 
   // Render function for individual user items - now simplified as cards
-  const renderUserItem = (user, index, isMobileCard, handleClick) => {
+  const renderUserItem = useCallback((user, index, isMobileCard, handleClick) => {
     return (
       <UserData
         userInfo={user}
@@ -57,7 +57,7 @@ function Users() {
         onDelete={() => setRefreshTrigger(prev => prev + 1)}
       />
     );
-  };
+  }, [token, currentUser?.role]);
 
   useEffect(() => {
     if (location.state?.selectedUserId || location.state?.selectedUserName) {
