@@ -292,7 +292,7 @@ const Analytics = () => {
                 {
                     label: t("analytics.projections"),
                     data: projectedData,
-                    borderColor: "rgb(147, 51, 234)",
+                    borderColor: "rgb(13, 148, 136)", // Teal-600
                     borderDash: [5, 5],
                     backgroundColor: "transparent",
                     fill: false,
@@ -377,8 +377,8 @@ const Analytics = () => {
                     type: 'line',
                     label: t("analytics.contractsSold"),
                     data: contractsData,
-                    borderColor: "rgb(147, 51, 234)",
-                    backgroundColor: "rgba(147, 51, 234, 0.2)",
+                    borderColor: "rgb(13, 148, 136)", // Teal-600
+                    backgroundColor: "rgba(13, 148, 136, 0.2)",
                     borderWidth: 3,
                     pointRadius: 5,
                     pointHoverRadius: 8,
@@ -445,7 +445,7 @@ const Analytics = () => {
                 title: {
                     display: true,
                     text: t("analytics.totalSales"),
-                    color: "currentColor",
+                    color: "#3b82f6", // Blue-500
                     font: { family: "'Urbanist', sans-serif", weight: 'bold' }
                 }
             },
@@ -458,7 +458,7 @@ const Analytics = () => {
                 title: {
                     display: true,
                     text: t("analytics.contractsSold"),
-                    color: "currentColor",
+                    color: "#0d9488", // Teal-600
                     font: { family: "'Urbanist', sans-serif", weight: 'bold' }
                 }
             }
@@ -505,7 +505,7 @@ const Analytics = () => {
                 label: t("analytics.activeContracts"),
                 value: ov?.active_contracts ?? "0",
                 change: ov?.contracts_change_percentage != null ? `${ov.contracts_change_percentage > 0 ? "+" : ""}${ov.contracts_change_percentage}%` : "0%",
-                color: "text-purple-600 dark:text-purple-400",
+                color: "text-teal-600 dark:text-teal-400",
             },
             {
                 label: t("analytics.averagePayment"),
@@ -834,7 +834,7 @@ const Analytics = () => {
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
                                 <div>
                                     <h3 className="text-2xl font-black flex items-center gap-3 text-gray-900 dark:text-white">
-                                        <div className="w-3 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full shadow-lg shadow-blue-500/20"></div>
+                                        <div className="w-3 h-8 bg-gradient-to-b from-blue-500 to-teal-600 rounded-full shadow-lg shadow-blue-500/20"></div>
                                         <span>{t("analytics.sellerPerformance")}</span>
                                     </h3>
                                     <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium ml-6">
@@ -846,9 +846,9 @@ const Analytics = () => {
                                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                         <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tighter">{t("analytics.totalSales")}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 rounded-xl border border-purple-500/20">
-                                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                        <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-tighter">{t("analytics.contractsSold")}</span>
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-teal-500/10 rounded-xl border border-teal-500/20">
+                                        <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                                        <span className="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-tighter">{t("analytics.contractsSold")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -857,21 +857,21 @@ const Analytics = () => {
                                 <Bar data={sellerPerformanceChartData} options={sellerChartOptions} />
 
                                 {/* Background glow decoration */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none -z-10 blur-3xl"></div>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-tr from-blue-500/5 via-transparent to-teal-500/5 pointer-events-none -z-10 blur-3xl"></div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-                                {sellersPerformance.slice(0, 3).map((seller, idx) => (
+                                {[...sellersPerformance].sort((a, b) => b.total_sales - a.total_sales).slice(0, 3).map((seller, idx) => (
                                     <div key={seller.seller_id} className="p-4 rounded-2xl bg-slate-50 dark:bg-darkblack-700/50 border border-slate-100 dark:border-darkblack-500/50 flex items-center gap-4 transition-all hover:scale-[1.02]">
                                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-black text-white bg-gradient-to-br ${idx === 0 ? "from-yellow-400 to-orange-500 shadow-orange-500/20" : idx === 1 ? "from-slate-300 to-slate-500 shadow-slate-500/20" : "from-amber-600 to-amber-800 shadow-amber-800/20"} shadow-lg`}>
                                             {idx + 1}
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{seller.seller_name}</h4>
-                                            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
-                                                <span>{formatCurrency(seller.total_sales)}</span>
+                                            <div className="flex items-center gap-2 text-xs font-semibold mt-0.5">
+                                                <span className="text-blue-600 dark:text-blue-400 font-bold">{formatCurrency(seller.total_sales)}</span>
                                                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                                <span>{seller.active_contracts} {t("dashboard.contracts").toLowerCase()}</span>
+                                                <span className="text-teal-600 dark:text-teal-400 font-bold">{seller.active_contracts} {t("analytics.contractsSold")}</span>
                                             </div>
                                         </div>
                                     </div>
