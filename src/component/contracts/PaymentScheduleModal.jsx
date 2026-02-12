@@ -32,6 +32,25 @@ import PaymentScheduleTab from "./PaymentScheduleTab";
 import LedgerEntriesTab from "./LedgerEntriesTab";
 import ContractNotesTab from "./ContractNotesTab";
 
+// Moved outside component to prevent recreation on every render
+const fmt = (v) =>
+  v === null || v === undefined || v === ""
+    ? "—"
+    : Number(v).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }) + " HNL";
+
+// Moved outside component as it's a pure function
+const calculateMoratoryDays = (dueDate) => {
+  if (!dueDate) return 0;
+  const due = new Date(dueDate);
+  const today = new Date();
+  const diffTime = today - due;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+};
+
 function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -255,22 +274,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   const displayBalance =
     ledgerEntries.length > 0 ? ledgerBalance : (currentContract?.balance ?? 0);
 
-  if (!open) return null;
-
-  if (!contract) {
-    return null;
-  }
-
-  const fmt = (v) =>
-    v === null || v === undefined || v === ""
-      ? "—"
-      : Number(v).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }) + " HNL";
-
-
-  const translatePaymentType = (type) => {
+  const translatePaymentType = useCallback((type) => {
     const normalizedType = type?.toLowerCase().replace(/\s+/g, '_');
     switch (normalizedType) {
       case "reservation": return t('payments.statusOptions.reservation');
@@ -279,16 +283,13 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
       case "capital_repayment": return t('contracts.capitalPayment') || "Abono a Capital";
       default: return type || t('payments.statusOptions.installment');
     }
-  };
+  }, [t]);
 
-  const calculateMoratoryDays = (dueDate) => {
-    if (!dueDate) return 0;
-    const due = new Date(dueDate);
-    const today = new Date();
-    const diffTime = today - due;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
-  };
+  if (!open) return null;
+
+  if (!contract) {
+    return null;
+  }
 
   // Calculate paid amount and progress for the overview tab (use displayBalance so it matches ledger after undo)
   const paidAmount = currentContract?.total_paid ?? (
