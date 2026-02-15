@@ -17,8 +17,8 @@ function SignIn() {
     hostname.includes("127.0.0.1") ||
     hostname.includes("staging");
 
-  const [email, setEmail] = useState(() => (isDevOrStaging ? "admin@example.com" : ""));
-  const [password, setPassword] = useState(() => (isDevOrStaging ? "superPassword@123" : ""));
+  const [email, setEmail] = useState(() => (isDevOrStaging ? import.meta.env.VITE_DEFAULT_EMAIL : ""));
+  const [password, setPassword] = useState(() => (isDevOrStaging ? import.meta.env.VITE_DEFAULT_PASSWORD : ""));
   const [errors, setErrors] = useState({ email: "", password: "" });
 
   const navigate = useNavigate();
