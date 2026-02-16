@@ -1,27 +1,26 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 vi.stubEnv('NODE_ENV', 'development')
 
-// Mock Sentry module (define mocks inside factory to avoid hoisting TDZ)
-vi.mock('@sentry/react', () => {
-  const captureException = vi.fn(() => 'event-123')
-  const showReportDialog = vi.fn()
+// Mock Rollbar module
+vi.mock('@rollbar/react', () => {
+  const mockRollbar = {
+    error: vi.fn(),
+  }
   return {
-    captureException,
-    showReportDialog,
+    useRollbar: vi.fn(() => mockRollbar),
   }
 })
 
-import * as Sentry from '@sentry/react'
+import { useRollbar } from '@rollbar/react'
 // Mock LocaleContext with absolute path
 vi.mock('src/contexts/LocaleContext', () => ({
   useLocale: () => ({
     locale: 'en',
-    setLocale: () => {},
+    setLocale: () => { },
     t: (key) => {
       const translations = {
-        'errors.reportFeedback': 'Report Feedback',
         'common.retry': 'Retry',
         'errors.somethingWentWrong': 'Something went wrong.',
       };
@@ -41,11 +40,23 @@ function Thrower({ shouldThrow }) {
 }
 
 describe('ErrorBoundary', () => {
+  let consoleWarnSpy, consoleErrorSpy;
+
+  beforeEach(() => {
+    // Suppress console warnings and errors during ErrorBoundary tests
+    // These are expected when testing error boundaries
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+  });
+
   afterEach(() => {
+    consoleWarnSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
     vi.clearAllMocks()
   })
 
-  it('captures exception and renders fallback, allows report and retry', async () => {
+  it('captures exception and renders fallback, allows retry', async () => {
+    const mockRollbar = useRollbar()
     const { rerender } = render(
       <ErrorBoundary fallback={<div>Fallback UI</div>}>
         <Thrower shouldThrow={true} />
@@ -55,16 +66,8 @@ describe('ErrorBoundary', () => {
     // Fallback shown
     expect(screen.getByText('Fallback UI')).toBeTruthy()
 
-  // Sentry.captureException called
-  expect(Sentry.captureException).toHaveBeenCalled()
-
-  // Report button should be shown (eventId returned)
-  const reportBtn = screen.getByText('errors.reportFeedback')
-  expect(reportBtn).toBeTruthy()
-
-  // Click report and assert showReportDialog called with eventId
-  fireEvent.click(reportBtn)
-  expect(Sentry.showReportDialog).toHaveBeenCalledWith({ eventId: 'event-123' })
+    // Rollbar.error called
+    expect(mockRollbar.error).toHaveBeenCalled()
 
     // Now retry: re-render with a non-throwing child
     const retryBtn = screen.getByText('common.retry')

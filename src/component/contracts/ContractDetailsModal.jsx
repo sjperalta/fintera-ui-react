@@ -1,5 +1,6 @@
 // src/component/contracts/ContractDetailsModal.jsx
 import { createPortal } from "react-dom";
+import { sanitizeHtml } from "../../utils/sanitizeHtml";
 import { useState, useContext, useEffect, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -933,7 +934,7 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
                       {contract.note ? (
                         <div
                           className="text-lg text-bgray-600 dark:text-bgray-300 leading-relaxed prose prose-lg dark:prose-invert max-w-none"
-                          dangerouslySetInnerHTML={{ __html: contract.note }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(contract.note) }}
                         />
                       ) : (
                         <div className="flex flex-col items-center justify-center h-full text-bgray-400 space-y-4">
