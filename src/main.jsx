@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import * as Sentry from "@sentry/react";
+import { Provider as RollbarProvider, ErrorBoundary } from "@rollbar/react";
 import App from "./App.jsx";
 import "./assets/css/style.css";
 import "./assets/css/font-awesome-all.min.css";
@@ -13,26 +13,39 @@ if (import.meta.env.MODE === "production") {
   registerSW();
 }
 
-// Initialize Sentry only when a DSN is provided to avoid noisy errors in
+// Initialize Rollbar only when an access token is provided to avoid noisy errors in
 // non-production or local environments.
-const _sentryDsn = import.meta.env.VITE_SENTRY_DSN;
-if (_sentryDsn) {
-  Sentry.init({
-    dsn: _sentryDsn,
-    environment: import.meta.env.MODE ?? "development",
-    // Set a release if available (useful for grouping and source maps)
-    release:
-      import.meta.env.VITE_APP_VERSION ?? undefined,
-    // Keep traces disabled unless you intentionally enable performance monitoring
-    tracesSampleRate: 0.3,
-    integrations: [Sentry.browserTracingIntegration()],
-  });
-}
+const rollbarAccessToken = import.meta.env.VITE_ROLLBAR_ACCESS_TOKEN;
+
+const rollbarConfig = rollbarAccessToken ? {
+  accessToken: rollbarAccessToken,
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+  environment: import.meta.env.MODE ?? "development",
+  payload: {
+    client: {
+      javascript: {
+        code_version: import.meta.env.VITE_APP_VERSION ?? undefined,
+        source_map_enabled: true,
+      }
+    }
+  }
+} : null;
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    {rollbarConfig ? (
+      <RollbarProvider config={rollbarConfig}>
+        <ErrorBoundary>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ErrorBoundary>
+      </RollbarProvider>
+    ) : (
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    )}
   </React.StrictMode>
 );

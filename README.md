@@ -43,7 +43,7 @@ Una aplicación web moderna para la gestión financiera de contratos inmobiliari
 - **JWT Decode**: Decodificación de tokens JWT
 - **Date-fns**: Manipulación de fechas
 - **Lodash.debounce**: Optimización de funciones
-- **Sentry**: Monitoreo de errores en producción
+- **Rollbar**: Monitoreo de errores en producción
 
 ## 📋 Prerrequisitos
 

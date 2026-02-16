@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { API_URL } from '../../../config';
 import { getToken } from '../../../auth';
 import MessageEditor from '../editor/MessageEditor';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 import { useToast } from '../../contexts/ToastContext';
 import { useLocale } from '../../contexts/LocaleContext';
 
@@ -157,7 +158,7 @@ function ContractNotesTab({ currentContract, onContractUpdate }) {
                     {note.content === t('contractNotes.noGeneralNotes') || note.content === t('contractNotes.notApplicable') ? (
                       <span className="whitespace-pre-wrap">{note.content}</span>
                     ) : (
-                      <div dangerouslySetInnerHTML={{ __html: note.content }} />
+                      <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.content) }} />
                     )}
                   </div>
                   {note.editable && (

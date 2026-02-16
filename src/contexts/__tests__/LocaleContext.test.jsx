@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { LocaleProvider, useLocale } from '../LocaleContext';
 import AuthContext from '../AuthContext';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock AuthContext
 const MockAuthProvider = ({ children, user }) => (
@@ -25,6 +25,17 @@ const TestComponent = ({ fallbackKey }) => {
 };
 
 describe('LocaleContext', () => {
+  let consoleWarnSpy;
+
+  beforeEach(() => {
+    // Suppress console.warn for these tests since we're intentionally testing missing keys
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+  });
+
+  afterEach(() => {
+    consoleWarnSpy.mockRestore();
+  });
+
   it('provides translations and replaces parameters', () => {
     render(
       <MockAuthProvider user={{ locale: 'en' }}>
@@ -40,7 +51,7 @@ describe('LocaleContext', () => {
   });
 
   it('returns key when translation is missing, without parameter replacement', () => {
-     render(
+    render(
       <MockAuthProvider user={{ locale: 'en' }}>
         <LocaleProvider>
           <TestComponent fallbackKey="Template {name}" />

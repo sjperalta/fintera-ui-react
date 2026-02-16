@@ -1,18 +1,22 @@
 import React from 'react'
 import { useRouteError, isRouteErrorResponse } from 'react-router-dom'
-import * as Sentry from '@sentry/react'
+import { useRollbar } from '@rollbar/react'
 import { useLocale } from '../../contexts/LocaleContext'
 
 export default function RouteErrorElement() {
   const { t } = useLocale()
   const error = useRouteError()
+  const rollbar = useRollbar()
+
   React.useEffect(() => {
     try {
-      Sentry.captureException(error)
+      if (rollbar) {
+        rollbar.error(error)
+      }
     } catch {
       // ignore
     }
-  }, [error])
+  }, [error, rollbar])
 
   if (isRouteErrorResponse(error)) {
     return (

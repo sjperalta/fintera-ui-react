@@ -1,14 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
-import * as Sentry from "@sentry/react";
+import { useRollbar } from "@rollbar/react";
 import { useLocale } from "../../contexts/LocaleContext";
 
-class ErrorBoundary extends React.Component {
+class ErrorBoundaryClass extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, eventId: null };
+    this.state = { hasError: false };
     this.handleRetry = this.handleRetry.bind(this);
-    this.handleReport = this.handleReport.bind(this);
     this.retryButtonRef = React.createRef();
   }
 
@@ -18,22 +17,19 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     try {
-      if (Sentry && Sentry.captureException) {
-        const eventId = Sentry.captureException(error, { extra: errorInfo });
-        // captureException may return an eventId; store it so we can show a report dialog
-        this.setState({ eventId });
+      if (this.props.rollbar) {
+        this.props.rollbar.error(error, { errorInfo });
       }
     } catch {
-      // swallow errors from Sentry itself
+      // swallow errors from Rollbar itself
       // but still mark that an error occurred
-      this.setState({ eventId: null });
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
     // If the tree under this boundary changed, try resetting the error state.
     if (this.state.hasError && prevProps.children !== this.props.children) {
-      this.setState({ hasError: false, eventId: null });
+      this.setState({ hasError: false });
       return;
     }
 
@@ -48,14 +44,7 @@ class ErrorBoundary extends React.Component {
   }
 
   handleRetry() {
-    this.setState({ hasError: false, eventId: null });
-  }
-
-  handleReport() {
-    const { eventId } = this.state;
-    if (eventId && Sentry && typeof Sentry.showReportDialog === "function") {
-      Sentry.showReportDialog({ eventId });
-    }
+    this.setState({ hasError: false });
   }
 
   renderFallback() {
@@ -79,11 +68,6 @@ class ErrorBoundary extends React.Component {
           >
             {t('common.retry')}
           </button>
-          {this.state.eventId && (
-            <button onClick={this.handleReport} className="px-3 py-1 bg-blue-600 text-white rounded">
-              {t('errors.reportFeedback')}
-            </button>
-          )}
         </div>
       </div>
     );
@@ -97,18 +81,20 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-ErrorBoundary.propTypes = {
+ErrorBoundaryClass.propTypes = {
   fallback: PropTypes.node,
   children: PropTypes.node,
+  rollbar: PropTypes.object,
   localeContext: PropTypes.shape({
     t: PropTypes.func.isRequired,
   }),
 };
 
-// Wrapper component to provide locale context to class component
+// Wrapper component to provide locale context and Rollbar instance to class component
 const ErrorBoundaryWithLocale = (props) => {
   const localeContext = useLocale();
-  return <ErrorBoundary {...props} localeContext={localeContext} />;
+  const rollbar = useRollbar();
+  return <ErrorBoundaryClass {...props} localeContext={localeContext} rollbar={rollbar} />;
 };
 
 export default ErrorBoundaryWithLocale;

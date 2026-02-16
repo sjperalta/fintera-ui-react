@@ -87,7 +87,7 @@ export default defineConfig({
             if (id.includes("chart.js") || id.includes("react-chartjs-2")) return "charts";
             if (id.includes("framer-motion")) return "motion";
             if (id.includes("date-fns")) return "date-fns";
-            if (id.includes("@sentry")) return "sentry";
+            if (id.includes("@rollbar")) return "rollbar";
             if (id.includes("quill")) return "quill";
             if (id.includes("swiper")) return "swiper";
           }

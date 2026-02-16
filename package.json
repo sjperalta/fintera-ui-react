@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "engines": {
-    "node": "23.x"
+    "node": ">=22.0.0"
   },
   "type": "module",
   "scripts": {
@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "generate-pwa-assets": "pwa-assets-generator --preset minimal public/logo.png",
     "heroku-postbuild": "npm run build",
-    "test": "vitest --environment jsdom"
+    "test": "vitest --environment jsdom",
+    "audit:ci": "npm audit --audit-level=high"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -25,13 +26,14 @@
     "@fullcalendar/list": "^6.1.8",
     "@fullcalendar/react": "^6.1.8",
     "@fullcalendar/timegrid": "^6.1.8",
-    "@sentry/react": "^10.12.0",
+    "@rollbar/react": "^0.11.1",
     "@vite-pwa/assets-generator": "^0.2.6",
     "@vitejs/plugin-react": "^4.7.0",
     "aos": "^2.3.4",
     "autoprefixer": "^10.4.14",
     "chart.js": "^4.3.2",
     "date-fns": "^4.1.0",
+    "dompurify": "^3.3.1",
     "driver.js": "^1.4.0",
     "framer-motion": "^12.29.2",
     "jsvectormap": "^1.5.3",
@@ -44,6 +46,7 @@
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^6.14.2",
     "react-transition-group": "^4.4.5",
+    "rollbar": "^2.26.1",
     "serve": "^14.2.4",
     "swiper": "^10.0.4",
     "tailwind-datepicker-react": "^1.4.3",
