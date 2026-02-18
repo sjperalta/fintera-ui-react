@@ -97,7 +97,7 @@ function ContractItem({
 
   const handleDeleteContract = async (e) => {
     e?.stopPropagation();
-    if (!contract?.id || !token) return;
+    if (!contract?.id) return;
     if (!window.confirm(t("contractDetailsModal.deleteConfirm"))) return;
     setDeleteLoading(true);
     try {
@@ -119,7 +119,7 @@ function ContractItem({
     getStatusTheme,
     translateFinancingType,
     formatDate,
-    navigate,
+
     handleNavigateToLot,
     handleNavigateToClient,
     handleApprove,

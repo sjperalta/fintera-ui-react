@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect, useContext, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { analyticsApi } from "../api";
 import { projectsApi } from "../../projects/api";
-import AuthContext from "@/contexts/AuthContext";
+
 import { useToast } from "@/contexts/ToastContext";
 import {
     Chart as ChartJS,

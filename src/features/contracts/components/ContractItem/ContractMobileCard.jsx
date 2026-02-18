@@ -27,7 +27,7 @@ const ContractMobileCard = ({
     getStatusTheme,
     translateFinancingType,
     formatDate,
-    navigate,
+
     handleNavigateToLot,
     handleNavigateToClient,
     handleApprove,

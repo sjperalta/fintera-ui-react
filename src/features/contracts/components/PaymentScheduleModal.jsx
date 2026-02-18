@@ -1,8 +1,7 @@
-import { useState, useContext, useCallback, memo, useMemo } from "react";
+import { useState, useCallback, memo, useMemo, useContext } from "react";
 import PropTypes from "prop-types";
 import { useLocale } from "@/contexts/LocaleContext";
 import AuthContext from "@/contexts/AuthContext";
-
 import PaymentScheduleTab from "./PaymentScheduleTab";
 import LedgerEntriesTab from "./LedgerEntriesTab";
 import ContractNotesTab from "./ContractNotesTab";
@@ -55,9 +54,8 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
   const [applyPaymentModal, setApplyPaymentModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-
   const { t } = useLocale();
-  const { user: currentUser } = useContext(AuthContext);
+  const { user: activeUser } = useContext(AuthContext);
 
   // Stable callback for PaymentScheduleTab
   const handleTabPaymentSuccess = useCallback((resp) => handlePaymentResponse(resp, false, onPaymentSuccess), [handlePaymentResponse, onPaymentSuccess]);
@@ -112,7 +110,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
     const end = new Date();
     const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
     return Math.max(0, months);
-  }, [currentContract?.created_at]);
+  }, [currentContract]);
 
   const isReadOnly = currentContract?.status?.toLowerCase() === 'closed';
 
@@ -165,7 +163,7 @@ function PaymentScheduleModal({ contract, open, onClose, onPaymentSuccess }) {
               progressPercent={progressPercent}
               activeMonths={activeMonths}
               currentContract={currentContract}
-              currentUser={currentUser}
+              activeUser={activeUser}
               t={t}
               fmt={fmt}
             />

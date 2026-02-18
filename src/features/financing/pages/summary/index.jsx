@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { API_URL } from "../../../../../config";
+
 import AuthContext from "../../../../contexts/AuthContext";
 import { usersApi } from "../../../users/api";
 import { useLocale } from "../../../../contexts/LocaleContext";

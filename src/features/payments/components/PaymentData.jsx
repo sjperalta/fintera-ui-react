@@ -59,7 +59,6 @@ function PaymentData({ paymentData, onPaymentSuccess }) {
         }
       }, 150);
     } else {
-      setIsModalVisible(false);
       // Delay removing body scroll to allow for exit animation
       setTimeout(() => {
         document.body.style.overflow = 'unset';

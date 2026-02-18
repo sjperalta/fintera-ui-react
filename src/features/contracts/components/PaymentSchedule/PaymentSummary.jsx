@@ -25,7 +25,7 @@ const PaymentSummary = ({
     progressPercent,
     activeMonths,
     currentContract,
-    currentUser,
+    activeUser,
     t,
     fmt
 }) => {
@@ -104,7 +104,7 @@ const PaymentSummary = ({
                             <p className="text-[9px] font-black uppercase tracking-widest text-blue-500">{t('contracts.clientRecord')}</p>
                         </div>
 
-                        {(currentUser?.role === "admin" || currentUser?.role === "seller") && (
+                        {(activeUser?.role === "admin" || activeUser?.role === "seller") && (
                             <CreditScoreCard creditScore={currentContract?.applicant_credit_score} />
                         )}
 

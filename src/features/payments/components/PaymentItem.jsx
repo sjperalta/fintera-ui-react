@@ -827,7 +827,7 @@ export function PaymentDetailModal({ payment, onClose }) {
                   link.target = "_blank";
                   link.click();
                   window.URL.revokeObjectURL(url);
-                } catch (e) {
+                } catch {
                   showToast(t('payments.downloadReceiptError'), "error");
                 }
               }}

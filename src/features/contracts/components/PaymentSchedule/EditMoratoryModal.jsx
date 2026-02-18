@@ -2,7 +2,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle, faCalculator, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { contractsApi } from "../../api";
 import { useToast } from "../../../../contexts/ToastContext";
 import { useLocale } from "../../../../contexts/LocaleContext";

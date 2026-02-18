@@ -1,17 +1,16 @@
 
-import { useState, useContext, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalculator, faSave, faExclamationTriangle, faCalendarAlt, faDollarSign, faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useToast } from "@/contexts/ToastContext";
-import AuthContext from "@/contexts/AuthContext";
 import { contractsApi } from "../../../api";
 import { formatCurrency } from "@/shared/utils/formatters";
 
 const FinancialTab = ({ contract, displayContract, fullContract, isEditMode, setIsEditMode, onSaveSuccess, isLoadingFull }) => {
     const { t } = useLocale();
     const { showToast } = useToast();
-    const { token } = useContext(AuthContext);
+
 
     const [paymentTerm, setPaymentTerm] = useState(contract?.payment_term ?? "");
     const [reserveAmount, setReserveAmount] = useState(contract?.reserve_amount ?? "");
@@ -30,7 +29,7 @@ const FinancialTab = ({ contract, displayContract, fullContract, isEditMode, set
             setDownPayment(contract.down_payment ?? "");
             setMaxPaymentDate(contract.max_payment_date ? String(contract.max_payment_date).slice(0, 10) : "");
         }
-    }, [contract?.id, contract?.payment_term, contract?.reserve_amount, contract?.down_payment, contract?.max_payment_date]);
+    }, [contract?.id, contract?.payment_term, contract?.reserve_amount, contract?.down_payment, contract?.max_payment_date, contract]);
 
     const calculateCurrentMonthlyPayment = () => {
         // If we have full contract details, check the payment schedule for the first installment

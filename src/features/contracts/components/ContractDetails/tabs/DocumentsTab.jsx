@@ -3,14 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faFileSignature, faFileAlt } from "@fortawesome/free-solid-svg-icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useToast } from "@/contexts/ToastContext";
-import AuthContext from "@/contexts/AuthContext";
-import { useContext } from "react";
+
 import { contractsApi } from "../../../api";
 
 const DocumentsTab = ({ contract }) => {
     const { t } = useLocale();
     const { showToast } = useToast();
-    const { token } = useContext(AuthContext);
+
 
     const handleDownloadCustomerRecord = async () => {
         try {

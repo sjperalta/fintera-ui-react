@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useCallback } from "react";
+import { useState, useContext, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usersApi } from "../../api";
 import { useNavigate } from "react-router-dom";
@@ -64,16 +64,11 @@ function CreateUser() {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [pwFeedback, setPwFeedback] = useState({ label: "", score: 0 });
-  const [pwMatch, setPwMatch] = useState(true);
+  const pwFeedback = useMemo(() => evaluatePasswordStrength(formData.password), [formData.password, evaluatePasswordStrength]);
+  const pwMatch = useMemo(() => formData.password === formData.password_confirmation, [formData.password, formData.password_confirmation]);
 
 
 
-  useEffect(() => {
-    const info = evaluatePasswordStrength(formData.password);
-    setPwFeedback(info);
-    setPwMatch(formData.password === formData.password_confirmation);
-  }, [formData.password, formData.password_confirmation, evaluatePasswordStrength]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

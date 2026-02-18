@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useContext } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHandHoldingUsd, faCoins, faDollarSign, faExclamationTriangle, faInfoCircle, faCalculator } from "@fortawesome/free-solid-svg-icons";
@@ -25,23 +25,6 @@ const ApplyPaymentModal = ({
     const [actionLoading, setActionLoading] = useState(false);
 
     // Initialize fields when modal opens
-    useEffect(() => {
-        if (isOpen && selectedPayment) {
-            if (selectedPayment.isCapitalPayment) {
-                setEditableAmount("");
-                setEditableInterest("0");
-                setEditableTotal("");
-            } else {
-                // For regular payments, default to the scheduled amounts
-                const amount = selectedPayment.amount || selectedPayment.value || selectedPayment.payment_amount || 0;
-                const interest = selectedPayment.interest_amount || 0;
-
-                setEditableAmount(amount.toString());
-                setEditableInterest(interest.toString());
-                setEditableTotal((Number(amount) + Number(interest)).toString());
-            }
-        }
-    }, [isOpen, selectedPayment]);
 
     const handleApplyPayment = async () => {
         setActionLoading(true);

@@ -27,7 +27,7 @@ const ContractTableRow = ({
     getStatusTheme,
     translateFinancingType,
     formatDate,
-    navigate,
+
     handleNavigateToLot,
     handleNavigateToClient,
     handleApprove,

@@ -1,8 +1,8 @@
-import React, { useMemo, useState, useEffect, useContext } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useLocale } from "../../../contexts/LocaleContext";
-import AuthContext from "../../../contexts/AuthContext";
+
 import { dashboardApi } from "../api";
 import { Line } from "react-chartjs-2";
 import {

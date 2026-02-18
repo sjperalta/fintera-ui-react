@@ -1,6 +1,6 @@
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBuilding, faMapMarkerAlt, faTag, faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { faBuilding, faMapMarkerAlt, faTag } from "@fortawesome/free-solid-svg-icons";
 import { useLocale } from "../../../../../contexts/LocaleContext";
 
 const LotProjectTab = ({ contract }) => {
