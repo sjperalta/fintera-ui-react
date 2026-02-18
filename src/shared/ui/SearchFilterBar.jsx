@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import PropTypes from "prop-types";
 import debounce from "lodash.debounce";
 
@@ -69,6 +69,24 @@ function SearchFilterBar({
     debouncedSearch(value);
   };
 
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowFilterDropdown(false);
+      }
+    };
+
+    if (showFilterDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFilterDropdown]);
+
   const handleFilterSelect = (option) => {
     setActiveFilterLabel(option.label);
     setShowFilterDropdown(false);
@@ -81,7 +99,7 @@ function SearchFilterBar({
   }, [searchTerm]);
 
   useEffect(() => {
-    if (filterValue) {
+    if (filterValue !== undefined && filterValue !== null) {
       const selectedOption = filterOptions.find((opt) => opt.value === filterValue);
       setActiveFilterLabel(selectedOption?.label || filterValue);
     } else {
@@ -90,7 +108,7 @@ function SearchFilterBar({
   }, [filterValue, filterOptions]);
 
   return (
-    <div id={id} className={customClass || "bg-white dark:bg-darkblack-600 rounded-lg p-4 mb-8 items-center flex flex-wrap gap-2"}>
+    <div id={id} className={customClass || "bg-white dark:bg-darkblack-600 rounded-xl p-4 mb-8 items-center flex flex-wrap gap-2 shadow-sm border border-gray-100 dark:border-darkblack-500"}>
       {/* Search Input */}
       <div className="flex items-center flex-1 pl-4">
         <span>
@@ -119,7 +137,7 @@ function SearchFilterBar({
         </span>
         <input
           type="text"
-          className="border-0 w-full dark:bg-darkblack-600 dark:text-white focus:outline-none focus:ring-0 focus:border-none ml-2 text-sm"
+          className="border-0 w-full dark:bg-darkblack-600 dark:text-white focus:outline-none focus:ring-0 focus:border-none ml-2 text-sm font-medium"
           placeholder={searchPlaceholder}
           value={term}
           onChange={handleTermChange}
@@ -128,11 +146,11 @@ function SearchFilterBar({
 
       {/* Filter Dropdown */}
       {showFilter && (
-        <div className="relative border-l border-bgray-200 dark:border-darkblack-400 ml-2">
+        <div ref={dropdownRef} className="relative border-l border-bgray-200 dark:border-darkblack-400 ml-2">
           <button
             type="button"
             onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            className="flex items-center pl-6 pr-4 h-10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className={`flex items-center pl-6 pr-4 h-10 cursor-pointer focus:outline-none transition-colors rounded-lg ${showFilterDropdown ? 'bg-gray-50 dark:bg-darkblack-500' : ''}`}
             aria-expanded={showFilterDropdown}
             aria-haspopup="listbox"
             aria-label={filterPlaceholder}
@@ -146,7 +164,7 @@ function SearchFilterBar({
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M19.9092 10.448C19.9092 16.4935 11.9092 21.6753 11.9092 21.6753C11.9092 21.6753 3.90918 16.4935 3.90918 10.448C3.90918 8.38656 4.75203 6.40954 6.25233 4.95187C7.75262 3.4942 9.78745 2.67529 11.9092 2.67529C14.0309 2.67529 16.0657 3.4942 17.566 4.95187C19.0663 6.40954 19.9092 8.38656 19.9092 10.448Z"
+                  d="M3 4.5H21M6.5 12H17.5M10.5 19.5H13.5"
                   stroke="#94A3B8"
                   strokeWidth="2"
                   strokeLinecap="round"
@@ -154,13 +172,13 @@ function SearchFilterBar({
                 />
               </svg>
             </span>
-            <div className="ml-3 text-sm text-bgray-700 dark:text-bgray-300 font-medium">
+            <div className="ml-3 text-sm text-bgray-700 dark:text-bgray-300 font-bold tracking-tight">
               {activeFilterLabel || filterPlaceholder}
             </div>
-            <span className="ml-4">
+            <span className={`ml-4 transition-transform duration-300 ${showFilterDropdown ? 'rotate-180' : ''}`}>
               <svg
-                width="16"
-                height="16"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -168,7 +186,7 @@ function SearchFilterBar({
                 <path
                   d="M6 9L12 15L18 9"
                   stroke="#94A3B8"
-                  strokeWidth="2.5"
+                  strokeWidth="3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -178,19 +196,28 @@ function SearchFilterBar({
 
           {/* Dropdown Menu */}
           <div
-            className={`rounded-lg shadow-lg w-full bg-white dark:bg-darkblack-500 absolute right-0 z-10 top-full overflow-hidden ${showFilterDropdown ? "block" : "hidden"
+            className={`rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] min-w-[220px] bg-white dark:bg-darkblack-500 absolute right-0 z-[60] top-[calc(100%+8px)] border border-gray-100 dark:border-darkblack-400 overflow-hidden transition-all duration-200 origin-top-right ${showFilterDropdown ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
               }`}
           >
-            <ul>
-              {filterOptions.map((option) => (
-                <li
-                  key={option.value}
-                  onClick={() => handleFilterSelect(option)}
-                  className="text-sm text-bgray-900 dark:text-bgray-50 hover:dark:bg-darkblack-600 cursor-pointer px-5 py-2 hover:bg-bgray-100 font-semibold"
-                >
-                  {option.label}
-                </li>
-              ))}
+            <ul className="py-2">
+              {filterOptions.map((option) => {
+                const isActive = filterValue === option.value;
+                return (
+                  <li
+                    key={option.value}
+                    onClick={() => handleFilterSelect(option)}
+                    className={`text-sm cursor-pointer px-5 py-2.5 font-bold transition-all duration-200 flex items-center justify-between ${isActive
+                      ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                      : "text-bgray-900 dark:text-bgray-300 hover:bg-gray-50 dark:hover:bg-darkblack-600 hover:pl-6"
+                      }`}
+                  >
+                    {option.label}
+                    {isActive && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
