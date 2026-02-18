@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from './../../../../config';
 import { getToken } from './../../../../auth';
 import { useLocale } from "../../../contexts/LocaleContext";
+import { useToast } from "../../../contexts/ToastContext";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -21,16 +22,20 @@ import {
   faChartPie,
   faBoxOpen,
   faBookmark,
-  faCheckDouble
+  faCheckDouble,
+  faFingerprint,
+  faCopy
 } from "@fortawesome/free-solid-svg-icons";
 
 function EditProject() {
   const { t } = useLocale();
+  const { showToast } = useToast();
   const { id } = useParams();
   const navigate = useNavigate();
   const token = getToken();
 
   const [name, setName] = useState("");
+  const [guid, setGuid] = useState("");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
   const [lotCount, setLotCount] = useState(0);
@@ -70,6 +75,7 @@ function EditProject() {
         // Handle wrapped responses (e.g. { project: ... } or { data: ... })
         const pdata = data.project || data.data || data;
         setName(pdata.name || "");
+        setGuid(pdata.guid || "");
         setDescription(pdata.description || "");
         setAddress(pdata.address || "");
         setLotCount(pdata.lot_count || 0);
@@ -110,6 +116,7 @@ function EditProject() {
         body: JSON.stringify({
           project: {
             name,
+            guid,
             description,
             address,
             lot_count: Number(lotCount),
@@ -258,6 +265,33 @@ function EditProject() {
             <SectionTitle icon={faProjectDiagram} title={t('dashboard.overview') || 'General Information'} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-bgray-700 dark:text-bgray-300 mb-2">
+                  {t('projects.guid') || 'Project ID'}
+                </label>
+                <div className="relative group/guid">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-bgray-400">
+                    <FontAwesomeIcon icon={faFingerprint} />
+                  </span>
+                  <input
+                    type="text"
+                    value={guid}
+                    readOnly
+                    className="w-full h-12 pl-12 pr-12 bg-bgray-100 dark:bg-darkblack-400 border border-bgray-200 dark:border-darkblack-400 rounded-xl cursor-not-allowed opacity-70 font-mono text-xs dark:text-bgray-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(guid);
+                      showToast(t("common.copiedToClipboard") || "Copiado al portapapeles", "success");
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-bgray-400 hover:text-indigo-600 transition-colors"
+                    title={t('common.copy') || 'Copy'}
+                  >
+                    <FontAwesomeIcon icon={faCopy} />
+                  </button>
+                </div>
+              </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-bgray-700 dark:text-bgray-300 mb-2">
                   {t('projects.name')}

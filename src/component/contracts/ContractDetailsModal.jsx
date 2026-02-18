@@ -31,7 +31,8 @@ import {
   faFilePdf,
   faFileAlt,
   faFileSignature,
-  faTrashAlt
+  faTrashAlt,
+  faCopy
 } from "@fortawesome/free-solid-svg-icons";
 import { formatStatus } from "../../utils/formatStatus";
 import { useLocale } from "../../contexts/LocaleContext";
@@ -151,6 +152,15 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
   const [isLoadingFull, setIsLoadingFull] = useState(false);
 
   const statusTheme = useMemo(() => getStatusTheme(contract?.status), [contract?.status]);
+
+  const tabs = useMemo(() => [
+    { id: 'overview', label: t('common.overview') || 'Resumen', icon: faChartLine },
+    { id: 'financial', label: t('contracts.financial') || 'Financiero', icon: faDollarSign },
+    { id: 'lot_project', label: t('contracts.lotAndProject') || 'Lote y Proyecto', icon: faBuilding },
+    { id: 'applicant', label: t('contracts.applicant') || 'Solicitante', icon: faUser },
+    { id: 'notes', label: t('contracts.notes') || 'Notas', icon: faStickyNote, show: !!contract.note },
+    { id: 'documents', label: t('contracts.documents') || 'Documentos', icon: faFileAlt },
+  ], [t, contract.note]);
 
   // Edit schedule, reserve and pago inicial only when status is pending, rejected or submitted
   const canEditSchedule = useMemo(() => {
@@ -438,7 +448,7 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
               </div>
             </div>
             <div>
-              <h3 className="text-xl font-black text-bgray-900 dark:text-white leading-tight">
+              <h3 className="text-xl font-black text-bgray-900 dark:text-white leading-tight flex items-center gap-3">
                 {contract.contract_id || "#N/A"}
               </h3>
               <p className="text-sm font-medium text-bgray-500 dark:text-bgray-400">
@@ -455,14 +465,7 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
 
           {/* Navigation Tabs */}
           <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
-            {[
-              { id: 'overview', label: t('common.overview') || 'Resumen', icon: faChartLine },
-              { id: 'financial', label: t('contracts.financial') || 'Financiero', icon: faDollarSign },
-              { id: 'lot_project', label: t('contracts.lotAndProject') || 'Lote y Proyecto', icon: faBuilding },
-              { id: 'applicant', label: t('contracts.applicant') || 'Solicitante', icon: faUser },
-              { id: 'notes', label: t('contracts.notes') || 'Notas', icon: faStickyNote, show: !!contract.note },
-              { id: 'documents', label: t('contracts.documents') || 'Documentos', icon: faFileAlt },
-            ].map((tab) => (tab.show !== false && (
+            {tabs.map((tab) => (tab.show !== false && (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -512,7 +515,7 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
           {/* Top Bar - Content Controls */}
           <div className="h-20 flex-shrink-0 flex items-center justify-between px-10 border-b border-gray-50 dark:border-darkblack-500">
             <h4 className="text-2xl font-black text-bgray-900 dark:text-white capitalize">
-              {activeTab.replace('_', ' & ')}
+              {tabs.find(t => t.id === activeTab)?.label}
             </h4>
             <div className="flex items-center gap-3">
               {isAdmin && activeTab === 'financial' && canEditSchedule && (
@@ -543,6 +546,28 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
               >
                 {activeTab === 'overview' && (
                   <div className="space-y-8">
+                    {/* GUID Badge at the top of Overview */}
+                    {contract.guid && (
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(contract.guid);
+                            showToast(t("common.copiedToClipboard") || "Copiado al portapapeles", "success");
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gray-50 dark:bg-darkblack-500/50 border border-bgray-100 dark:border-darkblack-400 group hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-200 dark:hover:border-blue-800 transition-all active:scale-95 shadow-sm"
+                          title={t("reservations.systemGuid") || "System ID"}
+                        >
+                          <span className="text-xs font-black text-bgray-400 dark:text-bgray-500 group-hover:text-blue-500 transition-colors uppercase tracking-wider">
+                            {t("reservations.systemGuid") || "SYS-ID"}
+                          </span>
+                          <span className="text-xs font-mono font-bold text-bgray-600 dark:text-bgray-300 group-hover:text-blue-600">
+                            {contract.guid}
+                          </span>
+                          <FontAwesomeIcon icon={faCopy} className="text-sm text-bgray-300 dark:text-bgray-600 group-hover:text-blue-400 transition-colors" />
+                        </button>
+                      </div>
+                    )}
+
                     {/* Status Summary Card */}
                     <div className={`p-8 rounded-[2rem] border-2 ${statusTheme.border} ${statusTheme.bg} transition-all duration-500`}>
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -633,6 +658,10 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
                           <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.id")}</p>
                           <p className="text-sm font-mono font-bold text-bgray-500">{contract.project_id || "N/A"}</p>
                         </div>
+                        <div>
+                          <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">GUID</p>
+                          <p className="text-sm font-mono font-bold text-bgray-500 truncate" title={contract.project_guid}>{contract.project_guid || "N/A"}</p>
+                        </div>
                       </div>
                     </div>
 
@@ -657,6 +686,7 @@ const ContractDetailsModal = memo(function ContractDetailsModal({
                             <p className="text-base font-medium text-bgray-600 dark:text-bgray-300 leading-relaxed">{contract.lot_address || "N/A"}</p>
                           </div>
                         </div>
+
                         <div>
                           <p className="text-xs font-bold text-bgray-400 uppercase tracking-widest mb-1">{t("contractDetailsModal.id")}</p>
                           <p className="text-sm font-mono font-bold text-bgray-500">{contract.lot_id || "N/A"}</p>

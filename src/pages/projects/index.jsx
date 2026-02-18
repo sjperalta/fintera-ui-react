@@ -43,7 +43,16 @@ function Projects() {
     setError(null);
     try {
       const url = new URL(`${API_URL}/api/v1/projects`);
-      if (searchTerm) url.searchParams.set("search_term", searchTerm);
+      const trimmedTerm = searchTerm.trim();
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+      if (trimmedTerm) {
+        if (uuidRegex.test(trimmedTerm)) {
+          url.searchParams.set("guid", trimmedTerm);
+        } else {
+          url.searchParams.set("search_term", trimmedTerm);
+        }
+      }
       if (sortParam) url.searchParams.set("sort", sortParam);
       url.searchParams.set("page", page);
       url.searchParams.set("per_page", perPage);

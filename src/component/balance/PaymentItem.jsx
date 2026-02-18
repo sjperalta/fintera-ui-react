@@ -352,7 +352,7 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
               {formatCurrency(totalAmount, paymentInfo.contract?.currency)}
             </span>
           </div>
-          {paymentInfo.interest_amount > 0 && <span className="text-[9px] font-bold text-rose-500 uppercase mt-0.5">+{formatCurrency(paymentInfo.interest_amount)} ACCRUED</span>}
+          {paymentInfo.interest_amount > 0 && <span className="text-[9px] font-bold text-rose-600 mt-0.5">+{formatCurrency(paymentInfo.interest_amount)} {t('payments.accrued')}</span>}
           {isOverpayment && (
             <div className="mt-1.5 space-y-0.5 text-right">
               <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase block">+{formatCurrency(overpaymentAmount)} {t('payments.overpayment')}</span>
@@ -364,7 +364,7 @@ function PaymentItem({ paymentInfo, userRole, refreshPayments, onClick, isMobile
       <td className="px-6 py-4">
         <div className="flex flex-col">
           <span className={`text-[13px] font-bold ${isOverdue ? "text-rose-600" : "text-slate-900 dark:text-slate-300"}`}>{formatDate(paymentInfo.due_date)}</span>
-          {isOverdue && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider mt-1">PAST DUE</span>}
+          {isOverdue && <span className="text-[9px] font-bold text-rose-600 tracking-wider mt-1">{t('payments.pastDue')}</span>}
         </div>
       </td>
       <td className="px-6 py-4">
@@ -740,6 +740,7 @@ function RejectPaymentModal({ paymentInfo, onClose, handleReject, rejectLoading,
  */
 export function PaymentDetailModal({ payment, onClose }) {
   const { t } = useLocale();
+  const { showToast } = useToast();
   const token = getToken();
 
   const formatCurrency = (value, currency = "HNL") => {
@@ -915,6 +916,26 @@ export function PaymentDetailModal({ payment, onClose }) {
                     Lote {payment.lot_name || payment.contract?.lot?.name || "-"}
                   </span>
                 </div>
+                {payment.contract?.guid && (
+                  <div className="p-3 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5 group/guid">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">{t('contracts.id') || "ID del Contrato"}</span>
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(payment.contract?.guid);
+                        showToast(t("common.copiedToClipboard") || "Copiado al portapapeles", "success");
+                      }}
+                      className="flex items-center justify-between cursor-pointer hover:text-blue-500 transition-colors"
+                    >
+                      <span className="text-sm font-mono font-bold uppercase truncate pr-4">
+                        {payment.contract?.guid}
+                      </span>
+                      <svg className="w-4 h-4 text-slate-300 group-hover/guid:text-blue-500 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
                 {(payment.approver || payment.approved_by_name) && (
                   <div className="p-3 bg-indigo-500/5 rounded-xl border border-indigo-500/10">
                     <span className="text-[9px] font-bold text-indigo-500 uppercase block mb-1">{t('payments.authorizedBy')}</span>

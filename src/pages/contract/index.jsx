@@ -137,7 +137,16 @@ function Contract() {
 
   const filters = useMemo(() => {
     const obj = {};
-    if (searchTerm) obj.search_term = searchTerm;
+    const trimmedTerm = searchTerm.trim();
+    // Check if searchTerm is a valid UUID (more relaxed regex to catch all variants)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (trimmedTerm) {
+      if (uuidRegex.test(trimmedTerm)) {
+        obj.guid = trimmedTerm;
+      } else {
+        obj.search_term = trimmedTerm;
+      }
+    }
     if (statusFilter) obj.status = statusFilter;
     if (startDate) obj.start_date = startDate;
     if (endDate) obj.end_date = endDate;

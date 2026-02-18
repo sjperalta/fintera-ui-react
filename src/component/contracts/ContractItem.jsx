@@ -16,7 +16,8 @@ import {
   faCreditCard,
   faCalendarAlt,
   faHome,
-  faTrashAlt
+  faTrashAlt,
+  faCopy
 } from "@fortawesome/free-solid-svg-icons";
 
 import { API_URL } from "../../../config";
@@ -249,6 +250,17 @@ function ContractItem({
         }}
         className={`relative group bg-white dark:bg-darkblack-600 rounded-[2.5rem] border-2 ${statusTheme.border} ${statusTheme.shadow} transition-all duration-300 w-full h-full flex flex-col overflow-hidden`}
       >
+        {/* Creative GUID Tag (Vertical "System Passport" style) */}
+        {contract.guid && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center h-full pointer-events-none z-20 overflow-hidden">
+            <div
+              className="whitespace-nowrap flex items-center text-[7px] font-mono font-black text-bgray-300 dark:text-darkblack-400 rotate-90 origin-left ml-2 tracking-[0.4em] opacity-40 select-none uppercase"
+              style={{ filter: "grayscale(1) contrast(1.2)" }}
+            >
+              SYS-AUTH // {contract.guid}
+            </div>
+          </div>
+        )}
 
         {/* Top-Right Menu & Actions */}
         <div className="absolute top-4 right-4 flex items-center gap-1.5 z-10">
@@ -283,10 +295,26 @@ function ContractItem({
               <h3 className="text-xl font-bold text-bgray-900 dark:text-white group-hover/title:text-blue-600 dark:group-hover/title:text-blue-400 transition-colors leading-tight line-clamp-2">
                 {contract.lot_name || "N/A"}
               </h3>
-              <p className="text-xs text-bgray-600 dark:text-bgray-400 font-bold flex items-center mt-1.5 truncate">
-                <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-1.5 text-bgray-400 group-hover/title:text-blue-500 transition-colors" />
-                {contract.project_name || "—"}
-              </p>
+              <div className="flex flex-col gap-1 mt-1.5">
+                <p className="text-xs text-bgray-600 dark:text-bgray-400 font-bold flex items-center truncate">
+                  <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-1.5 text-bgray-400 group-hover/title:text-blue-500 transition-colors" />
+                  {contract.project_name || "—"}
+                </p>
+                {contract.guid && (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(contract.guid);
+                      showToast(t("common.copiedToClipboard") || "Copiado al portapapeles", "success");
+                    }}
+                    className="text-[10px] text-bgray-400 dark:text-bgray-500 font-mono flex items-center gap-1.5 bg-gray-50 dark:bg-darkblack-500 px-2 py-0.5 rounded-md self-start border border-gray-100 dark:border-darkblack-400 cursor-pointer group/guid hover:border-blue-300/30 transition-all hover:bg-white dark:hover:bg-darkblack-400 shadow-sm"
+                  >
+                    <span className="font-black text-[12px] tracking-widest opacity-100 uppercase">{t("contracts.id")}:</span>
+                    <span className="truncate max-w-[250px]">{contract.guid}</span>
+                    <FontAwesomeIcon icon={faCopy} className="ml-1 text-[8px] opacity-0 group-hover/guid:opacity-100 transition-opacity" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -496,6 +524,20 @@ function ContractItem({
             <p className="text-[10px] text-bgray-500 dark:text-bgray-400 font-mono mt-0.5 truncate">
               {contract.applicant_identity || "—"}
             </p>
+            {contract.guid && (
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(contract.guid);
+                  showToast(t("common.copiedToClipboard") || "Copiado al portapapeles", "success");
+                }}
+                className="text-[9px] text-bgray-400 dark:text-bgray-500 font-mono mt-1 flex items-center gap-1 cursor-pointer hover:text-blue-500 transition-colors"
+              >
+                <span className="font-black text-[8px] tracking-tighter opacity-70 uppercase">{t("contracts.systemGuid") || "ID"}:</span>
+                <span className="truncate max-w-[120px]">{contract.guid}</span>
+                <FontAwesomeIcon icon={faCopy} className="text-[7px] ml-1" />
+              </div>
+            )}
           </div>
         </div>
       </td>

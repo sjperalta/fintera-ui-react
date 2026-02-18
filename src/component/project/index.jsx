@@ -11,7 +11,8 @@ import {
   faMapMarkerAlt,
   faEdit,
   faTrashAlt,
-  faArrowRight
+  faArrowRight,
+  faCopy
 } from "@fortawesome/free-solid-svg-icons";
 
 const Project = memo(function Project({ project, user, onDeleted }) {
@@ -29,7 +30,8 @@ const Project = memo(function Project({ project, user, onDeleted }) {
     measurement_unit,
     address,
     delivery_date,
-    created_at
+    created_at,
+    guid
   } = project;
 
   const unitLabel = (u) => {
@@ -109,6 +111,20 @@ const Project = memo(function Project({ project, user, onDeleted }) {
               <div className="flex items-center text-xs text-bgray-500 dark:text-bgray-500">
                 <span className="font-semibold mr-1">{t('projects.created')}:</span>
                 <span>{new Date(created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
+              </div>
+            )}
+            {guid && (
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(guid);
+                  showToast(t("common.copiedToClipboard") || "Copiado al portapapeles", "success");
+                }}
+                className="flex items-center text-[10px] font-mono text-bgray-400 dark:text-bgray-500 mt-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer group/guid bg-gray-50 dark:bg-darkblack-500/50 px-2 py-0.5 rounded-md self-start border border-gray-100 dark:border-darkblack-400 hover:border-success-300/30"
+              >
+                <span className="font-black mr-1 tracking-tighter uppercase">GUID:</span>
+                <span className="truncate max-w-[250px]">{guid}</span>
+                <FontAwesomeIcon icon={faCopy} className="ml-1.5 text-[8px] opacity-0 group-hover/guid:opacity-100 transition-opacity" />
               </div>
             )}
           </div>
@@ -221,6 +237,7 @@ Project.propTypes = {
     price_per_square_unit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     delivery_date: PropTypes.string,
     created_at: PropTypes.string,
+    guid: PropTypes.string,
   }).isRequired,
   user: PropTypes.object,
   onDeleted: PropTypes.func,
