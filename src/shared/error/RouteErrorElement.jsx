@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { useRouteError, isRouteErrorResponse } from 'react-router-dom'
 import { useRollbar } from '@rollbar/react'
 import { useLocale } from '@/contexts/LocaleContext'
-import NotFound from './NotFound'
+
+const NotFound = lazy(() => import('./NotFound'))
 
 export default function RouteErrorElement() {
   const { t } = useLocale()
@@ -20,7 +21,11 @@ export default function RouteErrorElement() {
   }, [error, rollbar])
 
   if (isRouteErrorResponse(error) && error.status === 404) {
-    return <NotFound />
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center w-full min-h-[50vh]"><div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>}>
+        <NotFound />
+      </Suspense>
+    )
   }
 
   if (isRouteErrorResponse(error)) {

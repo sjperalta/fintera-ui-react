@@ -1,36 +1,37 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import ProtectedRoute from "./shared/auth/ProtectedRoute";
-import Home from "./features/dashboard/pages";
-import Contracts from "./features/contracts/pages";
-import Payments from "./features/payments/pages";
-import Projects from "./features/projects/pages";
-import Users from "./features/users/pages";
-import Settings from "./features/settings/pages";
-import SignIn from "./features/auth/pages/signin";
-import SignUp from "./features/auth/pages/signup";
-import ComingSoon from "./features/commingSoon";
-import NotFound from "./shared/error/NotFound";
+import AdminRoute from "./shared/auth/AdminRoute";
+import AdminOrOwnerRoute from "./shared/auth/AdminOrOwnerRoute";
 import Layout from "./shared/layout/Layout";
 import RouteErrorElement from "./shared/error/RouteErrorElement";
-import PersonalInfo from "./features/settings/pages/personal-info";
-import Security from "./features/settings/pages/security";
-import TermsAndCondition from "./features/settings/pages/terms&condition";
-import CreateProject from "./features/projects/pages/create";
-import EditProject from "./features/projects/pages/edit";
-import AdminRoute from "./shared/auth/AdminRoute";
-import LotsList from "./features/projects/pages/lots";
-import CreateLot from "./features/projects/pages/lots/create";
-import EditLot from "./features/projects/pages/lots/edit";
-import Reserve from "./features/projects/pages/reserve";
-import CreateUser from "./features/users/pages/create";
-import Upload from "./features/financing/pages/upload";
-import Summary from "./features/financing/pages/summary";
-import AdminOrOwnerRoute from "./shared/auth/AdminOrOwnerRoute";
 
+// Lazy-load all feature and auth pages for smaller initial bundle
+const Home = lazy(() => import("./features/dashboard/pages"));
+const Contracts = lazy(() => import("./features/contracts/pages"));
+const Payments = lazy(() => import("./features/payments/pages"));
+const Projects = lazy(() => import("./features/projects/pages"));
+const Users = lazy(() => import("./features/users/pages"));
+const Settings = lazy(() => import("./features/settings/pages"));
 const Audits = lazy(() => import("./features/audits/pages"));
 const Analytics = lazy(() => import("./features/analytics/pages"));
 const Financing = lazy(() => import("./features/financing/pages"));
+const SignIn = lazy(() => import("./features/auth/pages/signin"));
+const SignUp = lazy(() => import("./features/auth/pages/signup"));
+const ComingSoon = lazy(() => import("./features/commingSoon"));
+const NotFound = lazy(() => import("./shared/error/NotFound"));
+const PersonalInfo = lazy(() => import("./features/settings/pages/personal-info"));
+const Security = lazy(() => import("./features/settings/pages/security"));
+const TermsAndCondition = lazy(() => import("./features/settings/pages/terms&condition"));
+const CreateProject = lazy(() => import("./features/projects/pages/create"));
+const EditProject = lazy(() => import("./features/projects/pages/edit"));
+const LotsList = lazy(() => import("./features/projects/pages/lots"));
+const CreateLot = lazy(() => import("./features/projects/pages/lots/create"));
+const EditLot = lazy(() => import("./features/projects/pages/lots/edit"));
+const Reserve = lazy(() => import("./features/projects/pages/reserve"));
+const CreateUser = lazy(() => import("./features/users/pages/create"));
+const Upload = lazy(() => import("./features/financing/pages/upload"));
+const Summary = lazy(() => import("./features/financing/pages/summary"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center w-full h-[calc(100vh-64px)]">
@@ -121,9 +122,7 @@ const router = createBrowserRouter(
           path: "/audits",
           element: (
             <ProtectedRoute>
-              <Suspense fallback={<PageLoader />}>
-                <Audits />
-              </Suspense>
+              <Audits />
             </ProtectedRoute>
           ),
         },
@@ -139,9 +138,7 @@ const router = createBrowserRouter(
           path: "/financing/user/:userId",
           element: (
             <AdminOrOwnerRoute>
-              <Suspense fallback={<PageLoader />}>
-                <Financing />
-              </Suspense>
+              <Financing />
             </AdminOrOwnerRoute>
           ),
           children: [
@@ -197,30 +194,44 @@ const router = createBrowserRouter(
           path: "/analytics",
           element: (
             <ProtectedRoute>
-              <Suspense fallback={<PageLoader />}>
-                <Analytics />
-              </Suspense>
+              <Analytics />
             </ProtectedRoute>
           ),
         },
         {
           path: "*",
-          element: <NotFound />,
+          element: (
+            <Suspense fallback={<PageLoader />}>
+              <NotFound />
+            </Suspense>
+          ),
         },
       ],
     },
 
     {
       path: "/signin",
-      element: <SignIn />,
+      element: (
+        <Suspense fallback={<PageLoader />}>
+          <SignIn />
+        </Suspense>
+      ),
     },
     {
       path: "/signup",
-      element: <SignUp />,
+      element: (
+        <Suspense fallback={<PageLoader />}>
+          <SignUp />
+        </Suspense>
+      ),
     },
     {
       path: "/coming-soon",
-      element: <ComingSoon />,
+      element: (
+        <Suspense fallback={<PageLoader />}>
+          <ComingSoon />
+        </Suspense>
+      ),
     },
   ],
   {
