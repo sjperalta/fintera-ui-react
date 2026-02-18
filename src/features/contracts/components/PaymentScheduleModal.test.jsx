@@ -15,15 +15,15 @@ expect.extend(matchers);
 vi.mock('./PaymentScheduleTab', async () => {
   const React = await import('react');
   const spy = vi.fn(({ onUndoPayment }) => (
-      <div data-testid="payment-schedule-tab">
-        Payment Schedule Tab
-        <button
-          onClick={() => onUndoPayment && onUndoPayment(1)}
-          data-testid="trigger-undo"
-        >
-          Trigger Undo
-        </button>
-      </div>
+    <div data-testid="payment-schedule-tab">
+      Payment Schedule Tab
+      <button
+        onClick={() => onUndoPayment && onUndoPayment(1)}
+        data-testid="trigger-undo"
+      >
+        Trigger Undo
+      </button>
+    </div>
   ));
 
   const Memoized = React.memo(spy);
@@ -49,11 +49,11 @@ vi.mock('./CreditScoreCard', () => ({
 }));
 
 // Mock API and config
-vi.mock('../../../../config', () => ({
+vi.mock('@config', () => ({
   API_URL: 'http://localhost:3000'
 }));
 
-vi.mock('../../../../auth', () => ({
+vi.mock('@auth', () => ({
   getToken: () => 'mock-token'
 }));
 
@@ -83,7 +83,7 @@ describe('PaymentScheduleModal Performance', () => {
             <PaymentScheduleModal
               contract={mockContract}
               open={true}
-              onClose={() => {}}
+              onClose={() => { }}
             />
           </ToastProvider>
         </LocaleProvider>
@@ -122,7 +122,7 @@ describe('PaymentScheduleModal Performance', () => {
 
     // Wait for modal re-render (undo confirmation modal appears)
     await waitFor(() => {
-        expect(screen.getByText(/Confirm reversal|Confirmar reversión|Confirm undo|Confirmar/i)).toBeInTheDocument();
+      expect(screen.getByText(/Confirm reversal|Confirmar reversión|Confirm undo|Confirmar/i)).toBeInTheDocument();
     });
 
     const finalCalls = PaymentScheduleTab.spy.mock.calls.length;

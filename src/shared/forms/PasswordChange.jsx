@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
-import { API_URL } from "@config";
+import { usersApi } from "@/features/users/api";
 import { useToast } from "@/contexts/ToastContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import AuthContext from "@/contexts/AuthContext";
@@ -47,7 +47,7 @@ const PasswordInputField = ({ label, value, onChange, show, onToggle, id, placeh
   </div>
 );
 
-function PasswordChange({ token, userId }) {
+function PasswordChange({ userId }) {
   const { t } = useLocale();
   const { showToast } = useToast();
   const { user: currentUser, setUser } = useContext(AuthContext);
@@ -99,42 +99,25 @@ function PasswordChange({ token, userId }) {
     }
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${API_URL}/api/v1/users/${userId}/change_password`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          current_password: isAdminOverride ? "" : oldPassword,
-          new_password: newPassword,
-        }),
+      await usersApi.changePassword(userId, {
+        current_password: isAdminOverride ? "" : oldPassword,
+        new_password: newPassword,
       });
-      const data = await response.json();
-      if (response.ok) {
-        showToast(t("success.passwordUpdated") || "Password updated successfully.", "success");
-        setOldPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setPasswordStrength(0);
-        if (setUser && currentUser && String(currentUser?.id || currentUser?.ID) === String(userId)) {
-          setUser({ ...currentUser, must_change_password: false });
-          const stored = localStorage.getItem("user");
-          if (stored) {
-            try {
-              const parsed = JSON.parse(stored);
-              localStorage.setItem("user", JSON.stringify({ ...parsed, must_change_password: false }));
-            } catch {
-              // ignore
-            }
+      if (setUser && currentUser && String(currentUser?.id || currentUser?.ID) === String(userId)) {
+        setUser({ ...currentUser, must_change_password: false });
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            localStorage.setItem("user", JSON.stringify({ ...parsed, must_change_password: false }));
+          } catch {
+            // ignore
           }
         }
-      } else {
-        const msg = data.error || data.message || (data.errors ? data.errors.join(", ") : "Error updating password.");
-        showToast(msg, "error");
       }
-    } catch {
-      showToast("Network error. Please try again.", "error");
+    } catch (error) {
+      const msg = error.message || "Error updating password.";
+      showToast(msg, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -249,7 +232,6 @@ function PasswordChange({ token, userId }) {
 }
 
 PasswordChange.propTypes = {
-  token: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
 };
 

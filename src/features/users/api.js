@@ -15,4 +15,7 @@ export const usersApi = {
     getSummary: (id) => apiClient.get(`/api/v1/users/${id}/summary`),
     getPayments: (id) => apiClient.get(`/api/v1/users/${id}/payments`),
     changePassword: (id, data) => apiClient.patch(`/api/v1/users/${id}/change_password`, data),
+    sendRecoveryCode: (email) => apiClient.post("/api/v1/users/send_recovery_code", { email }),
+    verifyRecoveryCode: (email, code) => apiClient.post("/api/v1/users/verify_recovery_code", { email, code }),
+    updatePasswordWithCode: (data) => apiClient.post("/api/v1/users/update_password_with_code", data),
 };

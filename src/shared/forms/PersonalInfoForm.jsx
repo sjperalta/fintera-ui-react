@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
-import { API_URL } from "@config";
-import { getToken } from "@auth";
+import { usersApi } from "@/features/users/api";
+import { getFullImageUrl } from "@/shared/utils/avatarUtils";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -75,7 +75,6 @@ function PersonalInfoForm({ userId }) {
   const [error, setError] = useState(null);
   const { showToast } = useToast();
 
-  const token = getToken();
   const { setUser: setAuthUser } = useContext(AuthContext);
 
   const [imageFile, setImageFile] = useState(null);
@@ -90,19 +89,7 @@ function PersonalInfoForm({ userId }) {
 
     const fetchUser = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(t("errors.fetchUserFailed"));
-        }
-
-        const data = await response.json();
+        const data = await usersApi.get(userId);
         const userData = data.user || data;
         setUser({
           ...userData,
@@ -112,7 +99,7 @@ function PersonalInfoForm({ userId }) {
         });
 
         if (userData.profile_picture_thumb) {
-          setImagePreview(`${API_URL}${userData.profile_picture_thumb}`);
+          setImagePreview(getFullImageUrl(userData.profile_picture_thumb));
         }
 
         if (userData.locale && userData.locale !== locale) {
@@ -127,7 +114,7 @@ function PersonalInfoForm({ userId }) {
 
     fetchUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, token]);
+  }, [userId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -169,31 +156,15 @@ function PersonalInfoForm({ userId }) {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          full_name: user.full_name,
-          phone: user.phone,
-          email: user.email,
-          identity: user.identity.replace(/-/g, ''),
-          rtn: user.rtn.replace(/-/g, ''),
-          address: user.address,
-          locale: user.locale,
-        }),
+      const returned = await usersApi.update(userId, {
+        full_name: user.full_name,
+        phone: user.phone,
+        email: user.email,
+        identity: user.identity.replace(/-/g, ''),
+        rtn: user.rtn.replace(/-/g, ''),
+        address: user.address,
+        locale: user.locale,
       });
-
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type") || "";
-        const body = contentType.includes("application/json") ? await response.json().catch(() => ({})) : await response.text().catch(() => (response.statusText || ""));
-        const msg = body?.errors ? body.errors.join(", ") : body?.error || String(body) || t("errors.updateUserFailed");
-        throw new Error(msg);
-      }
-
-      const returned = await response.json().catch(() => ({}));
       let finalUser = returned?.user || returned;
 
       // Upload image if selected
@@ -201,22 +172,14 @@ function PersonalInfoForm({ userId }) {
         const formDataImage = new FormData();
         formDataImage.append("image", imageFile);
 
-        const imageResponse = await fetch(`${API_URL}/api/v1/users/${userId}/picture`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formDataImage,
-        });
-
-        if (!imageResponse.ok) {
-          console.error("Failed to upload profile picture");
-          showToast(t("errors.imageUploadFailed") || "Failed to upload profile picture", "error");
-        } else {
-          const imageData = await imageResponse.json();
+        try {
+          const imageData = await usersApi.uploadPicture(userId, formDataImage);
           if (imageData.user) {
             finalUser = { ...finalUser, ...imageData.user };
           }
+        } catch (error) {
+          console.error("Failed to upload profile picture", error);
+          showToast(t("errors.imageUploadFailed") || "Failed to upload profile picture", "error");
         }
       }
 

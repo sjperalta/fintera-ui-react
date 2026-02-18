@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useLocale } from "../../contexts/LocaleContext";
 import logoColor from "../../assets/images/logo/logo-color.svg";
 import logoWhite from "../../assets/images/logo/logo-white.svg";
-import { API_URL } from "../../../config";
+import { usersApi } from "../../features/users/api";
 
 // Cross button component remains the same
 export const CrossBtn = ({ close }) => (
@@ -311,17 +311,7 @@ function PasswordResetModal({ isActive, handleActive }) {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/api/v1/users/send_recovery_code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to send code');
-      }
-
+      await usersApi.sendRecoveryCode(email);
       setStep('verify');
     } catch (err) {
       setError(err.message);
@@ -341,17 +331,7 @@ function PasswordResetModal({ isActive, handleActive }) {
         setError(t('auth.invalidVerificationCode'));
         return;
       }
-      const response = await fetch(`${API_URL}/api/v1/users/verify_recovery_code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), code }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || t('auth.invalidVerificationCode'));
-      }
+      const data = await usersApi.verifyRecoveryCode(email.trim(), code);
 
       if (data.valid !== true) {
         setError(data.error || t('auth.invalidVerificationCode'));
@@ -371,11 +351,7 @@ function PasswordResetModal({ isActive, handleActive }) {
     setError('');
 
     try {
-      await fetch(`${API_URL}/api/v1/users/send_recovery_code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      await usersApi.sendRecoveryCode(email);
     } catch {
       setError('Failed to resend code');
     } finally {
@@ -402,21 +378,12 @@ function PasswordResetModal({ isActive, handleActive }) {
         throw new Error(t('auth.passwordNumberRequired'));
       }
 
-      const response = await fetch(`${API_URL}/api/v1/users/update_password_with_code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email.trim(),
-          code: digits.join('').trim(),
-          new_password: password,
-          new_password_confirmation: confirm
-        }),
+      await usersApi.updatePasswordWithCode({
+        email: email.trim(),
+        code: digits.join('').trim(),
+        new_password: password,
+        new_password_confirmation: confirm
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Password update failed');
-      }
 
       setStep('success');
     } catch (err) {

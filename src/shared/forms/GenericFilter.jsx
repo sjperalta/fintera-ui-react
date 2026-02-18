@@ -123,12 +123,12 @@ function GenericFilter({
 
   return (
     <div className="relative w-full z-10">
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 w-full">
+      <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-4 w-full">
         {/* Main Filter Container */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex-1 flex flex-col md:flex-row items-center gap-3 bg-white/40 dark:bg-darkblack-600/40 backdrop-blur-xl rounded-[2rem] p-2 border border-white/50 dark:border-darkblack-400/50 shadow-2xl shadow-blue-500/5 ring-1 ring-black/5 dark:ring-white/5"
+          className="flex-1 flex flex-col xl:flex-row items-center gap-3 bg-white/40 dark:bg-darkblack-600/40 backdrop-blur-xl rounded-[2rem] p-2 border border-white/50 dark:border-darkblack-400/50 shadow-2xl shadow-blue-500/5 ring-1 ring-black/5 dark:ring-white/5"
         >
           {showSearch && (
             <div className="flex-1 flex items-center bg-white/60 dark:bg-darkblack-500/60 rounded-2xl px-5 py-3 group focus-within:ring-2 focus-within:ring-blue-500/30 transition-all duration-300 border border-transparent focus-within:border-blue-500/20">

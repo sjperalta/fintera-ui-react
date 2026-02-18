@@ -1,11 +1,12 @@
 import { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
-import { API_URL } from "../../../../config";
-import AuthContext from "../../../contexts/AuthContext";
 import { Link } from "react-router-dom";
-import { useToast } from "../../../contexts/ToastContext";
-import { useLocale } from "../../../contexts/LocaleContext";
-import { getInitials, getAvatarColor } from "../../../shared/utils/avatarUtils";
+import AuthContext from "@/contexts/AuthContext";
+import { useToast } from "@/contexts/ToastContext";
+import { useLocale } from "@/contexts/LocaleContext";
+import { usersApi } from "@/features/users/api";
+import { reportsApi } from "@/shared/api/reports";
+import { getInitials, getAvatarColor, getFullImageUrl } from "@/shared/utils/avatarUtils";
 
 // Helper to determine descriptor and color for FICO credit score (300–850)
 const FICO_MIN = 300;
@@ -25,7 +26,7 @@ function RightSidebar({ user, onClose }) {
   const { showToast } = useToast();
   const [summary, setSummary] = useState(null);
   const [summaryError, setSummaryError] = useState("");
-  const { token, user: loggedUser } = useContext(AuthContext);
+  const { user: loggedUser } = useContext(AuthContext);
 
   const creditInfo = creditScoreInfo(user?.credit_score, t);
   const contactTextColor = {
@@ -43,16 +44,7 @@ function RightSidebar({ user, onClose }) {
 
     const fetchSummary = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/v1/users/${userId}/summary`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch summary");
-        const data = await response.json();
+        const data = await usersApi.getSummary(userId);
         setSummary(data);
       } catch (error) {
         console.error(error);
@@ -61,19 +53,14 @@ function RightSidebar({ user, onClose }) {
     };
 
     fetchSummary();
-  }, [user, user?.id, user?.role, token]);
+  }, [user, user?.id, user?.role]);
 
   if (!user) return null;
 
   const downloadUserBalancePDF = async () => {
     if (!user?.id) return;
     try {
-      const response = await fetch(`${API_URL}/api/v1/reports/user_balance_pdf?user_id=${user.id}`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error("Failed to download PDF");
-      const blob = await response.blob();
+      const blob = await reportsApi.downloadUserBalancePDF(user.id);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -136,7 +123,7 @@ function RightSidebar({ user, onClose }) {
           >
             {(user.profile_picture || user.profile_picture_thumb) ? (
               <img
-                src={`${API_URL}${user.profile_picture || user.profile_picture_thumb}`}
+                src={getFullImageUrl(user.profile_picture || user.profile_picture_thumb)}
                 alt={user.full_name}
                 className="w-full h-full object-cover"
                 onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}

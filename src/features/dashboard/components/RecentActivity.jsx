@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocale } from "@/contexts/LocaleContext";
-import { getToken } from "@auth";
-import { API_URL } from "@config";
+import { auditsApi } from "../../audits/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faPen, faTrash, faInfo } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
@@ -15,23 +14,13 @@ function RecentActivity() {
     useEffect(() => {
         const fetchActivities = async () => {
             try {
-                const token = getToken();
-                // Fetching audits/logs. Limiting to 5 for the dashboard.
-                const response = await fetch(`${API_URL}/api/v1/audits?page=1&limit=5`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const data = await auditsApi.list({ page: 1, limit: 5 });
 
-                if (response.ok) {
-                    const data = await response.json();
+                // The backend returns { audits: [...] } or { data: [...] } ?
+                // Based on Audits page: const newItems = data.audits || [];
+                const logs = data.audits || data.data || data || [];
 
-                    // The backend returns { audits: [...] } or { data: [...] } ?
-                    // Based on Audits page: const newItems = data.audits || [];
-                    const logs = data.audits || data.data || data || [];
-
-                    setActivities(logs.slice(0, 5));
-                }
+                setActivities(logs.slice(0, 5));
             } catch (error) {
                 console.error("Failed to fetch recent activity", error);
             } finally {

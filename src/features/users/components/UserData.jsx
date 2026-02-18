@@ -2,11 +2,10 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useLocale } from "../../../contexts/LocaleContext";
-import { useToast } from "../../../contexts/ToastContext";
-import { API_URL } from "../../../../config";
+import { useLocale } from "@/contexts/LocaleContext";
+import { useToast } from "@/contexts/ToastContext";
 import { usersApi } from "../api";
-import { getInitials, getAvatarColor } from "../../../shared/utils/avatarUtils";
+import { getInitials, getAvatarColor, getFullImageUrl } from "@/shared/utils/avatarUtils";
 
 function UserData({ userInfo, index, onClick, showStatusToggle = true, showEditButton = true, showDeleteButton = false, onDelete }) {
   const { t } = useLocale();
@@ -99,7 +98,7 @@ function UserData({ userInfo, index, onClick, showStatusToggle = true, showEditB
               <div className={`w-14 h-14 rounded-2xl ${getAvatarColor(full_name)} flex items-center justify-center shadow-lg ring-2 ring-white/50 dark:ring-white/10 group-hover:scale-105 transition-transform duration-300 overflow-hidden`}>
                 {userInfo.profile_picture_thumb ? (
                   <img
-                    src={`${API_URL}${userInfo.profile_picture_thumb}`}
+                    src={getFullImageUrl(userInfo.profile_picture_thumb)}
                     alt={full_name}
                     className="w-full h-full object-cover"
                     onError={(e) => { e.target.style.display = 'none'; }}

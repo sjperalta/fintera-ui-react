@@ -1,4 +1,4 @@
-import { API_URL } from "../../config";
+import { API_URL } from "@config";
 
 const HEADERS_DEFAULT = {
     "Content-Type": "application/json",

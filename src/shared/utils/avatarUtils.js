@@ -1,6 +1,19 @@
+import { API_URL } from "@config";
+
 /**
  * Utility functions for user avatar handling
  */
+
+/**
+ * Get the full URL for an image path
+ * @param {string} path - The relative path from the API
+ * @returns {string} - The full URL
+ */
+export const getFullImageUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http")) return path;
+  return `${API_URL}${path}`;
+};
 
 /**
  * Get initials from a full name (max 2 letters)

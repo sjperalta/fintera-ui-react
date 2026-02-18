@@ -1,6 +1,5 @@
 import ProtoTypes from "prop-types";
-import { getInitials, getAvatarColor } from "@/shared/utils/avatarUtils";
-import { API_URL } from "@config";
+import { getInitials, getAvatarColor, getFullImageUrl } from "@/shared/utils/avatarUtils";
 
 function Author({ showProfile, user }) {
   return (
@@ -12,7 +11,7 @@ function Author({ showProfile, user }) {
       <div className={`h-[52px] w-[52px] rounded-xl border border-bgray-300 ${(!user.profile_picture && !user.profile_picture_thumb) ? getAvatarColor(user.full_name) : ''} flex items-center justify-center overflow-hidden bg-white dark:bg-darkblack-500`}>
         {(user.profile_picture || user.profile_picture_thumb) ? (
           <img
-            src={`${API_URL}${user.profile_picture_thumb || user.profile_picture}`}
+            src={getFullImageUrl(user.profile_picture_thumb || user.profile_picture)}
             alt={user.full_name}
             className="w-full h-full object-cover"
             onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}

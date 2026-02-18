@@ -9,8 +9,7 @@ import NotificationPopup from "./NotificationPopup";
 import ProfilePopup from "./ProfilePopup";
 import ToggleBtn from "./ToggleBtn";
 import ModeToggler from "./ModeToggler";
-import { API_URL } from "../../../config";
-import { getToken } from "../../../auth";
+import { notificationsApi } from "@/shared/api/notifications";
 import { usePageTitle } from "../../hooks/usePageTitle";
 
 function HeaderOne({ handleSidebar }) {
@@ -37,21 +36,7 @@ function HeaderOne({ handleSidebar }) {
   const fetchNotifications = async (status = "unread") => {
     setLoading(true);
     try {
-      const url = new URL(`${API_URL}/api/v1/notifications`);
-      url.searchParams.append("status", status);
-
-      const res = await fetch(url.toString(), {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`, // if needed
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch notifications");
-      }
-
-      const data = await res.json();
+      const data = await notificationsApi.list({ status });
       // Expect data.notifications to be an array
       setNotifications(data.notifications || []);
     } catch (error) {
@@ -63,19 +48,7 @@ function HeaderOne({ handleSidebar }) {
 
   const handleMarkAllAsRead = async () => {
     try {
-      const res = await fetch(
-        `${API_URL}/api/v1/notifications/mark_all_as_read`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!res.ok) {
-        throw new Error("Failed to mark all as read");
-      }
+      await notificationsApi.markAllAsRead();
       // After success, re-fetch the notifications to update the UI
       fetchNotifications("unread");
     } catch (err) {
@@ -85,19 +58,7 @@ function HeaderOne({ handleSidebar }) {
 
   const handleMarkAsRead = async (id) => {
     try {
-      const res = await fetch(
-        `${API_URL}/api/v1/notifications/${id}/mark_as_read`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!res.ok) {
-        throw new Error("Failed to mark notification as read");
-      }
+      await notificationsApi.markAsRead(id);
       // Remove the notification from the list (we only show unread)
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (err) {

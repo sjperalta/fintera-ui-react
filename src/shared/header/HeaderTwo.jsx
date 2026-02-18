@@ -3,9 +3,8 @@ import { useState, useContext } from "react";
 import ResProfilePopup from "./ResProfilePopup";
 import { useLocale } from "../../contexts/LocaleContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
-import { getInitials, getAvatarColor } from "@/shared/utils/avatarUtils";
+import { getInitials, getAvatarColor, getFullImageUrl } from "@/shared/utils/avatarUtils";
 import AuthContext from "@/contexts/AuthContext";
-import { API_URL } from "@config";
 
 function HeaderTwo({ handleSidebar }) {
   const [activePopup, handleActivePopup] = useState(false);
@@ -71,7 +70,7 @@ function HeaderTwo({ handleSidebar }) {
               <div className={`h-[52px] w-[52px] rounded-xl border border-bgray-300 ${(user?.profile_picture || user?.profile_picture_thumb) ? '' : getAvatarColor(displayName)} flex items-center justify-center overflow-hidden bg-white dark:bg-darkblack-500`}>
                 {(user?.profile_picture || user?.profile_picture_thumb) ? (
                   <img
-                    src={`${API_URL}${user.profile_picture_thumb || user.profile_picture}`}
+                    src={getFullImageUrl(user.profile_picture_thumb || user.profile_picture)}
                     alt={displayName}
                     className="w-full h-full object-cover"
                     onError={(e) => {

@@ -2,8 +2,7 @@ import React, { memo, useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocale } from "../../../contexts/LocaleContext";
 import { useToast } from "../../../contexts/ToastContext";
-import { API_URL } from "../../../../config";
-import { getToken } from "../../../../auth";
+import { reportsApi } from "@/shared/api/reports";
 
 const REPORT_TYPES = [
     {
@@ -105,20 +104,11 @@ const ExportDropdown = memo(function ExportDropdown({ startDate, endDate, onExpo
         }
 
         try {
-            const token = getToken();
-            const queryParams = new URLSearchParams({
+            const blob = await reportsApi.downloadReport(reportId, {
                 start_date: startDate,
                 end_date: endDate,
             });
 
-            const url = `${API_URL}/api/v1/reports/${reportId}?${queryParams.toString()}`;
-            const res = await fetch(url, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (!res.ok) throw new Error();
-
-            const blob = await res.blob();
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
             link.download = `${reportId}-${new Date().toISOString().split('T')[0]}.csv`;

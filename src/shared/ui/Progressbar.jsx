@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import { useMemo, useState } from "react";
-import { API_URL } from "@config";
-import { getToken } from "@auth";
+import { usersApi } from "@/features/users/api";
 import { useToast } from "@/contexts/ToastContext";
 import { useLocale } from "@/contexts/LocaleContext";
 
@@ -34,23 +33,7 @@ function Progressbar({ className, user }) {
     }
     setLoading(true);
     try {
-      const token = getToken();
-      const res = await fetch(
-        `${API_URL}/api/v1/users/${user.id}/resend_confirmation`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || t("progressbar.resendError"));
-      }
-
+      await usersApi.resendConfirmation(user.id);
       showToast(t("progressbar.verificationEmailSent"), "success");
     } catch (err) {
       console.error(err);
