@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { jwtDecode } from "jwt-decode";
-import { API_URL } from '../../config';
+import { authApi } from "../features/auth/api";
 
 // Shape of context data
 const AuthContext = createContext({
@@ -8,10 +8,10 @@ const AuthContext = createContext({
   token: null,
   loading: true,
   error: null,
-  login: () => {},
-  logout: () => {},
-  refresh: () => {},
-  setUser: () => {}
+  login: () => { },
+  logout: () => { },
+  refresh: () => { },
+  setUser: () => { }
 });
 
 export const AuthProvider = ({ children }) => {
@@ -50,37 +50,31 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: storedRefreshToken })
-      });
+      const data = await authApi.refresh(storedRefreshToken);
 
-      const data = await response.json();
-      
-      if (response.ok && data.token) {
+      if (data.token) {
         // Update tokens and user info
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        
+
         if (data.refresh_token) {
           localStorage.setItem('refresh_token', data.refresh_token);
           setRefreshToken(data.refresh_token);
         }
-        
+
         setToken(data.token);
         setUser(data.user);
         setError(null);
         return true;
       } else {
-        console.error('Token refresh failed:', data.errors || 'Unknown error');
-        setError(data.errors || 'Token refresh failed');
+        console.error('Token refresh failed: No token returned');
+        setError('Token refresh failed');
         logout();
         return false;
       }
     } catch (err) {
       console.error('Failed to refresh token:', err);
-      setError('Failed to refresh token');
+      setError(err.message || 'Failed to refresh token');
       logout();
       return false;
     }
@@ -96,12 +90,12 @@ export const AuthProvider = ({ children }) => {
       if (storedToken && storedUser && storedRefresh) {
         try {
           const parsedUser = JSON.parse(storedUser);
-          
+
           // Check if token is expired
           if (isTokenExpired(storedToken)) {
             console.log('Token expired, refreshing...');
             const refreshed = await refresh(storedRefresh);
-            
+
             if (!refreshed) {
               // Refresh failed, clear state
               setLoading(false);
@@ -119,7 +113,7 @@ export const AuthProvider = ({ children }) => {
           logout();
         }
       }
-      
+
       setLoading(false);
     };
 
@@ -146,21 +140,15 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     setError(null);
-    
-    try {
-      const response = await fetch(`${API_URL}/api/v1/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
 
-      const data = await response.json();
-      
-      if (response.ok && data.token && data.user) {
+    try {
+      const data = await authApi.login({ email, password });
+
+      if (data.token && data.user) {
         // Store tokens and user
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        
+
         if (data.refresh_token) {
           localStorage.setItem('refresh_token', data.refresh_token);
           setRefreshToken(data.refresh_token);
@@ -169,18 +157,28 @@ export const AuthProvider = ({ children }) => {
         setToken(data.token);
         setUser(data.user);
         setError(null);
-        
+
         return { success: true, user: data.user };
       } else {
-        const errorMsg = data.errors || data.error || 'Login failed';
-        setError(errorMsg);
-        return { success: false, error: errorMsg };
+        const errorKey = 'auth.loginFailed';
+        setError(errorKey);
+        return { success: false, error: errorKey };
       }
     } catch (err) {
       console.error('Login error:', err);
-      const errorMsg = 'Network error, please try again later';
-      setError(errorMsg);
-      return { success: false, error: errorMsg };
+      let errorKey = 'auth.networkError';
+      const status = err?.status;
+      if (status === 401) {
+        errorKey = 'auth.invalidCredentials';
+      } else if (status === 403) {
+        errorKey = 'auth.accountDisabled';
+      } else if (status === 429) {
+        errorKey = 'auth.tooManyAttempts';
+      } else if (status >= 500) {
+        errorKey = 'auth.serverError';
+      }
+      setError(errorKey);
+      return { success: false, error: errorKey };
     } finally {
       setLoading(false);
     }

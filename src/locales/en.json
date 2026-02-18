@@ -201,7 +201,13 @@
     "termsIntro": "By signing in, you agree to our Terms and Conditions and acknowledge the following.",
     "termsEmailsTitle": "Email communications",
     "termsEmailsBody": "We will send you emails to the address associated with your account. These may include: transaction confirmations, account and security updates, password reset links, important notices about the platform, and occasional service or product information. You can manage notification preferences in your account settings.",
-    "termsFullLink": "View full Terms and Conditions"
+    "termsFullLink": "View full Terms and Conditions",
+    "invalidCredentials": "Incorrect email or password. Please check your credentials and try again.",
+    "accountDisabled": "Your account has been disabled. Please contact support for assistance.",
+    "tooManyAttempts": "Too many login attempts. Please wait a few minutes before trying again.",
+    "serverError": "We're experiencing technical difficulties. Please try again later.",
+    "networkError": "Unable to connect to the server. Please check your internet connection and try again.",
+    "loginFailed": "Login failed. Please try again."
   },
   "dashboard": {
     "welcome": "Welcome",

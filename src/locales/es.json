@@ -186,7 +186,13 @@
     "termsIntro": "Al iniciar sesión, aceptas nuestros Términos y Condiciones y reconoces lo siguiente.",
     "termsEmailsTitle": "Comunicaciones por correo electrónico",
     "termsEmailsBody": "Te enviaremos correos electrónicos a la dirección asociada a tu cuenta. Estos pueden incluir: confirmaciones de transacciones, actualizaciones de cuenta y seguridad, enlaces para restablecer contraseña, avisos importantes sobre la plataforma e información ocasional sobre el servicio o productos. Puedes gestionar las preferencias de notificaciones en la configuración de tu cuenta.",
-    "termsFullLink": "Ver Términos y Condiciones completos"
+    "termsFullLink": "Ver Términos y Condiciones completos",
+    "invalidCredentials": "Correo electrónico o contraseña incorrectos. Por favor verifique sus credenciales e intente de nuevo.",
+    "accountDisabled": "Su cuenta ha sido deshabilitada. Por favor contacte a soporte para asistencia.",
+    "tooManyAttempts": "Demasiados intentos de inicio de sesión. Por favor espere unos minutos antes de intentar de nuevo.",
+    "serverError": "Estamos experimentando dificultades técnicas. Por favor intente más tarde.",
+    "networkError": "No se pudo conectar al servidor. Por favor verifique su conexión a internet e intente de nuevo.",
+    "loginFailed": "Error al iniciar sesión. Por favor intente de nuevo."
   },
   "dashboard": {
     "welcome": "Bienvenido",

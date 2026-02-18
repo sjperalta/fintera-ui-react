@@ -76,13 +76,17 @@ export const LocaleProvider = ({ children }) => {
 
   const { user } = useContext(AuthContext);
 
-  // Sync with AuthContext user locale if available
+  // Sync with AuthContext user locale if available.
+  // Depend on user?.locale so this only fires when the locale property
+  // actually changes (e.g. on login or after saving profile), not on every
+  // unrelated user-object mutation.
+  const userLocale = user?.locale;
   useEffect(() => {
-    if (user && user.locale && translations[user.locale] && user.locale !== locale) {
-      setLocale(user.locale);
+    if (userLocale && translations[userLocale] && userLocale !== locale) {
+      setLocale(userLocale);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [userLocale]);
 
   // Save locale to localStorage whenever it changes
   useEffect(() => {

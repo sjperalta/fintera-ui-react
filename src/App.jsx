@@ -4,7 +4,7 @@ import { LocaleProvider } from "./contexts/LocaleContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { OnboardingProvider } from "./contexts/OnboardingContext";
 
-import ErrorBoundary from "./component/error/ErrorBoundary";
+import ErrorBoundary from "./shared/error/ErrorBoundary";
 
 function App() {
   useEffect(() => {

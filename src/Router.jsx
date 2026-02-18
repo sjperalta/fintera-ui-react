@@ -1,36 +1,36 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import ProtectedRoute from "./component/protectedRoute";
-import Home from "./pages/home";
-import Contracts from "./pages/contract";
-import Payments from "./pages/payments";
-import Projects from "./pages/projects";
-import Users from "./pages/users";
-import Settings from "./pages/settings";
-import SignIn from "./pages/signin";
-import SignUp from "./pages/signup";
-import ComingSoon from "./pages/commingSoon";
-import Error from "./pages/error";
-import Layout from "./component/layout";
-import RouteErrorElement from "./component/error/RouteErrorElement";
-import PersonalInfo from "./pages/settings/personal-info";
-import Security from "./pages/settings/security";
-import TermsAndCondition from "./pages/settings/terms&condition";
-import CreateProject from "./pages/projects/create";
-import EditProject from "./pages/projects/edit";
-import AdminRoute from "./component/protectedRoute/AdminRoute";
-import LotsList from "./pages/projects/lots";
-import CreateLot from "./pages/projects/lots/create";
-import EditLot from "./pages/projects/lots/edit";
-import Reserve from "./pages/projects/reserve";
-import CreateUser from "./pages/users/create";
-import Upload from "./pages/financing/upload";
-import Summary from "./pages/financing/summary";
-import AdminOrOwnerRoute from "./component/protectedRoute/AdminOrOwnerRoute";
+import ProtectedRoute from "./shared/auth/ProtectedRoute";
+import Home from "./features/dashboard/pages";
+import Contracts from "./features/contracts/pages";
+import Payments from "./features/payments/pages";
+import Projects from "./features/projects/pages";
+import Users from "./features/users/pages";
+import Settings from "./features/settings/pages";
+import SignIn from "./features/auth/pages/signin";
+import SignUp from "./features/auth/pages/signup";
+import ComingSoon from "./features/commingSoon";
+import NotFound from "./shared/error/NotFound";
+import Layout from "./shared/layout/Layout";
+import RouteErrorElement from "./shared/error/RouteErrorElement";
+import PersonalInfo from "./features/settings/pages/personal-info";
+import Security from "./features/settings/pages/security";
+import TermsAndCondition from "./features/settings/pages/terms&condition";
+import CreateProject from "./features/projects/pages/create";
+import EditProject from "./features/projects/pages/edit";
+import AdminRoute from "./shared/auth/AdminRoute";
+import LotsList from "./features/projects/pages/lots";
+import CreateLot from "./features/projects/pages/lots/create";
+import EditLot from "./features/projects/pages/lots/edit";
+import Reserve from "./features/projects/pages/reserve";
+import CreateUser from "./features/users/pages/create";
+import Upload from "./features/financing/pages/upload";
+import Summary from "./features/financing/pages/summary";
+import AdminOrOwnerRoute from "./shared/auth/AdminOrOwnerRoute";
 
-const Audits = lazy(() => import("./pages/audits"));
-const Analytics = lazy(() => import("./pages/analytics"));
-const Financing = lazy(() => import("./pages/financing"));
+const Audits = lazy(() => import("./features/audits/pages"));
+const Analytics = lazy(() => import("./features/analytics/pages"));
+const Financing = lazy(() => import("./features/financing/pages"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center w-full h-[calc(100vh-64px)]">
@@ -203,6 +203,10 @@ const router = createBrowserRouter(
             </ProtectedRoute>
           ),
         },
+        {
+          path: "*",
+          element: <NotFound />,
+        },
       ],
     },
 
@@ -217,10 +221,6 @@ const router = createBrowserRouter(
     {
       path: "/coming-soon",
       element: <ComingSoon />,
-    },
-    {
-      path: "/404",
-      element: <Error />,
     },
   ],
   {
