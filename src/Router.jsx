@@ -9,8 +9,8 @@ import Users from "./features/users/pages";
 import Settings from "./features/settings/pages";
 import SignIn from "./features/auth/pages/signin";
 import SignUp from "./features/auth/pages/signup";
-import ComingSoon from "./pages/commingSoon";
-import Error from "./pages/error";
+import ComingSoon from "./features/commingSoon";
+import NotFound from "./shared/error/NotFound";
 import Layout from "./shared/layout/Layout";
 import RouteErrorElement from "./shared/error/RouteErrorElement";
 import PersonalInfo from "./features/settings/pages/personal-info";
@@ -203,6 +203,10 @@ const router = createBrowserRouter(
             </ProtectedRoute>
           ),
         },
+        {
+          path: "*",
+          element: <NotFound />,
+        },
       ],
     },
 
@@ -217,10 +221,6 @@ const router = createBrowserRouter(
     {
       path: "/coming-soon",
       element: <ComingSoon />,
-    },
-    {
-      path: "/404",
-      element: <Error />,
     },
   ],
   {

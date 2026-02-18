@@ -3,7 +3,7 @@ import { useState, useContext } from "react";
 import ResProfilePopup from "./ResProfilePopup";
 import { useLocale } from "../../contexts/LocaleContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
-import { getInitials, getAvatarColor } from "../../utils/avatarUtils";
+import { getInitials, getAvatarColor } from "@/shared/utils/avatarUtils";
 import AuthContext from "../../contexts/AuthContext";
 
 function HeaderTwo({ handleSidebar }) {

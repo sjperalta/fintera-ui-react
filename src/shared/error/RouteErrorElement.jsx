@@ -2,6 +2,7 @@ import React from 'react'
 import { useRouteError, isRouteErrorResponse } from 'react-router-dom'
 import { useRollbar } from '@rollbar/react'
 import { useLocale } from '@/contexts/LocaleContext'
+import NotFound from './NotFound'
 
 export default function RouteErrorElement() {
   const { t } = useLocale()
@@ -17,6 +18,10 @@ export default function RouteErrorElement() {
       // ignore
     }
   }, [error, rollbar])
+
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return <NotFound />
+  }
 
   if (isRouteErrorResponse(error)) {
     return (

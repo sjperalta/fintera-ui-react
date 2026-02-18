@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { getInitials, getAvatarColor } from "@/utils/avatarUtils";
+import { getInitials, getAvatarColor } from "@/shared/utils/avatarUtils";
 import { useLocale } from "@/contexts/LocaleContext";
 import { API_URL } from "@config";
 

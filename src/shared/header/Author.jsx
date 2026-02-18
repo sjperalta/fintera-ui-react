@@ -1,5 +1,5 @@
 import ProtoTypes from "prop-types";
-import { getInitials, getAvatarColor } from "@/utils/avatarUtils";
+import { getInitials, getAvatarColor } from "@/shared/utils/avatarUtils";
 import { API_URL } from "@config";
 
 function Author({ showProfile, user }) {
