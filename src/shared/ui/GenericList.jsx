@@ -143,7 +143,6 @@ function GenericList({
     const signal = abortController.signal;
 
     const fetchItems = async () => {
-      console.log("GenericList: fetchItems called", { currentPage, filtersSignature, signalAborted: signal.aborted });
       setLoading(true);
       setError(null);
 
