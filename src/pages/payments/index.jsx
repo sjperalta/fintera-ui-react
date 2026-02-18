@@ -69,7 +69,8 @@ function Payments() {
     { value: "", label: t('filters.all') },
     { value: "submitted", label: t('payments.statusOptions.submitted') },
     { value: "paid", label: t('payments.statusOptions.paid') },
-    { value: "rejected", label: t('payments.statusOptions.rejected') }
+    { value: "rejected", label: t('payments.statusOptions.rejected') },
+    { value: "overdue", label: t('payments.overdue') }
   ], [t]);
 
   const statusLabel = status ? (statusOptions.find(o => o.value === status)?.label ?? status) : '';

@@ -61,6 +61,11 @@ function Reserve() {
   const [projectCommissionRateBank, setProjectCommissionRateBank] = useState(0);
   const [projectCommissionRateCash, setProjectCommissionRateCash] = useState(0);
   const [headerLoading, setHeaderLoading] = useState(true);
+  const [generatedGuid, setGeneratedGuid] = useState("");
+
+  useEffect(() => {
+    setGeneratedGuid(crypto.randomUUID());
+  }, []);
 
   const navigate = useNavigate();
   const { token, user: currentUser } = useContext(AuthContext);
@@ -288,6 +293,7 @@ function Reserve() {
     formData.append("contract[financing_type]", financingType);
     formData.append("contract[reserve_amount]", reserveAmount);
     formData.append("contract[down_payment]", downPayment || "0");
+    formData.append("contract[guid]", generatedGuid);
     if ((financingType === "bank" || financingType === "cash") && maxPaymentDate && maxPaymentDate.trim()) {
       formData.append("contract[max_payment_date]", maxPaymentDate.trim());
     }
@@ -462,24 +468,24 @@ function Reserve() {
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full -ml-32 -mb-32 blur-3xl pointer-events-none" />
 
         {/* Enhanced Header */}
-        {/* Enhanced Header */}
         <div className="mb-10 border-b border-bgray-100 dark:border-darkblack-400 pb-8">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
             <div className="flex-1">
               <motion.h2
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-4xl font-extrabold text-bgray-900 dark:text-white tracking-tight mb-3"
+                className="text-4xl font-extrabold text-bgray-900 dark:text-white tracking-tight"
               >
                 {t("reservations.title")}
               </motion.h2>
+
               {!headerLoading && (
-                <div className="space-y-4">
+                <div className="space-y-4 mt-6">
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="flex flex-col gap-2"
+                    className="flex flex-col gap-6"
                   >
                     <div className="flex flex-col gap-4">
                       <div>
@@ -515,6 +521,32 @@ function Reserve() {
                             </p>
                           </div>
                         </div>
+                      )}
+
+                      {generatedGuid && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex items-center gap-3 bg-white dark:bg-darkblack-400/50 px-4 py-2 rounded-2xl border border-bgray-100 dark:border-darkblack-400 shadow-sm self-start"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-bgray-400 uppercase tracking-[0.2em]">{t("reservations.systemGuid") || "SYSTEM GUID"}</span>
+                            <span className="text-[11px] font-mono font-bold text-bgray-500 dark:text-bgray-300">{generatedGuid}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(generatedGuid);
+                              showToast(t("common.copiedToClipboard") || "Copiado al portapapeles", "success");
+                            }}
+                            className="p-1.5 text-bgray-400 hover:text-blue-500 hover:bg-bgray-50 dark:hover:bg-darkblack-400 rounded-lg transition-all active:scale-90 border border-transparent hover:border-bgray-200 dark:hover:border-darkblack-300"
+                            title={t("common.copy") || "Copiar"}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </button>
+                        </motion.div>
                       )}
                     </div>
                   </motion.div>
@@ -1112,8 +1144,8 @@ function Reserve() {
             </div>
           </form>
         </div>
-      </motion.div>
-    </main>
+      </motion.div >
+    </main >
   );
 }
 

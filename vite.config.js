@@ -6,10 +6,10 @@ import react from "@vitejs/plugin-react";
 // Add PWA configuration
 const pwaConfig = {
   registerType: "autoUpdate",
-  includeAssets: ["logo-color.svg"],
+  includeAssets: [],
   workbox: {
     globPatterns: ["**/*.{js,css,html,png,jpg,gif,svg}"],
-    navigateFallback: "/",
+    navigateFallback: "/index.html",
     navigateFallbackAllowlist: [/^(?!\/__).*/],
     runtimeCaching: [
       {
@@ -30,9 +30,9 @@ const pwaConfig = {
     ],
   },
   manifest: {
-    name: "Bankco admin Dashboard",
-    short_name: "Bankco",
-    description: "bankco Admin Dashboard",
+    name: "Fintera admin Dashboard",
+    short_name: "fintera",
+    description: "Fintera Admin Dashboard",
     start_url: "/",
     display: "standalone",
     background_color: "#23262B",
@@ -74,6 +74,11 @@ export default defineConfig({
     },
   },
   plugins: [react(), VitePWA(pwaConfig)],
+  server: {
+    watch: {
+      usePolling: true,
+    },
+  },
   optimizeDeps: {
     include: ['jwt-decode']
   },
