@@ -1,8 +1,8 @@
 import ProtoTypes from "prop-types";
+import { Suspense, useContext, useState } from "react";
 import { Sidebar, SidebarV2 } from "../sidebar";
 import { Overlay, OnboardingTour } from "../overlays";
 import { HeaderOne, HeaderTwo } from "../header";
-import { useContext, useState } from "react";
 
 import { Outlet, useNavigate } from "react-router-dom";
 import AuthContext from "../../contexts/AuthContext";
@@ -44,7 +44,9 @@ function Layout({ bg, overlay, children }) {
           >
             <HeaderOne handleSidebar={() => setSidebar(!sidebar)} />
             <HeaderTwo handleSidebar={() => setSidebar(!sidebar)} />
-            <Outlet />
+            <Suspense fallback={<div className="flex items-center justify-center w-full h-[calc(100vh-64px)]"><div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>}>
+              <Outlet />
+            </Suspense>
             <OnboardingTour />
             {children}
           </div>
