@@ -2,7 +2,7 @@
 import plugin from "tailwindcss/plugin";
 import fromPlugin from "@tailwindcss/forms";
 export default {
-  content: ["./index.html", "./src/**/*", "./src/component/**/*",  "./node_modules/tailwind-datepicker-react/dist/**/*.js"],
+  content: ["./index.html", "./src/**/*", "./src/component/**/*", "./node_modules/tailwind-datepicker-react/dist/**/*.js"],
   darkMode: "class",
   theme: {
     extend: {
@@ -113,11 +113,10 @@ export default {
         },
       },
       backgroundImage: {
-        "bgc-dark":
-          "url('./src/assets/images/background/comming-soon-dark.svg')",
-        "bgc-light": "url('./src/assets/images/background/coming-soon-bg.svg')",
-        "notfound-dark": "url('./src/assets/images/background/404-dark.jpg')",
-        "notfound-light": "url('./src/assets/images/background/404-bg.png')",
+        "bgc-dark": "url('/assets/images/background/coming-soon-dark.svg')",
+        "bgc-light": "url('/assets/images/background/coming-soon-bg.svg')",
+        "notfound-dark": "url('/assets/images/background/404-dark.jpg')",
+        "notfound-light": "url('/assets/images/background/404-bg.png')",
       },
       lineHeight: {
         "extra-loose": "44.8px",
