@@ -71,6 +71,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@config": path.resolve(__dirname, "./config.js"),
+      "@auth": path.resolve(__dirname, "./auth.js"),
     },
   },
   plugins: [react(), VitePWA(pwaConfig)],

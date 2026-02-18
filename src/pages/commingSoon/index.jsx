@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import DateCountDown from "../../component/dateCounDown";
+import DateCountDown from "@/shared/ui/DateCountDown";
 
 function ComingSoon() {
   return (
