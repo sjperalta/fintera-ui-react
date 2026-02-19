@@ -138,6 +138,11 @@ export const AuthProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [token, refreshToken, isTokenExpired, refresh]);
 
+  // Sync token with apiClient memory cache
+  useEffect(() => {
+    setAuthToken(token);
+  }, [token]);
+
   const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
