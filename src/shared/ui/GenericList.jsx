@@ -60,9 +60,16 @@ function GenericList({
   const [totalPages, setTotalPages] = useState(1);
 
   // Sorting state
-  const initialSort = useMemo(() => parseSortString(sortBy), [sortBy]);
-  const [sortField, setSortField] = useState(initialSort.field);
-  const [sortDirection, setSortDirection] = useState(initialSort.direction);
+  const [sortField, setSortField] = useState(() => parseSortString(sortBy).field);
+  const [sortDirection, setSortDirection] = useState(() => parseSortString(sortBy).direction);
+  const [prevSortBy, setPrevSortBy] = useState(sortBy);
+
+  if (sortBy !== prevSortBy) {
+    const parsed = parseSortString(sortBy);
+    setPrevSortBy(sortBy);
+    setSortField(parsed.field);
+    setSortDirection(parsed.direction);
+  }
 
   const handleItemClick = (item) => {
     if (onItemSelect) {
@@ -85,12 +92,6 @@ function GenericList({
     }
     return sortBy || "created_at-desc";
   }, [sortField, sortDirection, sortBy]);
-
-  useEffect(() => {
-    const parsed = parseSortString(sortBy);
-    setSortField((prev) => (prev === parsed.field ? prev : parsed.field));
-    setSortDirection((prev) => (prev === parsed.direction ? prev : parsed.direction));
-  }, [sortBy]);
 
   const handleSort = useCallback(
     (column) => {
