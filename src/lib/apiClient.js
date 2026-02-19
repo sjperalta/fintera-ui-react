@@ -4,6 +4,12 @@ const HEADERS_DEFAULT = {
     "Content-Type": "application/json",
 };
 
+let authToken = null;
+
+export const setAuthToken = (token) => {
+    authToken = token;
+};
+
 /**
  * Generic API client wrapper
  * @param {string} endpoint - Relative API endpoint (e.g., '/api/v1/projects')
@@ -11,7 +17,7 @@ const HEADERS_DEFAULT = {
  * @returns {Promise<any>} - Parsed JSON response
  */
 export async function request(endpoint, { body, ...customConfig } = {}) {
-    const token = localStorage.getItem("token");
+    const token = authToken || localStorage.getItem("token");
     const headers = { ...HEADERS_DEFAULT };
 
     if (token) {

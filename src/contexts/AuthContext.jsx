@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { jwtDecode } from "jwt-decode";
 import { authApi } from "../features/auth/api";
+import { setAuthToken } from "../lib/apiClient";
 
 // Shape of context data
 const AuthContext = createContext({
@@ -136,6 +137,11 @@ export const AuthProvider = ({ children }) => {
 
     return () => clearInterval(interval);
   }, [token, refreshToken, isTokenExpired, refresh]);
+
+  // Sync token with apiClient memory cache
+  useEffect(() => {
+    setAuthToken(token);
+  }, [token]);
 
   const login = async (email, password) => {
     setLoading(true);
