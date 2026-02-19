@@ -13,11 +13,10 @@ function Layout({ bg, overlay, children }) {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const [sidebar, setSidebar] = useState(true);
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") === "" || localStorage.getItem("theme")
-      ? localStorage.getItem("theme")
-      : ""
-  );
+  const [theme, setTheme] = useState(() => {
+    const storedTheme = localStorage.getItem("theme");
+    return storedTheme === "" || storedTheme ? storedTheme : "";
+  });
 
   const handleLogout = async () => {
     await logout();
