@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { jwtDecode } from "jwt-decode";
 import { authApi } from "../features/auth/api";
 import { setAuthToken } from "../lib/apiClient";
@@ -138,12 +138,7 @@ export const AuthProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [token, refreshToken, isTokenExpired, refresh]);
 
-  // Sync token with apiClient memory cache
-  useEffect(() => {
-    setAuthToken(token);
-  }, [token]);
-
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
 
@@ -188,20 +183,22 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    user,
+    token,
+    setUser,
+    loading,
+    error,
+    login,
+    logout,
+    refresh: () => refresh(refreshToken)
+  }), [user, token, loading, error, login, logout, refresh, refreshToken]);
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        token,
-        setUser,
-        loading,
-        error,
-        login,
-        logout,
-        refresh: () => refresh(refreshToken)
-      }}
+      value={value}
     >
       {children}
     </AuthContext.Provider>
