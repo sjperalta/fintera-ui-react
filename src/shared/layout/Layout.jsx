@@ -12,7 +12,9 @@ import { ThemeContext } from "../../contexts/ThemeContext";
 function Layout({ bg, overlay, children }) {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
-  const [sidebar, setSidebar] = useState(true);
+  const [sidebar, setSidebar] = useState(
+    typeof window !== "undefined" && window.innerWidth > 1024
+  );
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") === "" || localStorage.getItem("theme")
       ? localStorage.getItem("theme")

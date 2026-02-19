@@ -6,6 +6,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faPen, faTrash, faInfo } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 
+export const formatTimeAgo = (dateString, now, t) => {
+    const date = new Date(dateString);
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (minutes < 1) return t("common.justNow") || "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+};
+
 function RecentActivity() {
     const { t } = useLocale();
     const [activities, setActivities] = useState([]);
@@ -30,20 +43,6 @@ function RecentActivity() {
 
         fetchActivities();
     }, []);
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diff = now - date;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-
-        if (minutes < 1) return t("common.justNow") || "Just now";
-        if (minutes < 60) return `${minutes}m ago`;
-        if (hours < 24) return `${hours}h ago`;
-        return `${days}d ago`;
-    };
 
     const getActionIcon = (action) => {
         const lowerAction = action?.toLowerCase() || "";
@@ -115,36 +114,39 @@ function RecentActivity() {
                         <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-gray-100 dark:bg-darkblack-500 z-0"></div>
 
                         <div className="space-y-6 relative z-10 py-2">
-                            {activities.map((activity, index) => (
-                                <motion.div
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    key={activity.id || index}
-                                    className="group flex items-start space-x-4"
-                                >
-                                    <div className="flex-shrink-0 bg-white dark:bg-darkblack-600 py-1">
-                                        {getActionIcon(activity.action)}
-                                    </div>
-                                    <div className="flex-1 min-w-0 pt-1.5 pr-4">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <p className="text-sm font-bold text-gray-800 dark:text-white truncate">
-                                                {activity.user_email || activity.user_id || "System"}
-                                            </p>
-                                            <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap ml-2">
-                                                {formatDate(activity.created_at)}
-                                            </span>
+                            {(() => {
+                                const now = new Date();
+                                return activities.map((activity, index) => (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        key={activity.id || index}
+                                        className="group flex items-start space-x-4"
+                                    >
+                                        <div className="flex-shrink-0 bg-white dark:bg-darkblack-600 py-1">
+                                            {getActionIcon(activity.action)}
                                         </div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
-                                            <span className="font-semibold text-blue-600 dark:text-blue-400 capitalize">
-                                                {activity.action?.replace(/_/g, " ")}
-                                            </span>
-                                            <span className="mx-1 text-gray-300 dark:text-gray-600">•</span>
-                                            {activity.details || activity.entity_type}
-                                        </p>
-                                    </div>
-                                </motion.div>
-                            ))}
+                                        <div className="flex-1 min-w-0 pt-1.5 pr-4">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <p className="text-sm font-bold text-gray-800 dark:text-white truncate">
+                                                    {activity.user_email || activity.user_id || "System"}
+                                                </p>
+                                                <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap ml-2">
+                                                    {formatTimeAgo(activity.created_at, now, t)}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                                                <span className="font-semibold text-blue-600 dark:text-blue-400 capitalize">
+                                                    {activity.action?.replace(/_/g, " ")}
+                                                </span>
+                                                <span className="mx-1 text-gray-300 dark:text-gray-600">•</span>
+                                                {activity.details || activity.entity_type}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                ));
+                            })()}
                         </div>
                     </div>
                 )}
