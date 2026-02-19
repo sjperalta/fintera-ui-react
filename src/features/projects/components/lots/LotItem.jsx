@@ -5,7 +5,7 @@ import { useLocale } from "../../../../contexts/LocaleContext";
 import { getStatusLabel, getStatusBadgeClass } from "../../../../shared/utils/statusUtils";
 import { calculateLotAreas } from "../../../../shared/utils/areaUtils";
 import LotDetailsModal from "./LotDetailsModal";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * LotItem Component
@@ -286,11 +286,14 @@ const LotItem = memo(function LotItem({ lot, userRole, index = 0, isHighlighted 
             }`} />
         </div>
       </motion.div>
-      <LotDetailsModal
-        lot={lot}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <AnimatePresence>
+        {isModalOpen && (
+          <LotDetailsModal
+            lot={lot}
+            onClose={() => setIsModalOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 });
