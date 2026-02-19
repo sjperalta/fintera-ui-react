@@ -143,7 +143,7 @@ export const AuthProvider = ({ children }) => {
     setAuthToken(token);
   }, [token]);
 
-  const login = useCallback(async (email, password) => {
+  const login = async (email, password) => {
     setLoading(true);
     setError(null);
 
