@@ -71,15 +71,15 @@ function Projects() {
     fetchProjects();
   }, [fetchProjects]);
 
-  const handleSearchChange = (term) => {
+  const handleSearchChange = useCallback((term) => {
     setSearchTerm(term);
     setPage(1);
-  };
+  }, []);
 
-  const handleSortChange = (selected) => {
+  const handleSortChange = useCallback((selected) => {
     setSortParam(selected);
     setPage(1);
-  };
+  }, []);
 
   const handleAddProject = () => navigate("/projects/create");
   const handleImportClick = () => fileInputRef.current?.click();
