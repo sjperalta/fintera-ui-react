@@ -1,11 +1,11 @@
 import { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLocale } from "../../../../contexts/LocaleContext";
 import { getStatusLabel, getStatusBadgeClass } from "../../../../shared/utils/statusUtils";
 import { calculateLotAreas } from "../../../../shared/utils/areaUtils";
 
-function LotDetailsModal({ lot, isOpen, onClose }) {
+function LotDetailsModal({ lot, onClose }) {
     const { t } = useLocale();
     const modalRef = useRef(null);
 
@@ -14,9 +14,9 @@ function LotDetailsModal({ lot, isOpen, onClose }) {
         const handleEsc = (e) => {
             if (e.key === "Escape") onClose();
         };
-        if (isOpen) window.addEventListener("keydown", handleEsc);
+        window.addEventListener("keydown", handleEsc);
         return () => window.removeEventListener("keydown", handleEsc);
-    }, [isOpen, onClose]);
+    }, [onClose]);
 
     if (!lot) return null;
 
@@ -59,25 +59,23 @@ function LotDetailsModal({ lot, isOpen, onClose }) {
     };
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="absolute inset-0 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm"
-                    />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+                className="absolute inset-0 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm"
+            />
 
-                    <motion.div
-                        ref={modalRef}
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-darkblack-600 rounded-[2.5rem] shadow-2xl border-2 border-bgray-100 dark:border-darkblack-500 flex flex-col"
-                    >
-                        {/* Decorative background */}
+            <motion.div
+                ref={modalRef}
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-darkblack-600 rounded-[2.5rem] shadow-2xl border-2 border-bgray-100 dark:border-darkblack-500 flex flex-col"
+            >
+                {/* Decorative background */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-success-300/10 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none" />
 
                         {/* Header */}
@@ -229,25 +227,22 @@ function LotDetailsModal({ lot, isOpen, onClose }) {
                             )}
                         </div>
 
-                        {/* Footer */}
-                        <div className="p-8 border-t border-bgray-100 dark:border-darkblack-500 flex justify-end">
-                            <button
-                                onClick={onClose}
-                                className="px-8 py-3 rounded-xl bg-bgray-100 dark:bg-darkblack-500 text-bgray-700 dark:text-white font-bold hover:bg-bgray-200 dark:hover:bg-darkblack-400 transition-colors"
-                            >
-                                {t("common.close")}
-                            </button>
-                        </div>
-                    </motion.div>
+                {/* Footer */}
+                <div className="p-8 border-t border-bgray-100 dark:border-darkblack-500 flex justify-end">
+                    <button
+                        onClick={onClose}
+                        className="px-8 py-3 rounded-xl bg-bgray-100 dark:bg-darkblack-500 text-bgray-700 dark:text-white font-bold hover:bg-bgray-200 dark:hover:bg-darkblack-400 transition-colors"
+                    >
+                        {t("common.close")}
+                    </button>
                 </div>
-            )}
-        </AnimatePresence>
+            </motion.div>
+        </div>
     );
 }
 
 LotDetailsModal.propTypes = {
     lot: PropTypes.object,
-    isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
