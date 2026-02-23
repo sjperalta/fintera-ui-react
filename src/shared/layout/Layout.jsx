@@ -15,10 +15,11 @@ function Layout({ bg, overlay, children }) {
   const [sidebar, setSidebar] = useState(
     typeof window !== "undefined" && window.innerWidth > 1024
   );
-  const [theme, setTheme] = useState(() => {
-    const storedTheme = localStorage.getItem("theme");
-    return storedTheme === "" || storedTheme ? storedTheme : "";
-  });
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") === "" || localStorage.getItem("theme")
+      ? localStorage.getItem("theme")
+      : ""
+  );
 
   const handleLogout = async () => {
     await logout();
